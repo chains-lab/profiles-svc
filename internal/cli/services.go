@@ -4,9 +4,9 @@ import (
 	"context"
 	"sync"
 
-	"github.com/chains-lab/profile-storage/internal/api"
 	"github.com/chains-lab/profile-storage/internal/app"
 	"github.com/chains-lab/profile-storage/internal/config"
+	"github.com/chains-lab/profile-storage/internal/rest"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,6 +19,6 @@ func runServices(ctx context.Context, cfg config.Config, log *logrus.Logger, wg 
 		}()
 	}
 
-	API := api.NewAPI(cfg, log, app)
-	run(func() { API.Run(ctx, log) })
+	restApi := rest.NewRest(cfg, log, app)
+	run(func() { restApi.Run(ctx, log) })
 }

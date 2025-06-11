@@ -1,9 +1,11 @@
-package api
+package rest
 
 import (
 	"context"
 	"net/http"
 
+	"github.com/chains-lab/gatekit/mdlv"
+	"github.com/chains-lab/gatekit/roles"
 	"github.com/chains-lab/profile-storage/internal/app"
 	"github.com/chains-lab/profile-storage/internal/config"
 	"github.com/go-chi/chi/v5"
@@ -19,7 +21,7 @@ type Api struct {
 	cfg config.Config
 }
 
-func NewAPI(cfg config.Config, log *logrus.Logger, app *app.App) Api {
+func NewRest(cfg config.Config, log *logrus.Logger, app *app.App) Api {
 	logger := log.WithField("module", "api")
 	router := chi.NewRouter()
 	server := &http.Server{
@@ -37,5 +39,7 @@ func NewAPI(cfg config.Config, log *logrus.Logger, app *app.App) Api {
 }
 
 func (a *Api) Run(ctx context.Context, log *logrus.Logger) {
-
+	auth := mdlv.AuthMdl(a.cfg.JWT.AccessToken.SecretKey, "todo")
+	admin := mdlv.AccessGrant(a.cfg.JWT.AccessToken.SecretKey, "todo", roles.Admin, roles.SuperUser)
+	verified := mdlv.AccessGrant(a.cfg.JWT.AccessToken.SecretKey, "todo", roles.Admin)
 }

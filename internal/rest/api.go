@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/chains-lab/gatekit/mdlv"
-	"github.com/chains-lab/gatekit/roles"
 	"github.com/chains-lab/profile-storage/internal/app"
 	"github.com/chains-lab/profile-storage/internal/config"
 	"github.com/go-chi/chi/v5"

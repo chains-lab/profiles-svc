@@ -30,10 +30,10 @@ type Profiles struct {
 	log      *logrus.Entry
 }
 
-func NewProfiles(lifeTime time.Duration, client *redis.Client, log *logrus.Logger) Profiles {
+func NewProfiles(lifeTime int, log *logrus.Logger, client *redis.Client) Profiles {
 	return Profiles{
 		client:   client,
-		lifeTime: lifeTime,
+		lifeTime: time.Minute * time.Duration(lifeTime),
 		log:      log.WithField("component", "redis"),
 	}
 }

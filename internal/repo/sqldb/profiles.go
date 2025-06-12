@@ -51,6 +51,8 @@ func (q ProfilesQ) New() ProfilesQ {
 type ProfileInsertInput struct {
 	ID        uuid.UUID
 	Username  string
+	Official  bool
+	UpdatedAt time.Time
 	CreatedAt time.Time
 }
 
@@ -58,16 +60,14 @@ func (q ProfilesQ) Insert(ctx context.Context, input ProfileInsertInput) error {
 	values := map[string]interface{}{
 		"id":         input.ID,
 		"username":   input.Username,
-		"updated_at": input.CreatedAt,
+		"official":   input.Official,
+		"updated_at": input.UpdatedAt,
 		"created_at": input.CreatedAt,
 	}
 
-	query, args, err := q.inserter.
-		Columns("id", "username", "created_at").
-		Values(values["id"], values["username"], values["created_at"]).
-		ToSql()
+	query, args, err := q.inserter.SetMap(values).ToSql()
 	if err != nil {
-		return err
+		return fmt.Errorf("building insert query for profiles: %w", err)
 	}
 
 	if _, err := q.db.ExecContext(ctx, query, args...); err != nil {
@@ -238,4 +238,28 @@ func (q ProfilesQ) Page(limit, offset uint64) ProfilesQ {
 	q.counter = q.counter.Limit(limit).Offset(offset)
 	q.selector = q.selector.Limit(limit).Offset(offset)
 	return q
+}
+
+func (q ProfilesQ) Transaction(fn func(ctx context.Context) error) error {
+	ctx := context.Background()
+
+	tx, err := q.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to start transaction: %w", err)
+	}
+
+	ctxWithTx := context.WithValue(ctx, txKey, tx)
+
+	if err := fn(ctxWithTx); err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return fmt.Errorf("transaction failed: %v, rollback error: %v", err, rbErr)
+		}
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("failed to commit transaction: %w", err)
+	}
+
+	return nil
 }

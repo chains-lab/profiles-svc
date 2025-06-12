@@ -77,20 +77,20 @@ func NewProfileRepo(cfg config.Config, log *logrus.Logger) (ProfileRepo, error) 
 	}, nil
 }
 
-type ProfileInsertInput struct {
+type ProfileCreateInput struct {
 	ID        uuid.UUID
 	Username  string
 	Official  bool
-	Updated   time.Time
+	UpdatedAt time.Time
 	CreatedAt time.Time
 }
 
-func (p ProfileRepo) Create(ctx context.Context, input ProfileInsertInput) error {
+func (p ProfileRepo) Create(ctx context.Context, input ProfileCreateInput) error {
 	profile := redisdb.ProfileModel{
 		ID:        input.ID,
 		Username:  input.Username,
 		Official:  input.Official,
-		UpdatedAt: input.Updated,
+		UpdatedAt: input.UpdatedAt,
 		CreatedAt: input.CreatedAt,
 	}
 
@@ -100,29 +100,29 @@ func (p ProfileRepo) Create(ctx context.Context, input ProfileInsertInput) error
 		ID:        input.ID,
 		Username:  input.Username,
 		Official:  input.Official,
-		UpdatedAt: input.Updated,
+		UpdatedAt: input.UpdatedAt,
 		CreatedAt: input.CreatedAt,
 	}
 
 	return p.sql.New().Insert(ctx, sqlInput)
 }
 
-type UserUpdateInput struct {
-	Username    string
+type ProflieUpdateInput struct {
+	Username    *string
 	Pseudonym   *string
 	Description *string
 	AvatarURL   *string
-	Official    bool
+	Official    *bool
 	UpdatedAt   time.Time
 }
 
-func (p ProfileRepo) Update(ctx context.Context, ID uuid.UUID, input UserUpdateInput) error {
+func (p ProfileRepo) Update(ctx context.Context, ID uuid.UUID, input ProflieUpdateInput) error {
 	updates := sqldb.UpdateProfileInput{
-		Username:    &input.Username,
+		Username:    input.Username,
 		Pseudonym:   input.Pseudonym,
 		Description: input.Description,
 		AvatarURL:   input.AvatarURL,
-		Official:    &input.Official,
+		Official:    input.Official,
 	}
 
 	if err := p.sql.New().FilterByID(ID).Update(ctx, updates); err != nil {

@@ -34,8 +34,7 @@ CREATE TABLE users_residence (
     country_residence VARCHAR(255),
     city_residence    VARCHAR(255),
 
-    country_updated_at timestamp,
-    city_updated_at    timestamp
+    updated_at    timestamp
 )
 
 CREATE TYPE degrees_enum AS ENUM ('no degree', 'middle', 'incomplete higher', 'higher', 'candidate/doctor of sciences')

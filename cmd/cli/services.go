@@ -5,7 +5,6 @@ import (
 	"sync"
 
 	"github.com/chains-lab/elector-cab-svc/internal/app"
-	"github.com/chains-lab/elector-cab-svc/internal/rest"
 	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
 	"github.com/sirupsen/logrus"
 )

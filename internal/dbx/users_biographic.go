@@ -12,7 +12,7 @@ import (
 
 const UsersBiographic = "users_biographic"
 
-type BiographicModel struct {
+type BioModel struct {
 	UserID                   uuid.UUID  `db:"user_id"`
 	Sex                      *string    `db:"sex,omitempty"`
 	Birthday                 *time.Time `db:"birthday,omitempty"`
@@ -25,7 +25,7 @@ type BiographicModel struct {
 	PrimaryLanguageUpdatedAt *time.Time `db:"primary_language_updated_at,omitempty"`
 }
 
-type BiographicQ struct {
+type BiographiesQ struct {
 	db       *sql.DB
 	selector sq.SelectBuilder
 	inserter sq.InsertBuilder
@@ -34,9 +34,9 @@ type BiographicQ struct {
 	counter  sq.SelectBuilder
 }
 
-func NewBiographic(db *sql.DB) BiographicQ {
+func NewBiographies(db *sql.DB) BiographiesQ {
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	return BiographicQ{
+	return BiographiesQ{
 		db:       db,
 		selector: builder.Select("*").From(UsersBiographic),
 		inserter: builder.Insert(UsersBiographic),
@@ -46,7 +46,11 @@ func NewBiographic(db *sql.DB) BiographicQ {
 	}
 }
 
-func (q BiographicQ) Insert(ctx context.Context, m BiographicModel) error {
+func (q BiographiesQ) New() BiographiesQ {
+	return NewBiographies(q.db)
+}
+
+func (q BiographiesQ) Insert(ctx context.Context, m BioModel) error {
 	values := map[string]interface{}{
 		"user_id":                     m.UserID,
 		"sex":                         m.Sex,
@@ -59,16 +63,23 @@ func (q BiographicQ) Insert(ctx context.Context, m BiographicModel) error {
 		"nationality_updated_at":      m.NationalityUpdatedAt,
 		"primary_language_updated_at": m.PrimaryLanguageUpdatedAt,
 	}
-	// squirrel автоматически подставит NULL для nil
+
 	query, args, err := q.inserter.SetMap(values).ToSql()
 	if err != nil {
 		return err
 	}
-	_, err = q.db.ExecContext(ctx, query, args...)
+
+	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+		_, err = tx.ExecContext(ctx, query, args...)
+	} else {
+		_, err = q.db.ExecContext(ctx, query, args...)
+	}
+
 	return err
 }
 
-type UpdatePersonalitiesInput struct {
+type UpdateBioInput struct {
+	Birthday                 *time.Time
 	Sex                      *string
 	SexUpdatedAt             *time.Time
 	Citizenship              *string
@@ -79,9 +90,12 @@ type UpdatePersonalitiesInput struct {
 	PrimaryLanguageUpdatedAt *time.Time
 }
 
-func (q BiographicQ) Update(ctx context.Context, input UpdatePersonalitiesInput) error {
+func (q BiographiesQ) Update(ctx context.Context, input UpdateBioInput) error {
 	updates := make(map[string]interface{})
 
+	if input.Birthday != nil {
+		updates["birthday"] = *input.Birthday
+	}
 	if input.Sex != nil {
 		updates["sex"] = *input.Sex
 	}
@@ -117,27 +131,60 @@ func (q BiographicQ) Update(ctx context.Context, input UpdatePersonalitiesInput)
 	} else {
 		_, err = q.db.ExecContext(ctx, query, args...)
 	}
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return err
 }
 
-func (q BiographicQ) Select(ctx context.Context) ([]BiographicModel, error) {
+func (q BiographiesQ) Get(ctx context.Context) (BioModel, error) {
+	query, args, err := q.selector.Limit(1).ToSql()
+	if err != nil {
+		return BioModel{}, err
+	}
+
+	var personality BioModel
+	var row *sql.Row
+	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+		row = tx.QueryRowContext(ctx, query, args...)
+	} else {
+		row = q.db.QueryRowContext(ctx, query, args...)
+	}
+	err = row.Scan(
+		&personality.UserID,
+		&personality.Sex,
+		&personality.Birthday,
+		&personality.Citizenship,
+		&personality.Nationality,
+		&personality.PrimaryLanguage,
+		&personality.SexUpdatedAt,
+		&personality.CitizenshipUpdatedAt,
+		&personality.NationalityUpdatedAt,
+		&personality.PrimaryLanguageUpdatedAt,
+	)
+
+	return personality, nil
+}
+
+func (q BiographiesQ) Select(ctx context.Context) ([]BioModel, error) {
 	query, args, err := q.selector.ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := q.db.QueryContext(ctx, query, args...)
+	var rows *sql.Rows
+
+	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+		rows, err = tx.QueryContext(ctx, query, args...)
+	} else {
+		rows, err = q.db.QueryContext(ctx, query, args...)
+	}
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var personalities []BiographicModel
+	var personalities []BioModel
 	for rows.Next() {
-		var personality BiographicModel
+		var personality BioModel
 		err := rows.Scan(
 			&personality.UserID,
 			&personality.Sex,
@@ -163,39 +210,7 @@ func (q BiographicQ) Select(ctx context.Context) ([]BiographicModel, error) {
 	return personalities, nil
 }
 
-func (q BiographicQ) Get(ctx context.Context) (BiographicModel, error) {
-	query, args, err := q.selector.Limit(1).ToSql()
-	if err != nil {
-		return BiographicModel{}, err
-	}
-
-	row := q.db.QueryRowContext(ctx, query, args...)
-	var personality BiographicModel
-	err = row.Scan(
-		&personality.UserID,
-		&personality.Sex,
-		&personality.Birthday,
-		&personality.Citizenship,
-		&personality.Nationality,
-		&personality.PrimaryLanguage,
-		&personality.SexUpdatedAt,
-		&personality.CitizenshipUpdatedAt,
-		&personality.NationalityUpdatedAt,
-		&personality.PrimaryLanguageUpdatedAt,
-	)
-
-	return personality, nil
-}
-
-func (q BiographicQ) FilterByUserID(userID uuid.UUID) BiographicQ {
-	q.selector = q.selector.Where(sq.Eq{"user_id": userID})
-	q.counter = q.counter.Where(sq.Eq{"user_id": userID})
-	q.deleter = q.deleter.Where(sq.Eq{"user_id": userID})
-	q.updater = q.updater.Where(sq.Eq{"user_id": userID})
-	return q
-}
-
-func (q BiographicQ) Delete(ctx context.Context) error {
+func (q BiographiesQ) Delete(ctx context.Context) error {
 	query, args, err := q.deleter.ToSql()
 	if err != nil {
 		return err
@@ -210,7 +225,16 @@ func (q BiographicQ) Delete(ctx context.Context) error {
 	return err
 }
 
-func (q BiographicQ) Count(ctx context.Context) (int64, error) {
+func (q BiographiesQ) FilterUserID(userID uuid.UUID) BiographiesQ {
+	q.selector = q.selector.Where(sq.Eq{"user_id": userID})
+	q.counter = q.counter.Where(sq.Eq{"user_id": userID})
+	q.deleter = q.deleter.Where(sq.Eq{"user_id": userID})
+	q.updater = q.updater.Where(sq.Eq{"user_id": userID})
+
+	return q
+}
+
+func (q BiographiesQ) Count(ctx context.Context) (int, error) {
 	query, args, err := q.counter.ToSql()
 	if err != nil {
 		return 0, err
@@ -225,16 +249,18 @@ func (q BiographicQ) Count(ctx context.Context) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return count, nil
+
+	return int(count), nil
 }
 
-func (q BiographicQ) Page(limit, offset uint64) BiographicQ {
+func (q BiographiesQ) Page(limit, offset uint64) BiographiesQ {
 	q.counter = q.counter.Limit(limit).Offset(offset)
 	q.selector = q.selector.Limit(limit).Offset(offset)
+
 	return q
 }
 
-func (q BiographicQ) Transaction(fn func(ctx context.Context) error) error {
+func (q BiographiesQ) Transaction(fn func(ctx context.Context) error) error {
 	ctx := context.Background()
 
 	tx, err := q.db.BeginTx(ctx, nil)

@@ -15,16 +15,16 @@ const UsersJobTable = "users_job"
 type JobModel struct {
 	UserID uuid.UUID `db:"user_id"`
 
-	UserDegree   *string `db:"user_degree,omitempty"`
-	UserIndustry *string `db:"user_industry,omitempty"`
-	UserIncome   *string `db:"user_income,omitempty"`
+	Degree   *string `db:"degree,omitempty"`
+	Industry *string `db:"industry,omitempty"`
+	Income   *string `db:"income,omitempty"`
 
-	UserDegreeUpdatedAt   *time.Time `db:"user_degree_updated_at,omitempty"`
-	UserIndustryUpdatedAt *time.Time `db:"user_industry_updated_at,omitempty"`
-	UserIncomeUpdatedAt   *time.Time `db:"user_income_updated_at,omitempty"`
+	DegreeUpdatedAt   *time.Time `db:"degree_updated_at,omitempty"`
+	IndustryUpdatedAt *time.Time `db:"industry_updated_at,omitempty"`
+	IncomeUpdatedAt   *time.Time `db:"income_updated_at,omitempty"`
 }
 
-type JobQ struct {
+type JobsQ struct {
 	db       *sql.DB
 	selector sq.SelectBuilder
 	inserter sq.InsertBuilder
@@ -33,9 +33,9 @@ type JobQ struct {
 	counter  sq.SelectBuilder
 }
 
-func NewJob(db *sql.DB) JobQ {
+func NewJobs(db *sql.DB) JobsQ {
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	return JobQ{
+	return JobsQ{
 		db:       db,
 		selector: builder.Select("*").From(UsersJobTable),
 		inserter: builder.Insert(UsersJobTable),
@@ -45,57 +45,22 @@ func NewJob(db *sql.DB) JobQ {
 	}
 }
 
-func (q JobQ) Insert(ctx context.Context, input JobModel) error {
+func (q JobsQ) New() JobsQ {
+	return NewJobs(q.db)
+}
+
+func (q JobsQ) Insert(ctx context.Context, input JobModel) error {
 	values := map[string]interface{}{
-		"user_id":                  input.UserID,
-		"user_degree":              input.UserDegree,
-		"user_industry":            input.UserIndustry,
-		"user_income":              input.UserIncome,
-		"user_degree_updated_at":   input.UserDegreeUpdatedAt,
-		"user_industry_updated_at": input.UserIndustryUpdatedAt,
-		"user_income_updated_at":   input.UserIncomeUpdatedAt,
+		"user_id":             input.UserID,
+		"degree":              input.Degree,
+		"industry":            input.Industry,
+		"income":              input.Income,
+		"degree_updated_at":   input.DegreeUpdatedAt,
+		"industry_updated_at": input.IndustryUpdatedAt,
+		"income_updated_at":   input.IncomeUpdatedAt,
 	}
 
 	query, args, err := q.inserter.SetMap(values).ToSql()
-	if err != nil {
-		return err
-	}
-
-	_, err = q.db.ExecContext(ctx, query, args...)
-	return err
-}
-
-type UpdateJobInput struct {
-	UserDegree            *string
-	UserDegreeUpdatedAt   *time.Time
-	UserIndustry          *string
-	UserIndustryUpdatedAt *time.Time
-	UserIncome            *string
-	UserIncomeUpdatedAt   *time.Time
-}
-
-func (q JobQ) Update(ctx context.Context, userID uuid.UUID, input UpdateJobInput) error {
-	values := map[string]interface{}{}
-	if input.UserDegree != nil {
-		values["user_degree"] = input.UserDegree
-	}
-	if input.UserDegreeUpdatedAt != nil {
-		values["user_degree_updated_at"] = input.UserDegreeUpdatedAt
-	}
-	if input.UserIndustry != nil {
-		values["user_industry"] = input.UserIndustry
-	}
-	if input.UserIndustryUpdatedAt != nil {
-		values["user_industry_updated_at"] = input.UserIndustryUpdatedAt
-	}
-	if input.UserIncome != nil {
-		values["user_income"] = input.UserIncome
-	}
-	if input.UserIncomeUpdatedAt != nil {
-		values["user_income_updated_at"] = input.UserIncomeUpdatedAt
-	}
-
-	query, args, err := q.updater.SetMap(values).Where(sq.Eq{"user_id": userID}).ToSql()
 	if err != nil {
 		return err
 	}
@@ -105,19 +70,94 @@ func (q JobQ) Update(ctx context.Context, userID uuid.UUID, input UpdateJobInput
 	} else {
 		_, err = q.db.ExecContext(ctx, query, args...)
 	}
+
+	return err
+}
+
+type UpdateJobInput struct {
+	Degree            *string
+	DegreeUpdatedAt   *time.Time
+	Industry          *string
+	IndustryUpdatedAt *time.Time
+	Income            *string
+	IncomeUpdatedAt   *time.Time
+}
+
+func (q JobsQ) Update(ctx context.Context, input UpdateJobInput) error {
+	updates := map[string]interface{}{}
+
+	if input.Degree != nil {
+		updates["degree"] = input.Degree
+	}
+	if input.DegreeUpdatedAt != nil {
+		updates["degree_updated_at"] = input.DegreeUpdatedAt
+	}
+	if input.Industry != nil {
+		updates["industry"] = input.Industry
+	}
+	if input.IndustryUpdatedAt != nil {
+		updates["industry_updated_at"] = input.IndustryUpdatedAt
+	}
+	if input.Income != nil {
+		updates["income"] = input.Income
+	}
+	if input.IncomeUpdatedAt != nil {
+		updates["income_updated_at"] = input.IncomeUpdatedAt
+	}
+
+	query, args, err := q.updater.SetMap(updates).ToSql()
 	if err != nil {
 		return err
 	}
-	return nil
+
+	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+		_, err = tx.ExecContext(ctx, query, args...)
+	} else {
+		_, err = q.db.ExecContext(ctx, query, args...)
+	}
+
+	return err
 }
 
-func (q JobQ) Select(ctx context.Context) ([]JobModel, error) {
+func (q JobsQ) Get(ctx context.Context) (JobModel, error) {
+	query, args, err := q.selector.Limit(1).ToSql()
+	if err != nil {
+		return JobModel{}, err
+	}
+
+	var job JobModel
+	var row *sql.Row
+	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+		row = tx.QueryRowContext(ctx, query, args...)
+	} else {
+		row = q.db.QueryRowContext(ctx, query, args...)
+	}
+	err = row.Scan(
+		&job.UserID,
+		&job.Degree,
+		&job.Industry,
+		&job.Income,
+		&job.DegreeUpdatedAt,
+		&job.IndustryUpdatedAt,
+		&job.IncomeUpdatedAt,
+	)
+
+	return job, err
+}
+
+func (q JobsQ) Select(ctx context.Context) ([]JobModel, error) {
 	query, args, err := q.selector.ToSql()
 	if err != nil {
 		return nil, err
 	}
 
-	rows, err := q.db.QueryContext(ctx, query, args...)
+	var rows *sql.Rows
+
+	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+		rows, err = tx.QueryContext(ctx, query, args...)
+	} else {
+		rows, err = q.db.QueryContext(ctx, query, args...)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -128,12 +168,12 @@ func (q JobQ) Select(ctx context.Context) ([]JobModel, error) {
 		var job JobModel
 		if err := rows.Scan(
 			&job.UserID,
-			&job.UserDegree,
-			&job.UserIndustry,
-			&job.UserIncome,
-			&job.UserDegreeUpdatedAt,
-			&job.UserIndustryUpdatedAt,
-			&job.UserIncomeUpdatedAt,
+			&job.Degree,
+			&job.Industry,
+			&job.Income,
+			&job.DegreeUpdatedAt,
+			&job.IndustryUpdatedAt,
+			&job.IncomeUpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -147,29 +187,8 @@ func (q JobQ) Select(ctx context.Context) ([]JobModel, error) {
 	return jobs, nil
 }
 
-func (q JobQ) Get(ctx context.Context) (JobModel, error) {
-	query, args, err := q.selector.Limit(1).ToSql()
-	if err != nil {
-		return JobModel{}, err
-	}
-
-	row := q.db.QueryRowContext(ctx, query, args...)
-	var job JobModel
-	err = row.Scan(
-		&job.UserID,
-		&job.UserDegree,
-		&job.UserIndustry,
-		&job.UserIncome,
-		&job.UserDegreeUpdatedAt,
-		&job.UserIndustryUpdatedAt,
-		&job.UserIncomeUpdatedAt,
-	)
-
-	return job, err
-}
-
-func (q JobQ) Delete(ctx context.Context, userID uuid.UUID) error {
-	query, args, err := q.deleter.Where(sq.Eq{"user_id": userID}).ToSql()
+func (q JobsQ) Delete(ctx context.Context) error {
+	query, args, err := q.deleter.ToSql()
 	if err != nil {
 		return err
 	}
@@ -183,7 +202,16 @@ func (q JobQ) Delete(ctx context.Context, userID uuid.UUID) error {
 	return err
 }
 
-func (q JobQ) Count(ctx context.Context) (int64, error) {
+func (q JobsQ) FilterUserID(userID uuid.UUID) JobsQ {
+	q.selector = q.selector.Where(sq.Eq{"user_id": userID})
+	q.counter = q.counter.Where(sq.Eq{"user_id": userID})
+	q.deleter = q.deleter.Where(sq.Eq{"user_id": userID})
+	q.updater = q.updater.Where(sq.Eq{"user_id": userID})
+
+	return q
+}
+
+func (q JobsQ) Count(ctx context.Context) (int, error) {
 	query, args, err := q.counter.ToSql()
 	if err != nil {
 		return 0, err
@@ -198,24 +226,18 @@ func (q JobQ) Count(ctx context.Context) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return count, nil
+
+	return int(count), nil
 }
 
-func (q JobQ) FilterByUserID(userID uuid.UUID) JobQ {
-	q.selector = q.selector.Where(sq.Eq{"user_id": userID})
-	q.counter = q.counter.Where(sq.Eq{"user_id": userID})
-	q.deleter = q.deleter.Where(sq.Eq{"user_id": userID})
-	q.updater = q.updater.Where(sq.Eq{"user_id": userID})
-	return q
-}
-
-func (q JobQ) Page(limit, offset uint64) JobQ {
+func (q JobsQ) Page(limit, offset uint64) JobsQ {
 	q.selector = q.selector.Limit(limit).Offset(offset)
 	q.counter = q.counter.Limit(limit).Offset(offset)
+
 	return q
 }
 
-func (q JobQ) Transaction(fn func(ctx context.Context) error) error {
+func (q JobsQ) Transaction(fn func(ctx context.Context) error) error {
 	ctx := context.Background()
 
 	tx, err := q.db.BeginTx(ctx, nil)

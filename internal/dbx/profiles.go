@@ -13,7 +13,7 @@ import (
 const profilesTable = "profiles"
 
 type ProfileModel struct {
-	UseID       uuid.UUID `db:"user_id"`
+	UserID      uuid.UUID `db:"user_id"`
 	Username    string    `db:"username"`
 	Pseudonym   *string   `db:"pseudonym,omitempty"`
 	Description *string   `db:"description,omitempty"`
@@ -50,7 +50,7 @@ func (q ProfilesQ) New() ProfilesQ {
 
 func (q ProfilesQ) Insert(ctx context.Context, input ProfileModel) error {
 	values := map[string]interface{}{
-		"user_id":     input.UseID,
+		"user_id":     input.UserID,
 		"username":    input.Username,
 		"pseudonym":   input.Pseudonym,
 		"description": input.Description,
@@ -65,11 +65,13 @@ func (q ProfilesQ) Insert(ctx context.Context, input ProfileModel) error {
 		return fmt.Errorf("building insert query for profiles: %w", err)
 	}
 
-	if _, err := q.db.ExecContext(ctx, query, args...); err != nil {
-		return err
+	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+		_, err = tx.ExecContext(ctx, query, args...)
+	} else {
+		_, err = q.db.ExecContext(ctx, query, args...)
 	}
 
-	return nil
+	return err
 }
 
 type UpdateProfileInput struct {
@@ -110,10 +112,35 @@ func (q ProfilesQ) Update(ctx context.Context, input UpdateProfileInput) error {
 	} else {
 		_, err = q.db.ExecContext(ctx, query, args...)
 	}
+
+	return err
+}
+
+func (q ProfilesQ) Get(ctx context.Context) (ProfileModel, error) {
+	query, args, err := q.selector.Limit(1).ToSql()
 	if err != nil {
-		return err
+		return ProfileModel{}, err
 	}
-	return nil
+
+	var profile ProfileModel
+	var row *sql.Row
+	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+		row = tx.QueryRowContext(ctx, query, args...)
+	} else {
+		row = q.db.QueryRowContext(ctx, query, args...)
+	}
+	err = row.Scan(
+		&profile.UserID,
+		&profile.Username,
+		&profile.Pseudonym,
+		&profile.Description,
+		&profile.Avatar,
+		&profile.Official,
+		&profile.UpdatedAt,
+		&profile.CreatedAt,
+	)
+
+	return profile, err
 }
 
 func (q ProfilesQ) Select(ctx context.Context) ([]ProfileModel, error) {
@@ -122,7 +149,13 @@ func (q ProfilesQ) Select(ctx context.Context) ([]ProfileModel, error) {
 		return nil, fmt.Errorf("building select query for profiles: %w", err)
 	}
 
-	rows, err := q.db.QueryContext(ctx, query, args...)
+	var rows *sql.Rows
+
+	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+		rows, err = tx.QueryContext(ctx, query, args...)
+	} else {
+		rows, err = q.db.QueryContext(ctx, query, args...)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +165,7 @@ func (q ProfilesQ) Select(ctx context.Context) ([]ProfileModel, error) {
 	for rows.Next() {
 		var profile ProfileModel
 		err := rows.Scan(
-			&profile.UseID,
+			&profile.UserID,
 			&profile.Username,
 			&profile.Pseudonym,
 			&profile.Description,
@@ -154,44 +187,6 @@ func (q ProfilesQ) Select(ctx context.Context) ([]ProfileModel, error) {
 	return profiles, nil
 }
 
-func (q ProfilesQ) Get(ctx context.Context) (ProfileModel, error) {
-	query, args, err := q.selector.Limit(1).ToSql()
-	if err != nil {
-		return ProfileModel{}, err
-	}
-
-	row := q.db.QueryRowContext(ctx, query, args...)
-	var profile ProfileModel
-	err = row.Scan(
-		&profile.UseID,
-		&profile.Username,
-		&profile.Pseudonym,
-		&profile.Description,
-		&profile.Avatar,
-		&profile.Official,
-		&profile.UpdatedAt,
-		&profile.CreatedAt,
-	)
-
-	return profile, err
-}
-
-func (q ProfilesQ) FilterByUserID(userID uuid.UUID) ProfilesQ {
-	q.selector = q.selector.Where(sq.Eq{"user_id": userID})
-	q.counter = q.counter.Where(sq.Eq{"user_id": userID})
-	q.deleter = q.deleter.Where(sq.Eq{"user_id": userID})
-	q.updater = q.updater.Where(sq.Eq{"user_id": userID})
-	return q
-}
-
-func (q ProfilesQ) FilterByUsername(username string) ProfilesQ {
-	q.selector = q.selector.Where(sq.Eq{"username": username})
-	q.counter = q.counter.Where(sq.Eq{"username": username})
-	q.deleter = q.deleter.Where(sq.Eq{"username": username})
-	q.updater = q.updater.Where(sq.Eq{"username": username})
-	return q
-}
-
 func (q ProfilesQ) Delete(ctx context.Context) error {
 	query, args, err := q.deleter.ToSql()
 	if err != nil {
@@ -203,13 +198,29 @@ func (q ProfilesQ) Delete(ctx context.Context) error {
 	} else {
 		_, err = q.db.ExecContext(ctx, query, args...)
 	}
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return err
 }
 
-func (q ProfilesQ) Count(ctx context.Context) (int64, error) {
+func (q ProfilesQ) FilterUserID(userID uuid.UUID) ProfilesQ {
+	q.selector = q.selector.Where(sq.Eq{"user_id": userID})
+	q.counter = q.counter.Where(sq.Eq{"user_id": userID})
+	q.deleter = q.deleter.Where(sq.Eq{"user_id": userID})
+	q.updater = q.updater.Where(sq.Eq{"user_id": userID})
+
+	return q
+}
+
+func (q ProfilesQ) FilterUsername(username string) ProfilesQ {
+	q.selector = q.selector.Where(sq.Eq{"username": username})
+	q.counter = q.counter.Where(sq.Eq{"username": username})
+	q.deleter = q.deleter.Where(sq.Eq{"username": username})
+	q.updater = q.updater.Where(sq.Eq{"username": username})
+
+	return q
+}
+
+func (q ProfilesQ) Count(ctx context.Context) (int, error) {
 	query, args, err := q.counter.ToSql()
 	if err != nil {
 		return 0, fmt.Errorf("building count query for profiles: %w", err)
@@ -225,7 +236,7 @@ func (q ProfilesQ) Count(ctx context.Context) (int64, error) {
 		return 0, err
 	}
 
-	return count, nil
+	return int(count), nil
 }
 
 func (q ProfilesQ) Page(limit, offset uint64) ProfilesQ {

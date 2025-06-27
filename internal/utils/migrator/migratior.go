@@ -3,8 +3,8 @@ package migrator
 import (
 	"database/sql"
 
-	"github.com/chains-lab/profile-storage/internal/config"
-	"github.com/chains-lab/profile-storage/internal/repo/sqldb"
+	"github.com/chains-lab/elector-cab-svc/internal/dbx"
+	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
 	_ "github.com/golang-migrate/migrate/v4/source/file" // нужен, если где-то ещё используете file://
 	_ "github.com/lib/pq"                                // PostgreSQL driver
 	"github.com/pkg/errors"
@@ -13,7 +13,7 @@ import (
 )
 
 var migrations = &migrate.EmbedFileSystemMigrationSource{
-	FileSystem: sqldb.Migrations,
+	FileSystem: dbx.Migrations,
 	Root:       "migrations",
 }
 

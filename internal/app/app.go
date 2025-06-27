@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/chains-lab/profile-storage/internal/config"
+	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
 	"github.com/sirupsen/logrus"
 )
 

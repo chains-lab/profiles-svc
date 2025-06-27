@@ -2,11 +2,11 @@ version: "2"
 
 sql:
   - engine: "postgresql"
-    queries: "internal/repo/sqldb/queries/*.sql"
-    schema: "internal/repo/sqldb/migrations/*.sql"
+    queries: "internal/repo/dbx/queries/*.sql"
+    schema: "internal/repo/dbx/migrations/*.sql"
 
     gen:
       go:
         package: "sqlcore"              # имя пакета для сгенерированного кода
-        out: "internal/repo/sqldb"  # куда помещать сгенерированный код
+        out: "internal/repo/dbx"  # куда помещать сгенерированный код
         sql_package: "pgx/v5"

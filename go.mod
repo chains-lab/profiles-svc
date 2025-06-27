@@ -1,4 +1,4 @@
-module github.com/chains-lab/profile-storage
+module github.com/chains-lab/elector-cab-svc
 
 go 1.23.7
 

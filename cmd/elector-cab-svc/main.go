@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/chains-lab/profile-storage/internal/cli"
+	"github.com/chains-lab/elector-cab-svc/cmd/cli"
 )
 
 func main() {

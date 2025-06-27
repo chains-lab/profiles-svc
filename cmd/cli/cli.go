@@ -9,18 +9,18 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/chains-lab/profile-storage/internal/app"
-	"github.com/chains-lab/profile-storage/internal/config"
-	"github.com/chains-lab/profile-storage/internal/migrator"
+	"github.com/chains-lab/elector-cab-svc/internal/app"
+	config2 "github.com/chains-lab/elector-cab-svc/internal/utils/config"
+	"github.com/chains-lab/elector-cab-svc/internal/utils/migrator"
 )
 
 func Run(args []string) bool {
-	cfg, err := config.LoadConfig()
+	cfg, err := config2.LoadConfig()
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	logger := config.SetupLogger(cfg.Server.Log.Level, cfg.Server.Log.Format)
+	logger := config2.SetupLogger(cfg.Server.Log.Level, cfg.Server.Log.Format)
 	logger.Info("Starting server...")
 
 	var (

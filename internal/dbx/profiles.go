@@ -1,4 +1,4 @@
-package sqldb
+package dbx
 
 import (
 	"context"
@@ -13,11 +13,11 @@ import (
 const profilesTable = "profiles"
 
 type ProfileModel struct {
-	ID          uuid.UUID `db:"id"`
+	UseID       uuid.UUID `db:"user_id"`
 	Username    string    `db:"username"`
 	Pseudonym   *string   `db:"pseudonym,omitempty"`
 	Description *string   `db:"description,omitempty"`
-	AvatarURL   *string   `db:"avatar_url,omitempty"`
+	Avatar      *string   `db:"avatar,omitempty"`
 	Official    bool      `db:"official"`
 	UpdatedAt   time.Time `db:"updated_at"`
 	CreatedAt   time.Time `db:"created_at"`
@@ -48,21 +48,16 @@ func (q ProfilesQ) New() ProfilesQ {
 	return NewProfiles(q.db)
 }
 
-type ProfileInsertInput struct {
-	ID        uuid.UUID
-	Username  string
-	Official  bool
-	UpdatedAt time.Time
-	CreatedAt time.Time
-}
-
-func (q ProfilesQ) Insert(ctx context.Context, input ProfileInsertInput) error {
+func (q ProfilesQ) Insert(ctx context.Context, input ProfileModel) error {
 	values := map[string]interface{}{
-		"id":         input.ID,
-		"username":   input.Username,
-		"official":   input.Official,
-		"updated_at": input.UpdatedAt,
-		"created_at": input.CreatedAt,
+		"user_id":     input.UseID,
+		"username":    input.Username,
+		"pseudonym":   input.Pseudonym,
+		"description": input.Description,
+		"avatar":      input.Avatar,
+		"official":    input.Official,
+		"updated_at":  input.UpdatedAt,
+		"created_at":  input.CreatedAt,
 	}
 
 	query, args, err := q.inserter.SetMap(values).ToSql()
@@ -81,8 +76,9 @@ type UpdateProfileInput struct {
 	Username    *string
 	Pseudonym   *string
 	Description *string
-	AvatarURL   *string
+	Avatar      *string
 	Official    *bool
+	UpdatedAt   time.Time
 }
 
 func (q ProfilesQ) Update(ctx context.Context, input UpdateProfileInput) error {
@@ -97,8 +93,8 @@ func (q ProfilesQ) Update(ctx context.Context, input UpdateProfileInput) error {
 	if input.Description != nil {
 		updates["description"] = *input.Description
 	}
-	if input.AvatarURL != nil {
-		updates["avatar_url"] = *input.AvatarURL
+	if input.Avatar != nil {
+		updates["avatar"] = *input.Avatar
 	}
 	if input.Official != nil {
 		updates["official"] = *input.Official
@@ -106,7 +102,7 @@ func (q ProfilesQ) Update(ctx context.Context, input UpdateProfileInput) error {
 
 	query, args, err := q.updater.SetMap(updates).ToSql()
 	if err != nil {
-		return fmt.Errorf("building update query for profiles: %w", err)
+		return err
 	}
 
 	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
@@ -136,17 +132,17 @@ func (q ProfilesQ) Select(ctx context.Context) ([]ProfileModel, error) {
 	for rows.Next() {
 		var profile ProfileModel
 		err := rows.Scan(
-			&profile.ID,
+			&profile.UseID,
 			&profile.Username,
 			&profile.Pseudonym,
 			&profile.Description,
-			&profile.AvatarURL,
+			&profile.Avatar,
 			&profile.Official,
 			&profile.UpdatedAt,
 			&profile.CreatedAt,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("scanning profile row: %w", err)
+			return nil, err
 		}
 		profiles = append(profiles, profile)
 	}
@@ -161,36 +157,30 @@ func (q ProfilesQ) Select(ctx context.Context) ([]ProfileModel, error) {
 func (q ProfilesQ) Get(ctx context.Context) (ProfileModel, error) {
 	query, args, err := q.selector.Limit(1).ToSql()
 	if err != nil {
-		return ProfileModel{}, fmt.Errorf("building get query for profiles: %w", err)
+		return ProfileModel{}, err
 	}
 
 	row := q.db.QueryRowContext(ctx, query, args...)
 	var profile ProfileModel
 	err = row.Scan(
-		&profile.ID,
+		&profile.UseID,
 		&profile.Username,
 		&profile.Pseudonym,
 		&profile.Description,
-		&profile.AvatarURL,
+		&profile.Avatar,
 		&profile.Official,
 		&profile.UpdatedAt,
 		&profile.CreatedAt,
 	)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return ProfileModel{}, nil
-		}
-		return ProfileModel{}, fmt.Errorf("scanning profile row: %w", err)
-	}
 
-	return profile, nil
+	return profile, err
 }
 
-func (q ProfilesQ) FilterByID(id uuid.UUID) ProfilesQ {
-	q.selector = q.selector.Where(sq.Eq{"id": id})
-	q.counter = q.counter.Where(sq.Eq{"id": id})
-	q.deleter = q.deleter.Where(sq.Eq{"id": id})
-	q.updater = q.updater.Where(sq.Eq{"id": id})
+func (q ProfilesQ) FilterByUserID(userID uuid.UUID) ProfilesQ {
+	q.selector = q.selector.Where(sq.Eq{"user_id": userID})
+	q.counter = q.counter.Where(sq.Eq{"user_id": userID})
+	q.deleter = q.deleter.Where(sq.Eq{"user_id": userID})
+	q.updater = q.updater.Where(sq.Eq{"user_id": userID})
 	return q
 }
 
@@ -226,7 +216,11 @@ func (q ProfilesQ) Count(ctx context.Context) (int64, error) {
 	}
 
 	var count int64
-	err = q.db.QueryRowContext(ctx, query, args...).Scan(&count)
+	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+		err = tx.QueryRowContext(ctx, query, args...).Scan(&count)
+	} else {
+		err = q.db.QueryRowContext(ctx, query, args...).Scan(&count)
+	}
 	if err != nil {
 		return 0, err
 	}

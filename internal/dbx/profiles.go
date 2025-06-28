@@ -65,7 +65,7 @@ func (q ProfilesQ) Insert(ctx context.Context, input ProfileModel) error {
 		return fmt.Errorf("building insert query for profiles: %w", err)
 	}
 
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		_, err = tx.ExecContext(ctx, query, args...)
 	} else {
 		_, err = q.db.ExecContext(ctx, query, args...)
@@ -107,7 +107,7 @@ func (q ProfilesQ) Update(ctx context.Context, input UpdateProfileInput) error {
 		return err
 	}
 
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		_, err = tx.ExecContext(ctx, query, args...)
 	} else {
 		_, err = q.db.ExecContext(ctx, query, args...)
@@ -124,7 +124,7 @@ func (q ProfilesQ) Get(ctx context.Context) (ProfileModel, error) {
 
 	var profile ProfileModel
 	var row *sql.Row
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		row = tx.QueryRowContext(ctx, query, args...)
 	} else {
 		row = q.db.QueryRowContext(ctx, query, args...)
@@ -151,7 +151,7 @@ func (q ProfilesQ) Select(ctx context.Context) ([]ProfileModel, error) {
 
 	var rows *sql.Rows
 
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		rows, err = tx.QueryContext(ctx, query, args...)
 	} else {
 		rows, err = q.db.QueryContext(ctx, query, args...)
@@ -193,7 +193,7 @@ func (q ProfilesQ) Delete(ctx context.Context) error {
 		return fmt.Errorf("building delete query for profiles: %w", err)
 	}
 
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		_, err = tx.ExecContext(ctx, query, args...)
 	} else {
 		_, err = q.db.ExecContext(ctx, query, args...)
@@ -227,7 +227,7 @@ func (q ProfilesQ) Count(ctx context.Context) (int, error) {
 	}
 
 	var count int64
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		err = tx.QueryRowContext(ctx, query, args...).Scan(&count)
 	} else {
 		err = q.db.QueryRowContext(ctx, query, args...).Scan(&count)
@@ -243,28 +243,4 @@ func (q ProfilesQ) Page(limit, offset uint64) ProfilesQ {
 	q.counter = q.counter.Limit(limit).Offset(offset)
 	q.selector = q.selector.Limit(limit).Offset(offset)
 	return q
-}
-
-func (q ProfilesQ) Transaction(fn func(ctx context.Context) error) error {
-	ctx := context.Background()
-
-	tx, err := q.db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("failed to start transaction: %w", err)
-	}
-
-	ctxWithTx := context.WithValue(ctx, txKey, tx)
-
-	if err := fn(ctxWithTx); err != nil {
-		if rbErr := tx.Rollback(); rbErr != nil {
-			return fmt.Errorf("transaction failed: %v, rollback error: %v", err, rbErr)
-		}
-		return fmt.Errorf("transaction failed: %w", err)
-	}
-
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return nil
 }

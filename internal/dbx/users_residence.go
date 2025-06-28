@@ -57,7 +57,7 @@ func (q ResidencesQ) Insert(ctx context.Context, m ResidenceModel) error {
 		return err
 	}
 
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		_, err = tx.ExecContext(ctx, query, args...)
 	} else {
 		_, err = q.db.ExecContext(ctx, query, args...)
@@ -89,7 +89,7 @@ func (q ResidencesQ) Update(ctx context.Context, input UpdateResidenceInput) err
 		return err
 	}
 
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		_, err = tx.ExecContext(ctx, query, args...)
 	} else {
 		_, err = q.db.ExecContext(ctx, query, args...)
@@ -106,7 +106,7 @@ func (q ResidencesQ) Get(ctx context.Context) (ResidenceModel, error) {
 
 	var residence ResidenceModel
 	var row *sql.Row
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		row = tx.QueryRowContext(ctx, query, args...)
 	} else {
 		row = q.db.QueryRowContext(ctx, query, args...)
@@ -132,7 +132,7 @@ func (q ResidencesQ) Select(ctx context.Context) ([]ResidenceModel, error) {
 
 	var rows *sql.Rows
 
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		rows, err = tx.QueryContext(ctx, query, args...)
 	} else {
 		rows, err = q.db.QueryContext(ctx, query, args...)
@@ -166,7 +166,7 @@ func (q ResidencesQ) Delete(ctx context.Context) error {
 		return err
 	}
 
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		_, err = tx.ExecContext(ctx, query, args...)
 	} else {
 		_, err = q.db.ExecContext(ctx, query, args...)
@@ -193,7 +193,7 @@ func (q ResidencesQ) Count(ctx context.Context) (int, error) {
 	}
 
 	var count int64
-	if tx, ok := ctx.Value(txKey).(*sql.Tx); ok {
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		err = tx.QueryRowContext(ctx, query, args...).Scan(&count)
 	} else {
 		err = q.db.QueryRowContext(ctx, query, args...).Scan(&count)
@@ -210,28 +210,4 @@ func (q ResidencesQ) Page(limit, offset uint64) ResidencesQ {
 	q.counter = q.counter.Limit(limit).Offset(offset)
 
 	return q
-}
-
-func (q ResidencesQ) Transaction(fn func(ctx context.Context) error) error {
-	ctx := context.Background()
-
-	tx, err := q.db.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("failed to start transaction: %w", err)
-	}
-
-	ctxWithTx := context.WithValue(ctx, txKey, tx)
-
-	if err := fn(ctxWithTx); err != nil {
-		if rbErr := tx.Rollback(); rbErr != nil {
-			return fmt.Errorf("transaction failed: %v, rollback error: %v", err, rbErr)
-		}
-		return fmt.Errorf("transaction failed: %w", err)
-	}
-
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return nil
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/chains-lab/elector-cab-svc/internal/dbx"
-	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
 	"github.com/google/uuid"
 )
 
@@ -26,25 +25,19 @@ type JobQ interface {
 
 	Page(limit, offset uint64) dbx.JobsQ
 	Count(ctx context.Context) (int, error)
-	Transaction(fn func(ctx context.Context) error) error
 }
 
-type Job struct {
+type Jobs struct {
 	queries JobQ
 }
 
-func NewJob(cfg config.Config) Job {
-	pg, err := sql.Open("postgres", cfg.Database.SQL.URL)
-	if err != nil {
-		panic(err)
-	}
-
-	return Job{
-		queries: dbx.NewJobs(pg),
-	}
+func NewJob(db *sql.DB) (Jobs, error) {
+	return Jobs{
+		queries: dbx.NewJobs(db),
+	}, nil
 }
 
-func (j Job) Create(ctx context.Context, userID uuid.UUID) error {
+func (j Jobs) Create(ctx context.Context, userID uuid.UUID) error {
 	if err := j.queries.Insert(ctx, dbx.JobModel{
 		UserID: userID,
 	}); err != nil {
@@ -57,7 +50,7 @@ func (j Job) Create(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }
 
-func (j Job) Get(ctx context.Context, userID uuid.UUID) (models.Job, error) {
+func (j Jobs) Get(ctx context.Context, userID uuid.UUID) (models.Job, error) {
 	job, err := j.queries.FilterUserID(userID).Get(ctx)
 	if err != nil {
 		switch {
@@ -69,7 +62,7 @@ func (j Job) Get(ctx context.Context, userID uuid.UUID) (models.Job, error) {
 	return JobFromDb(job), nil
 }
 
-func (j Job) UpdateDegree(ctx context.Context, userID uuid.UUID, degree string) error {
+func (j Jobs) UpdateDegree(ctx context.Context, userID uuid.UUID, degree string) error {
 	job, err := j.Get(ctx, userID)
 	if err != nil {
 		return ape.ErrorInternal(err) //TODO
@@ -102,7 +95,7 @@ func (j Job) UpdateDegree(ctx context.Context, userID uuid.UUID, degree string) 
 	return nil
 }
 
-func (j Job) UpdateIndustry(ctx context.Context, userID uuid.UUID, industry string) error {
+func (j Jobs) UpdateIndustry(ctx context.Context, userID uuid.UUID, industry string) error {
 	job, err := j.Get(ctx, userID)
 	if err != nil {
 		return ape.ErrorInternal(err) //TODO
@@ -135,7 +128,7 @@ func (j Job) UpdateIndustry(ctx context.Context, userID uuid.UUID, industry stri
 	return nil
 }
 
-func (j Job) UpdateIncome(ctx context.Context, userID uuid.UUID, income string) error {
+func (j Jobs) UpdateIncome(ctx context.Context, userID uuid.UUID, income string) error {
 	job, err := j.Get(ctx, userID)
 	if err != nil {
 		return ape.ErrorInternal(err) //TODO
@@ -174,7 +167,7 @@ type AdminJobUpdate struct {
 	Income   *string `json:"income"`
 }
 
-func (j Job) AdminUpdate(ctx context.Context, userID uuid.UUID, input AdminJobUpdate) error {
+func (j Jobs) AdminUpdate(ctx context.Context, userID uuid.UUID, input AdminJobUpdate) error {
 	_, err := j.Get(ctx, userID)
 	if err != nil {
 		return err

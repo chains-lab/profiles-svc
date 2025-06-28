@@ -2,9 +2,9 @@ package dbx
 
 import "embed"
 
-//go:embed migrations/*.sql
-var Migrations embed.FS
-
 type txKeyType struct{}
 
-var txKey = txKeyType{}
+var TxKey = txKeyType{}
+
+//go:embed migrations/*.sql
+var Migrations embed.FS

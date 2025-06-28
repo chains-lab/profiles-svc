@@ -12,7 +12,6 @@ import (
 	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/chains-lab/elector-cab-svc/internal/dbx"
-	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
 	"github.com/google/uuid"
 )
 
@@ -30,22 +29,16 @@ type ProfileQ interface {
 
 	Count(ctx context.Context) (int, error)
 	Page(limit, offset uint64) dbx.ProfilesQ
-	Transaction(fn func(ctx context.Context) error) error
 }
 
 type Profiles struct {
 	queries ProfileQ
 }
 
-func NewProfile(cfg config.Config) Profiles {
-	pg, err := sql.Open("postgres", cfg.Database.SQL.URL)
-	if err != nil {
-		panic(err)
-	}
-
+func NewProfile(db *sql.DB) (Profiles, error) {
 	return Profiles{
-		queries: dbx.NewProfiles(pg),
-	}
+		queries: dbx.NewProfiles(db),
+	}, nil
 }
 
 func (p Profiles) Create(ctx context.Context, userID uuid.UUID) error {

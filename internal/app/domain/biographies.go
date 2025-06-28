@@ -9,7 +9,6 @@ import (
 	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/chains-lab/elector-cab-svc/internal/dbx"
-	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
 	"github.com/google/uuid"
 )
 
@@ -26,23 +25,15 @@ type BiographiesQ interface {
 
 	Count(ctx context.Context) (int, error)
 	Page(limit, offset uint64) dbx.BiographiesQ
-	Transaction(fn func(ctx context.Context) error) error
 }
 
 type Biographies struct {
 	queries BiographiesQ
-	cfg     config.Config
 }
 
-func NewBio(cfg config.Config) (Biographies, error) {
-	pg, err := sql.Open("postgres", cfg.Database.SQL.URL)
-	if err != nil {
-		return Biographies{}, err
-	}
-
+func NewBiographies(db *sql.DB) (Biographies, error) {
 	return Biographies{
-		queries: dbx.NewBiographies(pg),
-		cfg:     cfg,
+		queries: dbx.NewBiographies(db),
 	}, nil
 }
 

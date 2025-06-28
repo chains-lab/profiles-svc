@@ -9,7 +9,6 @@ import (
 	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/chains-lab/elector-cab-svc/internal/dbx"
-	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
 	"github.com/google/uuid"
 )
 
@@ -26,21 +25,15 @@ type ResidencesQ interface {
 
 	Page(limit, offset uint64) dbx.ResidencesQ
 	Count(ctx context.Context) (int, error)
-	Transaction(fn func(ctx context.Context) error) error
 }
 
 type Residences struct {
 	queries ResidencesQ
 }
 
-func NewResidences(cfg config.Config) (Residences, error) {
-	pg, err := sql.Open("postgres", cfg.Database.SQL.URL)
-	if err != nil {
-		return Residences{}, err
-	}
-
+func NewResidences(db *sql.DB) (Residences, error) {
 	return Residences{
-		queries: dbx.NewResidences(pg),
+		queries: dbx.NewResidences(db),
 	}, nil
 }
 

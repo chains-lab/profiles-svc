@@ -25,11 +25,6 @@ func (a App) ProfileCreate(ctx context.Context, userID uuid.UUID) error {
 			return err
 		}
 
-		err = a.residences.Create(ctx, userID)
-		if err != nil {
-			return err
-		}
-
 		return nil
 	})
 	if txErr != nil {

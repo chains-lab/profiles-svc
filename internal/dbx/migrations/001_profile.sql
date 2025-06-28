@@ -40,7 +40,7 @@ CREATE TABLE users_job (
     income   income_range_enum,
 
     degree_updated_at    timestamp,
-    job_scope_updated_at timestamp,
+    industry_updated_at timestamp,
     income_updated_at    timestamp,
 )
 

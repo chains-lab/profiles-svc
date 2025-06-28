@@ -6,10 +6,8 @@ import (
 	"fmt"
 
 	"github.com/chains-lab/elector-cab-svc/internal/app/domain"
-	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/chains-lab/elector-cab-svc/internal/dbx"
 	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
-	"github.com/google/uuid"
 )
 
 type App struct {
@@ -69,58 +67,4 @@ func (a App) transaction(fn func(ctx context.Context) error) error {
 	}
 
 	return nil
-}
-
-func (a App) UserDataGetUserID(ctx context.Context, userID uuid.UUID) (models.UserData, error) {
-	profile, err := a.profiles.GetByID(ctx, userID)
-	if err != nil {
-		return models.UserData{}, err
-	}
-
-	jobs, err := a.jobs.Get(ctx, userID)
-	if err != nil {
-		return models.UserData{}, err
-	}
-
-	biography, err := a.biographies.Get(ctx, userID)
-	if err != nil {
-		return models.UserData{}, err
-	}
-
-	return models.UserData{
-		Profile: profile,
-		Job:     jobs,
-		Bio:     biography,
-	}, nil
-}
-
-func (a App) UserDataGetByUsername(ctx context.Context, username string) (models.UserData, error) {
-	profile, err := a.profiles.GetByUsername(ctx, username)
-	if err != nil {
-		return models.UserData{}, err
-	}
-
-	jobs, err := a.jobs.Get(ctx, profile.UserID)
-	if err != nil {
-		return models.UserData{}, err
-	}
-
-	biography, err := a.biographies.Get(ctx, profile.UserID)
-	if err != nil {
-		return models.UserData{}, err
-	}
-
-	return models.UserData{
-		Profile: profile,
-		Job:     jobs,
-		Bio:     biography,
-	}, nil
-}
-
-func (a App) GetUserBiography(ctx context.Context, userID uuid.UUID) (models.Biography, error) {
-	return a.biographies.Get(ctx, userID)
-}
-
-func (a App) GetUserJob(ctx context.Context, userID uuid.UUID) (models.Job, error) {
-	return a.jobs.Get(ctx, userID)
 }

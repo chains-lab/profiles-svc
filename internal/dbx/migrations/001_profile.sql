@@ -18,23 +18,15 @@ CREATE TABLE users_biographic (
 
     sex              sex_enum,
     birthday         timestamp,
-    citizenship      VARCHAR(255),
     nationality      VARCHAR(255),
     primary_language VARCHAR(255),
+    country          VARCHAR(255),
+    city             VARCHAR(255),
 
     sex_updated_at              timestamp,
-    citizenship_updated_at      timestamp,
     nationality_updated_at      timestamp,
-    primary_language_updated_at timestamp
-)
-
-CREATE TABLE users_residence (
-    user_id UUID PRIMARY KEY REFERENCES user_profiles(user_id) ON DELETE CASCADE,
-
-    country_residence VARCHAR(255),
-    city_residence    VARCHAR(255),
-
-    updated_at    timestamp
+    primary_language_updated_at timestamp,
+    residence_updated_at        timestamp,
 )
 
 CREATE TYPE degrees_enum AS ENUM ('no degree', 'middle', 'incomplete higher', 'higher', 'candidate/doctor of sciences')
@@ -43,9 +35,9 @@ CREATE TYPE income_range_enum AS ENUM ('-200', '200-500', '500-1000', '1000-2000
 CREATE TABLE users_job (
     user_id  UUID PRIMARY KEY REFERENCES user_profiles(user_id) ON DELETE CASCADE,
 
-    degree degrees_enum,
+    degree   degrees_enum,
     industry job_industry_enum,
-    income income_range_enum,
+    income   income_range_enum,
 
     degree_updated_at    timestamp,
     job_scope_updated_at timestamp,

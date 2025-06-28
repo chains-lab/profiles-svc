@@ -3,7 +3,6 @@ package dbx
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
@@ -13,16 +12,18 @@ import (
 const UsersBiographic = "users_biographic"
 
 type BioModel struct {
-	UserID                   uuid.UUID  `db:"user_id"`
-	Sex                      *string    `db:"sex,omitempty"`
-	Birthday                 *time.Time `db:"birthday,omitempty"`
-	Citizenship              *string    `db:"citizenship,omitempty"`
-	Nationality              *string    `db:"nationality,omitempty"`
-	PrimaryLanguage          *string    `db:"primary_language,omitempty"`
+	UserID          uuid.UUID  `db:"user_id"`
+	Sex             *string    `db:"sex,omitempty"`
+	Birthday        *time.Time `db:"birthday,omitempty"`
+	Nationality     *string    `db:"nationality,omitempty"`
+	PrimaryLanguage *string    `db:"primary_language,omitempty"`
+	Country         *string    `db:"country,omitempty"`
+	City            *string    `db:"city,omitempty"`
+
 	SexUpdatedAt             *time.Time `db:"sex_updated_at,omitempty"`
-	CitizenshipUpdatedAt     *time.Time `db:"citizenship_updated_at,omitempty"`
 	NationalityUpdatedAt     *time.Time `db:"nationality_updated_at,omitempty"`
 	PrimaryLanguageUpdatedAt *time.Time `db:"primary_language_updated_at,omitempty"`
+	ResidenceUpdatedAt       *time.Time `db:"residence_updated_at,omitempty"`
 }
 
 type BiographiesQ struct {
@@ -55,13 +56,14 @@ func (q BiographiesQ) Insert(ctx context.Context, m BioModel) error {
 		"user_id":                     m.UserID,
 		"sex":                         m.Sex,
 		"birthday":                    m.Birthday,
-		"citizenship":                 m.Citizenship,
 		"nationality":                 m.Nationality,
 		"primary_language":            m.PrimaryLanguage,
+		"country":                     m.Country,
+		"city":                        m.City,
 		"sex_updated_at":              m.SexUpdatedAt,
-		"citizenship_updated_at":      m.CitizenshipUpdatedAt,
 		"nationality_updated_at":      m.NationalityUpdatedAt,
 		"primary_language_updated_at": m.PrimaryLanguageUpdatedAt,
+		"residence_updated_at":        m.ResidenceUpdatedAt,
 	}
 
 	query, args, err := q.inserter.SetMap(values).ToSql()
@@ -82,12 +84,13 @@ type UpdateBioInput struct {
 	Birthday                 *time.Time
 	Sex                      *string
 	SexUpdatedAt             *time.Time
-	Citizenship              *string
-	CitizenshipUpdatedAt     *time.Time
 	Nationality              *string
 	NationalityUpdatedAt     *time.Time
 	PrimaryLanguage          *string
 	PrimaryLanguageUpdatedAt *time.Time
+	Country                  *string
+	City                     *string
+	ResidenceUpdatedAt       *time.Time
 }
 
 func (q BiographiesQ) Update(ctx context.Context, input UpdateBioInput) error {
@@ -102,12 +105,6 @@ func (q BiographiesQ) Update(ctx context.Context, input UpdateBioInput) error {
 	if input.SexUpdatedAt != nil {
 		updates["sex_updated_at"] = *input.SexUpdatedAt
 	}
-	if input.Citizenship != nil {
-		updates["citizenship"] = *input.Citizenship
-	}
-	if input.CitizenshipUpdatedAt != nil {
-		updates["citizenship_updated_at"] = *input.CitizenshipUpdatedAt
-	}
 	if input.Nationality != nil {
 		updates["nationality"] = *input.Nationality
 	}
@@ -119,6 +116,15 @@ func (q BiographiesQ) Update(ctx context.Context, input UpdateBioInput) error {
 	}
 	if input.PrimaryLanguageUpdatedAt != nil {
 		updates["primary_language_updated_at"] = *input.PrimaryLanguageUpdatedAt
+	}
+	if input.Country != nil {
+		updates["country"] = *input.Country
+	}
+	if input.City != nil {
+		updates["city"] = *input.City
+	}
+	if input.ResidenceUpdatedAt != nil {
+		updates["residence_updated_at"] = *input.ResidenceUpdatedAt
 	}
 
 	query, args, err := q.updater.SetMap(updates).ToSql()
@@ -152,13 +158,14 @@ func (q BiographiesQ) Get(ctx context.Context) (BioModel, error) {
 		&personality.UserID,
 		&personality.Sex,
 		&personality.Birthday,
-		&personality.Citizenship,
 		&personality.Nationality,
 		&personality.PrimaryLanguage,
+		&personality.Country,
+		&personality.City,
 		&personality.SexUpdatedAt,
-		&personality.CitizenshipUpdatedAt,
 		&personality.NationalityUpdatedAt,
 		&personality.PrimaryLanguageUpdatedAt,
+		&personality.ResidenceUpdatedAt,
 	)
 
 	return personality, nil
@@ -189,13 +196,14 @@ func (q BiographiesQ) Select(ctx context.Context) ([]BioModel, error) {
 			&personality.UserID,
 			&personality.Sex,
 			&personality.Birthday,
-			&personality.Citizenship,
 			&personality.Nationality,
 			&personality.PrimaryLanguage,
+			&personality.Country,
+			&personality.City,
 			&personality.SexUpdatedAt,
-			&personality.CitizenshipUpdatedAt,
 			&personality.NationalityUpdatedAt,
 			&personality.PrimaryLanguageUpdatedAt,
+			&personality.ResidenceUpdatedAt,
 		)
 		if err != nil {
 			return nil, err

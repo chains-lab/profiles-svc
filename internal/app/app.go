@@ -16,7 +16,6 @@ type App struct {
 	profiles    domain.Profiles
 	jobs        domain.Jobs
 	biographies domain.Biographies
-	residences  domain.Residences
 
 	db *sql.DB
 }
@@ -39,16 +38,11 @@ func NewApp(cfg config.Config) (App, error) {
 	if err != nil {
 		return App{}, err
 	}
-	residences, err := domain.NewResidences(pg)
-	if err != nil {
-		return App{}, err
-	}
 
 	return App{
 		profiles:    profiles,
 		jobs:        jobs,
 		biographies: biographies,
-		residences:  residences,
 		db:          pg,
 	}, nil
 }
@@ -93,16 +87,10 @@ func (a App) UserDataGetUserID(ctx context.Context, userID uuid.UUID) (models.Us
 		return models.UserData{}, err
 	}
 
-	residence, err := a.residences.Get(ctx, userID)
-	if err != nil {
-		return models.UserData{}, err
-	}
-
 	return models.UserData{
-		Profile:   profile,
-		Job:       jobs,
-		Bio:       biography,
-		Residence: residence,
+		Profile: profile,
+		Job:     jobs,
+		Bio:     biography,
 	}, nil
 }
 
@@ -122,25 +110,15 @@ func (a App) UserDataGetByUsername(ctx context.Context, username string) (models
 		return models.UserData{}, err
 	}
 
-	residence, err := a.residences.Get(ctx, profile.UserID)
-	if err != nil {
-		return models.UserData{}, err
-	}
-
 	return models.UserData{
-		Profile:   profile,
-		Job:       jobs,
-		Bio:       biography,
-		Residence: residence,
+		Profile: profile,
+		Job:     jobs,
+		Bio:     biography,
 	}, nil
 }
 
-func (a App) GetUserBiography(ctx context.Context, userID uuid.UUID) (models.Bio, error) {
+func (a App) GetUserBiography(ctx context.Context, userID uuid.UUID) (models.Biography, error) {
 	return a.biographies.Get(ctx, userID)
-}
-
-func (a App) GetUserResidence(ctx context.Context, userID uuid.UUID) (models.Residence, error) {
-	return a.residences.Get(ctx, userID)
 }
 
 func (a App) GetUserJob(ctx context.Context, userID uuid.UUID) (models.Job, error) {

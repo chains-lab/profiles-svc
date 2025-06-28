@@ -3,7 +3,6 @@ package dbx
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"time"
 
 	sq "github.com/Masterminds/squirrel"

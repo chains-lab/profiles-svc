@@ -9,11 +9,14 @@ import (
 )
 
 func (a App) UpdateResidence(ctx context.Context, userID uuid.UUID, city, country string) error {
-	return a.residences.Update(ctx, userID, city, country)
+	return a.biographies.UpdateResidence(ctx, userID, city, country)
 }
 
 func (a App) UpdateResidenceAdmin(ctx context.Context, userID uuid.UUID, city, country string) error {
-	return a.residences.UpdateAdmin(ctx, userID, city, country)
+	return a.biographies.AdminUpdateBio(ctx, userID, domain.AdminBioUpdate{
+		Country: &country,
+		City:    &city,
+	})
 }
 
 func (a App) UpdateSex(ctx context.Context, userID uuid.UUID, sex string) error {
@@ -33,16 +36,6 @@ func (a App) UpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time
 func (a App) AdminUpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) error {
 	return a.biographies.AdminUpdateBio(ctx, userID, domain.AdminBioUpdate{
 		Birthday: &birthday,
-	})
-}
-
-func (a App) UpdateCitizenship(ctx context.Context, userID uuid.UUID, citizenship string) error {
-	return a.biographies.SetCitizenship(ctx, userID, citizenship)
-}
-
-func (a App) AdminUpdateCitizenship(ctx context.Context, userID uuid.UUID, citizenship string) error {
-	return a.biographies.AdminUpdateBio(ctx, userID, domain.AdminBioUpdate{
-		Citizenship: &citizenship,
 	})
 }
 

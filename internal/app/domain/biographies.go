@@ -50,12 +50,12 @@ func (b Biographies) Create(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }
 
-func (b Biographies) Get(ctx context.Context, userID uuid.UUID) (models.Bio, error) {
+func (b Biographies) Get(ctx context.Context, userID uuid.UUID) (models.Biography, error) {
 	bio, err := b.queries.New().FilterUserID(userID).Get(ctx)
 	if err != nil {
 		switch {
 		default:
-			return models.Bio{}, ape.ErrorInternal(err) //TODO
+			return models.Biography{}, ape.ErrorInternal(err) //TODO
 		}
 	}
 
@@ -110,37 +110,6 @@ func (b Biographies) SetBirthday(ctx context.Context, userID uuid.UUID, birthday
 
 	if err := b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
 		Birthday: &birthday,
-	}); err != nil {
-		switch {
-		default:
-			return ape.ErrorInternal(err) //TODO
-		}
-	}
-
-	return nil
-}
-
-func (b Biographies) SetCitizenship(ctx context.Context, userID uuid.UUID, citizenship string) error {
-	bio, err := b.Get(ctx, userID)
-	if err != nil {
-		return err
-	}
-
-	now := time.Now().UTC()
-	if bio.CitizenshipUpdatedAt != nil {
-		last := *bio.CitizenshipUpdatedAt
-
-		if now.Sub(last) < 365*24*time.Hour {
-			//nextAllowed := last.Add(365 * 24 * time.Hour)
-			//wait := nextAllowed.Sub(now).Round(time.Hour)
-
-			return ape.ErrorInternal(fmt.Errorf("")) //TODO: add error
-		}
-	}
-
-	if err := b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
-		Citizenship:          &citizenship,
-		CitizenshipUpdatedAt: &now,
 	}); err != nil {
 		switch {
 		default:
@@ -215,12 +184,44 @@ func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, p
 	return nil
 }
 
+func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, country string, city string) error {
+	bio, err := b.Get(ctx, userID)
+	if err != nil {
+		return ape.ErrorInternal(err) //TODO: handle error properly
+	}
+
+	now := time.Now().UTC()
+
+	//TODO  Validate residence
+	if bio.ResidenceUpdatedAt != nil {
+		last := *bio.ResidenceUpdatedAt
+
+		if now.Sub(last) < 100*24*time.Hour {
+			return ape.ErrorInternal(fmt.Errorf(""))
+		}
+	}
+
+	if err := b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
+		City:               &city,
+		Country:            &country,
+		ResidenceUpdatedAt: &now,
+	}); err != nil {
+		switch {
+		default:
+			return ape.ErrorInternal(err) //TODO: handle error properly
+		}
+	}
+
+	return nil
+}
+
 type AdminBioUpdate struct {
 	Birthday        *time.Time
 	Sex             *string
-	Citizenship     *string
 	Nationality     *string
 	PrimaryLanguage *string
+	City            *string
+	Country         *string
 }
 
 func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input AdminBioUpdate) error {
@@ -243,10 +244,16 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 		dbInput.Sex = input.Sex
 		dbInput.SexUpdatedAt = &now
 	}
-	if input.Citizenship != nil {
-		//TODO validate citizenship from other api
-		dbInput.Citizenship = input.Citizenship
-		dbInput.CitizenshipUpdatedAt = &now
+
+	if input.City != nil {
+		//TODO validate city
+		dbInput.City = input.City
+		dbInput.ResidenceUpdatedAt = &now
+	}
+	if input.Country != nil {
+		//TODO validate country
+		dbInput.Country = input.Country
+		dbInput.ResidenceUpdatedAt = &now
 	}
 	if input.Nationality != nil {
 		//TODO validate
@@ -269,18 +276,19 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	return nil
 }
 
-func BioFromDb(input dbx.BioModel) models.Bio {
-	return models.Bio{
+func BioFromDb(input dbx.BioModel) models.Biography {
+	return models.Biography{
 		UserID:          input.UserID,
 		Sex:             input.Sex,
 		Birthday:        input.Birthday,
-		Citizenship:     input.Citizenship,
 		Nationality:     input.Nationality,
 		PrimaryLanguage: input.PrimaryLanguage,
+		City:            input.City,
+		Country:         input.Country,
 
 		SexUpdatedAt:             input.SexUpdatedAt,
 		NationalityUpdatedAt:     input.NationalityUpdatedAt,
-		CitizenshipUpdatedAt:     input.CitizenshipUpdatedAt,
 		PrimaryLanguageUpdatedAt: input.PrimaryLanguageUpdatedAt,
+		ResidenceUpdatedAt:       input.ResidenceUpdatedAt,
 	}
 }

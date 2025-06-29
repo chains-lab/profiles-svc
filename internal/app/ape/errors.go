@@ -3,12 +3,13 @@ package ape
 import "fmt"
 
 type Error struct {
-	Err   error
-	cause error
+	Reason  string // similar to CODE in HTTP API errors
+	Details error  // for internal use in application
+	cause   error  // the original error that caused this error, if any
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("%s: %v", e.Err.Error(), e.cause.Error())
+	return fmt.Sprintf("%s: %v", e.Reason.Error(), e.cause.Error())
 }
 
 func (e *Error) Unwrap() error {
@@ -19,11 +20,17 @@ func (e *Error) Nil() bool {
 	if e == nil {
 		return true
 	}
-	return e.Err == nil && e.cause == nil
+	return e.Details == nil && e.cause == nil
 }
+
+const ReasonUserDoesNotExist = "USER_DOES_NOT_EXIST"
 
 var ErrInternal = fmt.Errorf("internal server error")
 
 func ErrorInternal(cause error) error {
-	return &Error{Err: ErrInternal, cause: cause}
+	return &Error{
+		Reason:  ReasonUserDoesNotExist,
+		Details: ErrInternal,
+		cause:   cause,
+	}
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const UsersBiographic = "users_biographic"
+const UsersBiographies = "users_biographies"
 
 type BioModel struct {
 	UserID          uuid.UUID  `db:"user_id"`
@@ -39,11 +39,11 @@ func NewBiographies(db *sql.DB) BiographiesQ {
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 	return BiographiesQ{
 		db:       db,
-		selector: builder.Select("*").From(UsersBiographic),
-		inserter: builder.Insert(UsersBiographic),
-		updater:  builder.Update(UsersBiographic),
-		deleter:  builder.Delete(UsersBiographic),
-		counter:  builder.Select("COUNT(*) AS count").From(UsersBiographic),
+		selector: builder.Select("*").From(UsersBiographies),
+		inserter: builder.Insert(UsersBiographies),
+		updater:  builder.Update(UsersBiographies),
+		deleter:  builder.Delete(UsersBiographies),
+		counter:  builder.Select("COUNT(*) AS count").From(UsersBiographies),
 	}
 }
 

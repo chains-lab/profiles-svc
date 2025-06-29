@@ -1,15 +1,17 @@
 package ape
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Error struct {
 	Reason  string // similar to CODE in HTTP API errors
-	Details error  // for internal use in application
+	Details string // additional details about the error
 	cause   error  // the original error that caused this error, if any
 }
 
 func (e *Error) Error() string {
-	return fmt.Sprintf("%s: %v", e.Reason.Error(), e.cause.Error())
+	return fmt.Sprintf("reason %s: | details: %s | cause: %v", e.Reason, e.Details, e.cause.Error())
 }
 
 func (e *Error) Unwrap() error {
@@ -20,17 +22,15 @@ func (e *Error) Nil() bool {
 	if e == nil {
 		return true
 	}
-	return e.Details == nil && e.cause == nil
+	return e.cause == nil
 }
 
-const ReasonUserDoesNotExist = "USER_DOES_NOT_EXIST"
-
-var ErrInternal = fmt.Errorf("internal server error")
+const ReasonErrorInternal = "INTERNAL_ERROR"
 
 func ErrorInternal(cause error) error {
 	return &Error{
-		Reason:  ReasonUserDoesNotExist,
-		Details: ErrInternal,
+		Reason:  ReasonErrorInternal,
+		Details: "internal server error",
 		cause:   cause,
 	}
 }

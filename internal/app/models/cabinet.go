@@ -2,6 +2,6 @@ package models
 
 type Cabinet struct {
 	Profile   Profile   `json:"profile"`
-	Job       Job       `json:"job"`
+	Job       JobResume `json:"job"`
 	Biography Biography `json:"biography"`
 }

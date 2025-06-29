@@ -13,7 +13,7 @@ CREATE TABLE user_profiles (
 );
 
 CREATE TYPE sex_enum AS ENUM ('female','male','other');
-CREATE TABLE users_biographic (
+CREATE TABLE users_biographies (
     user_id UUID PRIMARY KEY REFERENCES user_profiles(user_id) ON DELETE CASCADE,
 
     sex              sex_enum,
@@ -32,7 +32,7 @@ CREATE TABLE users_biographic (
 CREATE TYPE degrees_enum AS ENUM ('no degree', 'middle', 'incomplete higher', 'higher', 'candidate/doctor of sciences')
 CREATE TYPE job_industry_enum AS ENUM ('IT', 'trade', 'service sector', 'hard physical work')
 CREATE TYPE income_range_enum AS ENUM ('-200', '200-500', '500-1000', '1000-2000', '2000-5000', '5000-10000', '10000-50000', '50000+')
-CREATE TABLE users_job (
+CREATE TABLE users_job_resumes (
     user_id  UUID PRIMARY KEY REFERENCES user_profiles(user_id) ON DELETE CASCADE,
 
     degree   degrees_enum,
@@ -40,15 +40,14 @@ CREATE TABLE users_job (
     income   income_range_enum,
 
     degree_updated_at    timestamp,
-    industry_updated_at timestamp,
+    industry_updated_at  timestamp,
     income_updated_at    timestamp,
 )
 
 -- +migrate Down
-DROP TABLE IF EXISTS users_job CASCADE;
-DROP TABLE IF EXISTS users_residence CASCADE;
-DROP TABLE IF EXISTS users_personalities_data CASCADE;
-DROP TABLE IF EXISTS profiles CASCADE;
+DROP TABLE IF EXISTS users_job_resumes CASCADE;
+DROP TABLE IF EXISTS users_biographies CASCADE;
+DROP TABLE IF EXISTS user_profiles CASCADE;
 DROP TYPE IF EXISTS sex_enums;
 DROP TYPE IF EXISTS degrees_enum;
 DROP TYPE IF EXISTS job_scope_enum;

@@ -11,9 +11,9 @@ import (
 )
 
 type App struct {
-	profiles    domain.Profiles
-	jobs        domain.Jobs
-	biographies domain.Biographies
+	profiles    entities.Profiles
+	jobResumes  entities.JobResumes
+	biographies entities.Biographies
 
 	db *sql.DB
 }
@@ -24,22 +24,22 @@ func NewApp(cfg config.Config) (App, error) {
 		return App{}, err
 	}
 
-	profiles, err := domain.NewProfile(pg)
+	profiles, err := entities.NewProfile(pg)
 	if err != nil {
 		return App{}, err
 	}
-	jobs, err := domain.NewJob(pg)
+	jobs, err := entities.NewJobResumes(pg)
 	if err != nil {
 		return App{}, err
 	}
-	biographies, err := domain.NewBiographies(pg)
+	biographies, err := entities.NewBiographies(pg)
 	if err != nil {
 		return App{}, err
 	}
 
 	return App{
 		profiles:    profiles,
-		jobs:        jobs,
+		jobResumes:  jobs,
 		biographies: biographies,
 		db:          pg,
 	}, nil

@@ -1,4 +1,4 @@
-package domain
+package entities
 
 import (
 	"context"
@@ -82,8 +82,14 @@ type UpdateProfileInput struct {
 func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProfileInput) error {
 	if input.Username != nil {
 		_, err := p.queries.New().FilterUsername(*input.Username).Get(ctx)
-		if !errors.Is(err, sql.ErrNoRows) {
-			return ape.ErrorInternal(err) //TODO
+		if errors.Is(err, sql.ErrNoRows) {
+
+		} else if err != nil {
+			return ape.ErrorInternal(err)
+		}
+
+		if err == nil {
+			return ape.ErrorUsernameAlreadyTaken(err, *input.Username)
 		}
 	}
 
@@ -96,6 +102,10 @@ func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProf
 		UpdatedAt:   time.Now().UTC(),
 	})
 	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
+		}
 		return ape.ErrorInternal(err)
 	}
 
@@ -106,8 +116,10 @@ func (p Profiles) GetByID(ctx context.Context, userID uuid.UUID) (models.Profile
 	profile, err := p.queries.FilterUserID(userID).Get(ctx)
 	if err != nil {
 		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return models.Profile{}, ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
 		default:
-			return models.Profile{}, ape.ErrorInternal(err) //TODO
+			return models.Profile{}, ape.ErrorInternal(err)
 		}
 	}
 
@@ -118,8 +130,10 @@ func (p Profiles) GetByUsername(ctx context.Context, username string) (models.Pr
 	profile, err := p.queries.FilterUsername(username).Get(ctx)
 	if err != nil {
 		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return models.Profile{}, ape.ErrorCabinetForUserDoesNotExist(err, username)
 		default:
-			return models.Profile{}, ape.ErrorInternal(err) //TODO
+			return models.Profile{}, ape.ErrorInternal(err)
 		}
 	}
 

@@ -8,32 +8,6 @@ import (
 	"github.com/google/uuid"
 )
 
-func (a App) ProfileCreate(ctx context.Context, userID uuid.UUID) error {
-	txErr := a.transaction(func(ctx context.Context) error {
-		err := a.profiles.Create(ctx, userID)
-		if err != nil {
-			return err
-		}
-
-		err = a.jobs.Create(ctx, userID)
-		if err != nil {
-			return err
-		}
-
-		err = a.biographies.Create(ctx, userID)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
-	if txErr != nil {
-		return txErr
-	}
-
-	return nil
-}
-
 func (a App) ProfileGetUserID(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
 	return a.profiles.GetByID(ctx, userID)
 }
@@ -51,7 +25,7 @@ type UpdateProfileInput struct {
 }
 
 func (a App) ProfileUpdate(ctx context.Context, userID uuid.UUID, profile UpdateProfileInput) (models.Profile, error) {
-	err := a.profiles.Update(ctx, userID, domain.UpdateProfileInput{
+	err := a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
 		Username:    profile.Username,
 		Pseudonym:   profile.Pseudonym,
 		Description: profile.Description,

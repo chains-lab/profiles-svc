@@ -1,12 +1,15 @@
-package domain
+package entities
 
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
+	"github.com/chains-lab/elector-cab-svc/internal/app/domain"
+	"github.com/chains-lab/elector-cab-svc/internal/app/enums"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/chains-lab/elector-cab-svc/internal/dbx"
 	"github.com/google/uuid"
@@ -42,8 +45,10 @@ func (b Biographies) Create(ctx context.Context, userID uuid.UUID) error {
 		UserID: userID,
 	}); err != nil {
 		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ape.ErrorCabinetForUserAlreadyExists(err, userID.String())
 		default:
-			return ape.ErrorInternal(err) //TODO
+			return ape.ErrorInternal(err)
 		}
 	}
 
@@ -54,17 +59,19 @@ func (b Biographies) Get(ctx context.Context, userID uuid.UUID) (models.Biograph
 	bio, err := b.queries.New().FilterUserID(userID).Get(ctx)
 	if err != nil {
 		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return models.Biography{}, ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
 		default:
-			return models.Biography{}, ape.ErrorInternal(err) //TODO
+			return models.Biography{}, ape.ErrorInternal(err)
 		}
 	}
 
 	return BioFromDb(bio), nil
 }
 
-func (b Biographies) SetSex(ctx context.Context, userID uuid.UUID, sex string) error {
-	if !models.ValidateSex(sex) {
-		return ape.ErrorInternal(fmt.Errorf("")) //TODO: add error
+func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string) error {
+	if err := enums.ValidateSex(sex); err != nil {
+		return ape.ErrorPropertyIsNotValid(err)
 	}
 
 	now := time.Now().UTC()
@@ -77,41 +84,40 @@ func (b Biographies) SetSex(ctx context.Context, userID uuid.UUID, sex string) e
 	if bio.SexUpdatedAt != nil {
 		last := *bio.SexUpdatedAt
 
-		if now.Sub(last) < 365*24*time.Hour {
-			//nextAllowed := last.Add(365 * 24 * time.Hour)
-			//wait := nextAllowed.Sub(now).Round(time.Hour)
-
-			return ape.ErrorInternal(fmt.Errorf("")) //TODO: add error
-		}
+		return domain.ValidateUpdateProperty(last, 365*24*time.Hour)
 	}
 
-	if err := b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
+	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
 		Sex:          &sex,
 		SexUpdatedAt: &now,
 	}); err != nil {
 		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err) //TODO
+			return ape.ErrorInternal(err)
 		}
 	}
 
 	return nil
 }
 
-func (b Biographies) SetBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) error {
+func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) error {
 	bio, err := b.Get(ctx, userID)
 	if err != nil {
 		return err
 	}
 
 	if bio.Birthday != nil {
-		return ape.ErrorInternal(fmt.Errorf("birthday is already set")) //TODO: add error
+		return ape.ErrorPropertyUpdateNotAllowed(fmt.Errorf("birthday is already set you can do it once")) //TODO: add error
 	}
 
-	if err := b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
+	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
 		Birthday: &birthday,
 	}); err != nil {
 		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
 		default:
 			return ape.ErrorInternal(err) //TODO
 		}
@@ -121,31 +127,33 @@ func (b Biographies) SetBirthday(ctx context.Context, userID uuid.UUID, birthday
 }
 
 func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, nationality string) error {
+	//TODO validate nationality from other api
+	if err := enums.ValidateNationality(nationality); err != nil {
+		return ape.ErrorPropertyIsNotValid(err)
+	}
+
 	bio, err := b.Get(ctx, userID)
 	if err != nil {
 		return err
 	}
+
 	now := time.Now().UTC()
 
-	//TODO validate nationality from other api
 	if bio.NationalityUpdatedAt != nil {
 		last := *bio.NationalityUpdatedAt
 
-		if now.Sub(last) < 365*24*time.Hour {
-			//nextAllowed := last.Add(365 * 24 * time.Hour)
-			//wait := nextAllowed.Sub(now).Round(time.Hour)
-
-			return ape.ErrorInternal(fmt.Errorf("")) //TODO: add error
-		}
+		return domain.ValidateUpdateProperty(last, 365*24*time.Hour)
 	}
 
-	if err := b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
+	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
 		Nationality:          &nationality,
 		NationalityUpdatedAt: &now,
 	}); err != nil {
 		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err) //TODO
+			return ape.ErrorInternal(err)
 		}
 	}
 
@@ -153,29 +161,31 @@ func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, natio
 }
 
 func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, primaryLanguage string) error {
+	//TODO validate primaryLanguage from other api
+	if err := enums.ValidateLanguage(primaryLanguage); err != nil {
+		return ape.ErrorPropertyIsNotValid(err)
+	}
+
 	bio, err := b.Get(ctx, userID)
 	if err != nil {
 		return err
 	}
+
 	now := time.Now().UTC()
 
-	//TODO validate primaryLanguage from other api
 	if bio.PrimaryLanguageUpdatedAt != nil {
 		last := *bio.PrimaryLanguageUpdatedAt
 
-		if now.Sub(last) < 365*24*time.Hour {
-			//nextAllowed := last.Add(365 * 24 * time.Hour)
-			//wait := nextAllowed.Sub(now).Round(time.Hour)
-
-			return ape.ErrorInternal(fmt.Errorf("")) //TODO: add error
-		}
+		return domain.ValidateUpdateProperty(last, 365*24*time.Hour)
 	}
 
-	if err := b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
+	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
 		PrimaryLanguage:          &primaryLanguage,
 		PrimaryLanguageUpdatedAt: &now,
 	}); err != nil {
 		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
 		default:
 			return ape.ErrorInternal(err) //TODO
 		}
@@ -185,30 +195,35 @@ func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, p
 }
 
 func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, country string, city string) error {
+	//TODO validate country and city from other api
+	err := enums.ValidateResidence(city, country)
+	if err != nil {
+		return ape.ErrorPropertyIsNotValid(err)
+	}
+
 	bio, err := b.Get(ctx, userID)
 	if err != nil {
-		return ape.ErrorInternal(err) //TODO: handle error properly
+		return err
 	}
 
 	now := time.Now().UTC()
 
-	//TODO  Validate residence
 	if bio.ResidenceUpdatedAt != nil {
 		last := *bio.ResidenceUpdatedAt
 
-		if now.Sub(last) < 100*24*time.Hour {
-			return ape.ErrorInternal(fmt.Errorf(""))
-		}
+		return domain.ValidateUpdateProperty(last, 365*24*time.Hour)
 	}
 
-	if err := b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
+	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
 		City:               &city,
 		Country:            &country,
 		ResidenceUpdatedAt: &now,
 	}); err != nil {
 		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err) //TODO: handle error properly
+			return ape.ErrorInternal(err)
 		}
 	}
 
@@ -229,6 +244,7 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	if err != nil {
 		return err
 	}
+
 	now := time.Now().UTC()
 
 	var dbInput dbx.UpdateBioInput
@@ -236,38 +252,49 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	if input.Birthday != nil {
 		dbInput.Birthday = input.Birthday
 	}
+
 	if input.Sex != nil {
-		if !models.ValidateSex(*input.Sex) {
-			return ape.ErrorInternal(fmt.Errorf("")) //TODO: add error
+		if err := enums.ValidateSex(*input.Sex); err != nil {
+			return ape.ErrorPropertyIsNotValid(err)
 		}
 
 		dbInput.Sex = input.Sex
 		dbInput.SexUpdatedAt = &now
 	}
 
-	if input.City != nil {
-		//TODO validate city
+	if input.City != nil && input.Country != nil {
+		//TODO implement this functionality
+		if err = enums.ValidateResidence(*input.City, *input.Country); err != nil {
+			return ape.ErrorPropertyIsNotValid(err)
+		}
+
 		dbInput.City = input.City
-		dbInput.ResidenceUpdatedAt = &now
-	}
-	if input.Country != nil {
-		//TODO validate country
 		dbInput.Country = input.Country
 		dbInput.ResidenceUpdatedAt = &now
 	}
 	if input.Nationality != nil {
-		//TODO validate
+		//TODO implement this functionality
+		if err = enums.ValidateNationality(*input.Nationality); err != nil {
+			return ape.ErrorPropertyIsNotValid(err)
+		}
+
 		dbInput.Nationality = input.Nationality
 		dbInput.NationalityUpdatedAt = &now
 	}
 	if input.PrimaryLanguage != nil {
-		//TODO validate
+		//TODO implement this functionality
+		if err = enums.ValidateLanguage(*input.PrimaryLanguage); err != nil {
+			return ape.ErrorPropertyIsNotValid(err)
+		}
+
 		dbInput.PrimaryLanguage = input.PrimaryLanguage
 		dbInput.PrimaryLanguageUpdatedAt = &now
 	}
 
-	if err := b.queries.New().FilterUserID(userID).Update(ctx, dbInput); err != nil {
+	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbInput); err != nil {
 		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
 		default:
 			return ape.ErrorInternal(err) //TODO
 		}

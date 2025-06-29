@@ -7,13 +7,39 @@ import (
 	"github.com/google/uuid"
 )
 
+func (a App) CabinetCreate(ctx context.Context, userID uuid.UUID) error {
+	txErr := a.transaction(func(ctx context.Context) error {
+		err := a.profiles.Create(ctx, userID)
+		if err != nil {
+			return err
+		}
+
+		err = a.jobResumes.Create(ctx, userID)
+		if err != nil {
+			return err
+		}
+
+		err = a.biographies.Create(ctx, userID)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if txErr != nil {
+		return txErr
+	}
+
+	return nil
+}
+
 func (a App) CabinetGetByUserID(ctx context.Context, userID uuid.UUID) (models.Cabinet, error) {
 	profile, err := a.profiles.GetByID(ctx, userID)
 	if err != nil {
 		return models.Cabinet{}, err
 	}
 
-	jobs, err := a.jobs.Get(ctx, userID)
+	jobs, err := a.jobResumes.Get(ctx, userID)
 	if err != nil {
 		return models.Cabinet{}, err
 	}
@@ -36,7 +62,7 @@ func (a App) CabinetGetByUsername(ctx context.Context, username string) (models.
 		return models.Cabinet{}, err
 	}
 
-	jobs, err := a.jobs.Get(ctx, profile.UserID)
+	jobs, err := a.jobResumes.Get(ctx, profile.UserID)
 	if err != nil {
 		return models.Cabinet{}, err
 	}
@@ -57,6 +83,6 @@ func (a App) GetUserBiography(ctx context.Context, userID uuid.UUID) (models.Bio
 	return a.biographies.Get(ctx, userID)
 }
 
-func (a App) GetUserJob(ctx context.Context, userID uuid.UUID) (models.Job, error) {
-	return a.jobs.Get(ctx, userID)
+func (a App) GetUserJob(ctx context.Context, userID uuid.UUID) (models.JobResume, error) {
+	return a.jobResumes.Get(ctx, userID)
 }

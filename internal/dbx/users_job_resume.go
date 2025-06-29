@@ -9,9 +9,9 @@ import (
 	"github.com/google/uuid"
 )
 
-const UsersJobTable = "users_job"
+const UsersJobResumeTable = "users_job_resume"
 
-type JobModel struct {
+type JobResumeModel struct {
 	UserID uuid.UUID `db:"user_id"`
 
 	Degree   *string `db:"degree,omitempty"`
@@ -23,7 +23,7 @@ type JobModel struct {
 	IncomeUpdatedAt   *time.Time `db:"income_updated_at,omitempty"`
 }
 
-type JobsQ struct {
+type JobResumesQ struct {
 	db       *sql.DB
 	selector sq.SelectBuilder
 	inserter sq.InsertBuilder
@@ -32,23 +32,23 @@ type JobsQ struct {
 	counter  sq.SelectBuilder
 }
 
-func NewJobs(db *sql.DB) JobsQ {
+func NewJobs(db *sql.DB) JobResumesQ {
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	return JobsQ{
+	return JobResumesQ{
 		db:       db,
-		selector: builder.Select("*").From(UsersJobTable),
-		inserter: builder.Insert(UsersJobTable),
-		updater:  builder.Update(UsersJobTable),
-		deleter:  builder.Delete(UsersJobTable),
-		counter:  builder.Select("COUNT(*) AS count").From(UsersJobTable),
+		selector: builder.Select("*").From(UsersJobResumeTable),
+		inserter: builder.Insert(UsersJobResumeTable),
+		updater:  builder.Update(UsersJobResumeTable),
+		deleter:  builder.Delete(UsersJobResumeTable),
+		counter:  builder.Select("COUNT(*) AS count").From(UsersJobResumeTable),
 	}
 }
 
-func (q JobsQ) New() JobsQ {
+func (q JobResumesQ) New() JobResumesQ {
 	return NewJobs(q.db)
 }
 
-func (q JobsQ) Insert(ctx context.Context, input JobModel) error {
+func (q JobResumesQ) Insert(ctx context.Context, input JobResumeModel) error {
 	values := map[string]interface{}{
 		"user_id":             input.UserID,
 		"degree":              input.Degree,
@@ -82,7 +82,7 @@ type UpdateJobInput struct {
 	IncomeUpdatedAt   *time.Time
 }
 
-func (q JobsQ) Update(ctx context.Context, input UpdateJobInput) error {
+func (q JobResumesQ) Update(ctx context.Context, input UpdateJobInput) error {
 	updates := map[string]interface{}{}
 
 	if input.Degree != nil {
@@ -118,13 +118,13 @@ func (q JobsQ) Update(ctx context.Context, input UpdateJobInput) error {
 	return err
 }
 
-func (q JobsQ) Get(ctx context.Context) (JobModel, error) {
+func (q JobResumesQ) Get(ctx context.Context) (JobResumeModel, error) {
 	query, args, err := q.selector.Limit(1).ToSql()
 	if err != nil {
-		return JobModel{}, err
+		return JobResumeModel{}, err
 	}
 
-	var job JobModel
+	var job JobResumeModel
 	var row *sql.Row
 	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
 		row = tx.QueryRowContext(ctx, query, args...)
@@ -144,7 +144,7 @@ func (q JobsQ) Get(ctx context.Context) (JobModel, error) {
 	return job, err
 }
 
-func (q JobsQ) Select(ctx context.Context) ([]JobModel, error) {
+func (q JobResumesQ) Select(ctx context.Context) ([]JobResumeModel, error) {
 	query, args, err := q.selector.ToSql()
 	if err != nil {
 		return nil, err
@@ -162,9 +162,9 @@ func (q JobsQ) Select(ctx context.Context) ([]JobModel, error) {
 	}
 	defer rows.Close()
 
-	var jobs []JobModel
+	var jobs []JobResumeModel
 	for rows.Next() {
-		var job JobModel
+		var job JobResumeModel
 		if err := rows.Scan(
 			&job.UserID,
 			&job.Degree,
@@ -186,7 +186,7 @@ func (q JobsQ) Select(ctx context.Context) ([]JobModel, error) {
 	return jobs, nil
 }
 
-func (q JobsQ) Delete(ctx context.Context) error {
+func (q JobResumesQ) Delete(ctx context.Context) error {
 	query, args, err := q.deleter.ToSql()
 	if err != nil {
 		return err
@@ -201,7 +201,7 @@ func (q JobsQ) Delete(ctx context.Context) error {
 	return err
 }
 
-func (q JobsQ) FilterUserID(userID uuid.UUID) JobsQ {
+func (q JobResumesQ) FilterUserID(userID uuid.UUID) JobResumesQ {
 	q.selector = q.selector.Where(sq.Eq{"user_id": userID})
 	q.counter = q.counter.Where(sq.Eq{"user_id": userID})
 	q.deleter = q.deleter.Where(sq.Eq{"user_id": userID})
@@ -210,7 +210,7 @@ func (q JobsQ) FilterUserID(userID uuid.UUID) JobsQ {
 	return q
 }
 
-func (q JobsQ) Count(ctx context.Context) (int, error) {
+func (q JobResumesQ) Count(ctx context.Context) (int, error) {
 	query, args, err := q.counter.ToSql()
 	if err != nil {
 		return 0, err
@@ -229,7 +229,7 @@ func (q JobsQ) Count(ctx context.Context) (int, error) {
 	return int(count), nil
 }
 
-func (q JobsQ) Page(limit, offset uint64) JobsQ {
+func (q JobResumesQ) Page(limit, offset uint64) JobResumesQ {
 	q.selector = q.selector.Limit(limit).Offset(offset)
 	q.counter = q.counter.Limit(limit).Offset(offset)
 

@@ -6,19 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-var SexValues = []string{
-	"male", "female", "other",
-}
-
-func ValidateSex(s string) bool {
-	for _, v := range SexValues {
-		if s == v {
-			return true
-		}
-	}
-	return false
-}
-
 type Biography struct {
 	UserID          uuid.UUID  `json:"userid"`
 	Sex             *string    `json:"sex"`

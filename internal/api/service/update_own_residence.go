@@ -1,0 +1,26 @@
+package service
+
+import (
+	"context"
+
+	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
+	"github.com/chains-lab/elector-cab-svc/internal/app"
+	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
+)
+
+func (s Service) UpdateOwnResidence(ctx context.Context, req *svc.UpdateOwnResidenceRequest) (*svc.Biography, error) {
+	meta := Meta(ctx)
+
+	bio, err := s.app.UpdateResidence(ctx, meta.InitiatorID, app.UpdateResidenceInput{
+		Country: req.Country,
+		Region:  req.Region,
+		City:    req.City,
+	})
+	if err != nil {
+		Log(ctx, meta.RequestID).WithError(err).Error("failed to update user residence")
+
+		return nil, responses.AppError(ctx, meta.RequestID, err)
+	}
+
+	return responses.Biography(bio), nil
+}

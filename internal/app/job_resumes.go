@@ -17,30 +17,8 @@ func (a App) UpdateDegree(ctx context.Context, userID uuid.UUID, degree string) 
 	return models.JobResume{}, nil
 }
 
-func (a App) AdminUpdateDegree(ctx context.Context, userID uuid.UUID, degree string) (models.JobResume, error) {
-	err := a.jobResumes.AdminUpdate(ctx, userID, entities.AdminJobUpdate{
-		Degree: &degree,
-	})
-	if err != nil {
-		return models.JobResume{}, err
-	}
-
-	return models.JobResume{}, nil
-}
-
 func (a App) UpdateIndustry(ctx context.Context, userID uuid.UUID, industry string) (models.JobResume, error) {
 	err := a.jobResumes.UpdateIndustry(ctx, userID, industry)
-	if err != nil {
-		return models.JobResume{}, err
-	}
-
-	return models.JobResume{}, nil
-}
-
-func (a App) AdminUpdateIndustry(ctx context.Context, userID uuid.UUID, industry string) (models.JobResume, error) {
-	err := a.jobResumes.AdminUpdate(ctx, userID, entities.AdminJobUpdate{
-		Industry: &industry,
-	})
 	if err != nil {
 		return models.JobResume{}, err
 	}
@@ -57,13 +35,26 @@ func (a App) UpdateIncome(ctx context.Context, userID uuid.UUID, income string) 
 	return models.JobResume{}, nil
 }
 
-func (a App) AdminUpdateIncome(ctx context.Context, userID uuid.UUID, income string) (models.JobResume, error) {
-	err := a.jobResumes.AdminUpdate(ctx, userID, entities.AdminJobUpdate{
-		Income: &income,
+type AdminUpdateJobResumeInput struct {
+	Degree   *string
+	Industry *string
+	Income   *string
+}
+
+func (a App) AdminUpdateJobResume(ctx context.Context, userID uuid.UUID, input AdminUpdateJobResumeInput) (models.JobResume, error) {
+	jobResume, err := a.jobResumes.Get(ctx, userID)
+	if err != nil {
+		return models.JobResume{}, err
+	}
+
+	err = a.jobResumes.AdminUpdate(ctx, userID, entities.AdminJobUpdate{
+		Degree:   input.Degree,
+		Industry: input.Industry,
+		Income:   input.Income,
 	})
 	if err != nil {
 		return models.JobResume{}, err
 	}
 
-	return models.JobResume{}, nil
+	return jobResume, nil
 }

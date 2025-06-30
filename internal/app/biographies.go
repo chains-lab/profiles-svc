@@ -9,19 +9,17 @@ import (
 	"github.com/google/uuid"
 )
 
-func (a App) UpdateResidence(ctx context.Context, userID uuid.UUID, city, country string) (models.Biography, error) {
-	err := a.biographies.UpdateResidence(ctx, userID, city, country)
-	if err != nil {
-		return models.Biography{}, err
-	}
-
-	return a.biographies.GetByUserID(ctx, userID)
+type UpdateResidenceInput struct {
+	City    string `json:"city,omitempty"`
+	Region  string `json:"region,omitempty"`
+	Country string `json:"country,omitempty"`
 }
 
-func (a App) AdminUpdateResidence(ctx context.Context, userID uuid.UUID, city, country string) (models.Biography, error) {
-	err := a.biographies.AdminUpdateBio(ctx, userID, entities.AdminBioUpdate{
-		Country: &country,
-		City:    &city,
+func (a App) UpdateResidence(ctx context.Context, userID uuid.UUID, input UpdateResidenceInput) (models.Biography, error) {
+	err := a.biographies.UpdateResidence(ctx, userID, entities.UpdateResidenceInput{
+		City:    input.City,
+		Region:  input.Region,
+		Country: input.Country,
 	})
 	if err != nil {
 		return models.Biography{}, err
@@ -39,30 +37,8 @@ func (a App) UpdateSex(ctx context.Context, userID uuid.UUID, sex string) (model
 	return a.biographies.GetByUserID(ctx, userID)
 }
 
-func (a App) AdminUpdateSex(ctx context.Context, userID uuid.UUID, sex string) (models.Biography, error) {
-	err := a.biographies.AdminUpdateBio(ctx, userID, entities.AdminBioUpdate{
-		Sex: &sex,
-	})
-	if err != nil {
-		return models.Biography{}, err
-	}
-
-	return a.biographies.GetByUserID(ctx, userID)
-}
-
 func (a App) UpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) (models.Biography, error) {
 	err := a.biographies.UpdateBirthday(ctx, userID, birthday)
-	if err != nil {
-		return models.Biography{}, err
-	}
-
-	return a.biographies.GetByUserID(ctx, userID)
-}
-
-func (a App) AdminUpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) (models.Biography, error) {
-	err := a.biographies.AdminUpdateBio(ctx, userID, entities.AdminBioUpdate{
-		Birthday: &birthday,
-	})
 	if err != nil {
 		return models.Biography{}, err
 	}
@@ -79,17 +55,6 @@ func (a App) UpdateNationality(ctx context.Context, userID uuid.UUID, nationalit
 	return a.biographies.GetByUserID(ctx, userID)
 }
 
-func (a App) AdminUpdateNationality(ctx context.Context, userID uuid.UUID, nationality string) (models.Biography, error) {
-	err := a.biographies.AdminUpdateBio(ctx, userID, entities.AdminBioUpdate{
-		Nationality: &nationality,
-	})
-	if err != nil {
-		return models.Biography{}, err
-	}
-
-	return a.biographies.GetByUserID(ctx, userID)
-}
-
 func (a App) UpdatePrimaryLanguage(ctx context.Context, userID uuid.UUID, primaryLanguage string) (models.Biography, error) {
 	err := a.biographies.SetPrimaryLanguage(ctx, userID, primaryLanguage)
 	if err != nil {
@@ -99,9 +64,24 @@ func (a App) UpdatePrimaryLanguage(ctx context.Context, userID uuid.UUID, primar
 	return a.biographies.GetByUserID(ctx, userID)
 }
 
-func (a App) AdminUpdatePrimaryLanguage(ctx context.Context, userID uuid.UUID, primaryLanguage string) (models.Biography, error) {
+type UpdateBiographyInput struct {
+	Birthday        *time.Time
+	Sex             *string
+	City            *string
+	Region          *string
+	Country         *string
+	Nationality     *string
+	PrimaryLanguage *string
+}
+
+func (a App) AdminUpdateBiography(ctx context.Context, userID uuid.UUID, input UpdateBiographyInput) (models.Biography, error) {
 	err := a.biographies.AdminUpdateBio(ctx, userID, entities.AdminBioUpdate{
-		PrimaryLanguage: &primaryLanguage,
+		Birthday:        input.Birthday,
+		Sex:             input.Sex,
+		City:            input.City,
+		Country:         input.Country,
+		Nationality:     input.Nationality,
+		PrimaryLanguage: input.PrimaryLanguage,
 	})
 	if err != nil {
 		return models.Biography{}, err

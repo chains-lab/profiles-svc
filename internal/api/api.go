@@ -5,20 +5,23 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/chains-lab/elector-cab-svc/internal/api/handlers"
 	"github.com/chains-lab/elector-cab-svc/internal/api/interceptors"
+	"github.com/chains-lab/elector-cab-svc/internal/api/service"
 	"github.com/chains-lab/elector-cab-svc/internal/app"
 	"github.com/chains-lab/elector-cab-svc/internal/config"
-	svc "github.com/chains-lab/proto-storage/gen/go/electorcab"
+	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type UserService interface {
-	GetOwnCabinet(context.Context, *svc.Empty) (*svc.Cabinet, error)
-	GetOwnProfile(context.Context, *svc.Empty) (*svc.Profile, error)
-	GetOwnBiography(context.Context, *svc.Empty) (*svc.Biography, error)
-	GetOwnJobResume(context.Context, *svc.Empty) (*svc.JobResume, error)
+	CreateCabinet(context.Context, *emptypb.Empty) (*svc.Cabinet, error)
+
+	GetOwnCabinet(context.Context, *emptypb.Empty) (*svc.Cabinet, error)
+	GetOwnProfile(context.Context, *emptypb.Empty) (*svc.Profile, error)
+	GetOwnBiography(context.Context, *emptypb.Empty) (*svc.Biography, error)
+	GetOwnJobResume(context.Context, *emptypb.Empty) (*svc.JobResume, error)
 	// Profile
 	UpdateOwnProfile(context.Context, *svc.UpdateOwnProfileRequest) (*svc.Profile, error)
 	// Biography
@@ -33,9 +36,19 @@ type UserService interface {
 	UpdateOwnIncome(context.Context, *svc.UpdateOwnIncomeRequest) (*svc.JobResume, error)
 }
 
+type AdminService interface {
+	AdminGetCabinet(context.Context, *svc.AdminGetCabinetRequest) (*svc.Cabinet, error)
+	AdminGetProfile(context.Context, *svc.AdminGetProfileRequest) (*svc.Profile, error)
+	AdminUpdateProfile(context.Context, *svc.AdminUpdateProfileRequest) (*svc.Profile, error)
+	AdminGetBiography(context.Context, *svc.AdminGetBiographyRequest) (*svc.Biography, error)
+	AdminUpdateBiography(context.Context, *svc.AdminUpdateBiographyRequest) (*svc.Biography, error)
+	AdminGetJobResume(context.Context, *svc.AdminGetJobResumeRequest) (*svc.JobResume, error)
+	AdminUpdateJobResume(context.Context, *svc.AdminUpdateJobResumeRequest) (*svc.JobResume, error)
+}
+
 func Run(ctx context.Context, cfg config.Config, log *logrus.Logger, app *app.App) error {
 	// 1) Создаём реализацию хэндлеров и interceptor
-	server := handlers.NewService(cfg, app)
+	server := service.NewService(cfg, app)
 	authInterceptor := interceptors.NewAuth(cfg.JWT.Service.SecretKey)
 
 	// 2) Инициализируем gRPC‐сервер
@@ -43,6 +56,7 @@ func Run(ctx context.Context, cfg config.Config, log *logrus.Logger, app *app.Ap
 		grpc.UnaryInterceptor(authInterceptor),
 	)
 	svc.RegisterUserServiceServer(grpcServer, server)
+	svc.RegisterAdminServiceServer(grpcServer, server)
 
 	// 3) Открываем слушатель
 	lis, err := net.Listen("tcp", cfg.Server.Port)

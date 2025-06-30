@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (a App) CreateCabinet(ctx context.Context, userID uuid.UUID) error {
+func (a App) CreateCabinet(ctx context.Context, userID uuid.UUID) (models.Cabinet, error) {
 	txErr := a.transaction(func(ctx context.Context) error {
 		err := a.profiles.Create(ctx, userID)
 		if err != nil {
@@ -27,10 +27,10 @@ func (a App) CreateCabinet(ctx context.Context, userID uuid.UUID) error {
 		return nil
 	})
 	if txErr != nil {
-		return txErr
+		return models.Cabinet{}, txErr
 	}
 
-	return nil
+	return a.GetCabinetByUserID(ctx, userID)
 }
 
 func (a App) GetCabinetByUserID(ctx context.Context, userID uuid.UUID) (models.Cabinet, error) {

@@ -1,4 +1,4 @@
-package handlers
+package service
 
 import (
 	"context"
@@ -11,11 +11,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
-	svc "github.com/chains-lab/proto-storage/gen/go/electorcab"
+	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 )
 
 type App interface {
-	UpdateResidence(ctx context.Context, userID uuid.UUID, city, country string) (models.Biography, error)
+	UpdateResidence(ctx context.Context, userID uuid.UUID, input app.UpdateResidenceInput) (models.Biography, error)
 	UpdateSex(ctx context.Context, userID uuid.UUID, sex string) (models.Biography, error)
 	UpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) (models.Biography, error)
 	UpdateNationality(ctx context.Context, userID uuid.UUID, nationality string) (models.Biography, error)
@@ -24,7 +24,7 @@ type App interface {
 	UpdateIndustry(ctx context.Context, userID uuid.UUID, industry string) (models.JobResume, error)
 	UpdateIncome(ctx context.Context, userID uuid.UUID, income string) (models.JobResume, error)
 
-	CreateCabinet(ctx context.Context, userID uuid.UUID) error
+	CreateCabinet(ctx context.Context, userID uuid.UUID) (models.Cabinet, error)
 	GetCabinetByUserID(ctx context.Context, userID uuid.UUID) (models.Cabinet, error)
 	GetCabinetByUsername(ctx context.Context, username string) (models.Cabinet, error)
 	GetUserBiographyByUserID(ctx context.Context, userID uuid.UUID) (models.Biography, error)
@@ -32,6 +32,10 @@ type App interface {
 	GetProfileByUserID(ctx context.Context, userID uuid.UUID) (models.Profile, error)
 	GetProfileByUsername(ctx context.Context, username string) (models.Profile, error)
 	UpdateProfile(ctx context.Context, userID uuid.UUID, profile app.UpdateProfileInput) (models.Profile, error)
+
+	AdminUpdateBiography(ctx context.Context, userID uuid.UUID, input app.UpdateBiographyInput) (models.Biography, error)
+	AdminUpdateJobResume(ctx context.Context, userID uuid.UUID, input app.AdminUpdateJobResumeInput) (models.JobResume, error)
+	AdminUpdateProfile(ctx context.Context, userID uuid.UUID, input app.AdminUpdateProfileInput) (models.Profile, error)
 }
 
 type Service struct {
@@ -39,6 +43,7 @@ type Service struct {
 	cfg config.Config
 
 	svc.UserServiceServer
+	svc.AdminServiceServer
 }
 
 func NewService(cfg config.Config, app *app.App) Service {
@@ -48,12 +53,12 @@ func NewService(cfg config.Config, app *app.App) Service {
 	}
 }
 
-func Log(ctx context.Context, requestID uuid.UUID) *logrus.Entry {
+func Log(ctx context.Context, RequestID uuid.UUID) *logrus.Entry {
 	entry, ok := ctx.Value(interceptors.LogCtxKey).(*logrus.Entry)
 	if !ok {
 		entry = logrus.NewEntry(logrus.New())
 	}
-	return entry.WithField("request_id", requestID)
+	return entry.WithField("request_id", RequestID)
 }
 
 func Meta(ctx context.Context) interceptors.MetaData {

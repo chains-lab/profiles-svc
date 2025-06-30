@@ -21,11 +21,37 @@ type UpdateProfileInput struct {
 	Pseudonym   *string `json:"pseudonym,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Avatar      *string `json:"avatar,omitempty"`
-	Official    *bool   `json:"official,omitempty"`
 }
 
 func (a App) UpdateProfile(ctx context.Context, userID uuid.UUID, profile UpdateProfileInput) (models.Profile, error) {
 	err := a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
+		Username:    profile.Username,
+		Pseudonym:   profile.Pseudonym,
+		Description: profile.Description,
+		Avatar:      profile.Avatar,
+	})
+	if err != nil {
+		return models.Profile{}, err
+	}
+
+	return a.GetProfileByUserID(ctx, userID)
+}
+
+type AdminUpdateProfileInput struct {
+	Username    *string `json:"username,omitempty"`
+	Pseudonym   *string `json:"pseudonym,omitempty"`
+	Description *string `json:"description,omitempty"`
+	Avatar      *string `json:"avatar,omitempty"`
+	Official    *bool   `json:"official,omitempty"`
+}
+
+func (a App) AdminUpdateProfile(ctx context.Context, userID uuid.UUID, profile AdminUpdateProfileInput) (models.Profile, error) {
+	prof, err := a.GetProfileByUserID(ctx, userID)
+	if err != nil {
+		return models.Profile{}, err
+	}
+
+	err = a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
 		Username:    profile.Username,
 		Pseudonym:   profile.Pseudonym,
 		Description: profile.Description,
@@ -36,5 +62,5 @@ func (a App) UpdateProfile(ctx context.Context, userID uuid.UUID, profile Update
 		return models.Profile{}, err
 	}
 
-	return a.GetProfileByUserID(ctx, userID)
+	return prof, nil
 }

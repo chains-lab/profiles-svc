@@ -9,8 +9,8 @@ import (
 
 	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
 	"github.com/chains-lab/elector-cab-svc/internal/app/domain"
-	"github.com/chains-lab/elector-cab-svc/internal/app/enums"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
+	"github.com/chains-lab/elector-cab-svc/internal/app/references"
 	"github.com/chains-lab/elector-cab-svc/internal/dbx"
 	"github.com/google/uuid"
 )
@@ -70,7 +70,7 @@ func (b Biographies) GetByUserID(ctx context.Context, userID uuid.UUID) (models.
 }
 
 func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string) error {
-	if err := enums.ValidateSex(sex); err != nil {
+	if err := references.ValidateSex(sex); err != nil {
 		return ape.ErrorPropertyIsNotValid(err)
 	}
 
@@ -128,7 +128,7 @@ func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birth
 
 func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, nationality string) error {
 	//TODO validate nationality from other api
-	if err := enums.ValidateNationality(nationality); err != nil {
+	if err := references.ValidateNationality(nationality); err != nil {
 		return ape.ErrorPropertyIsNotValid(err)
 	}
 
@@ -162,7 +162,7 @@ func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, natio
 
 func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, primaryLanguage string) error {
 	//TODO validate primaryLanguage from other api
-	if err := enums.ValidateLanguage(primaryLanguage); err != nil {
+	if err := references.ValidateLanguage(primaryLanguage); err != nil {
 		return ape.ErrorPropertyIsNotValid(err)
 	}
 
@@ -194,9 +194,15 @@ func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, p
 	return nil
 }
 
-func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, country string, city string) error {
+type UpdateResidenceInput struct {
+	City    string `json:"city,omitempty"`
+	Region  string `json:"region,omitempty"`
+	Country string `json:"country,omitempty"`
+}
+
+func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req UpdateResidenceInput) error {
 	//TODO validate country and city from other api
-	err := enums.ValidateResidence(city, country)
+	err := references.ValidateResidence(req.City, req.Region, req.Country)
 	if err != nil {
 		return ape.ErrorPropertyIsNotValid(err)
 	}
@@ -215,8 +221,9 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, coun
 	}
 
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
-		City:               &city,
-		Country:            &country,
+		City:               &req.City,
+		Region:             &req.Region,
+		Country:            &req.Country,
 		ResidenceUpdatedAt: &now,
 	}); err != nil {
 		switch {
@@ -233,10 +240,11 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, coun
 type AdminBioUpdate struct {
 	Birthday        *time.Time
 	Sex             *string
+	City            *string
+	Region          *string
+	Country         *string
 	Nationality     *string
 	PrimaryLanguage *string
-	City            *string
-	Country         *string
 }
 
 func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input AdminBioUpdate) error {
@@ -254,7 +262,7 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	}
 
 	if input.Sex != nil {
-		if err := enums.ValidateSex(*input.Sex); err != nil {
+		if err := references.ValidateSex(*input.Sex); err != nil {
 			return ape.ErrorPropertyIsNotValid(err)
 		}
 
@@ -264,17 +272,18 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 
 	if input.City != nil && input.Country != nil {
 		//TODO implement this functionality
-		if err = enums.ValidateResidence(*input.City, *input.Country); err != nil {
+		if err = references.ValidateResidence(*input.City, *input.Region, *input.Country); err != nil {
 			return ape.ErrorPropertyIsNotValid(err)
 		}
 
 		dbInput.City = input.City
 		dbInput.Country = input.Country
+		dbInput.Region = input.Region
 		dbInput.ResidenceUpdatedAt = &now
 	}
 	if input.Nationality != nil {
 		//TODO implement this functionality
-		if err = enums.ValidateNationality(*input.Nationality); err != nil {
+		if err = references.ValidateNationality(*input.Nationality); err != nil {
 			return ape.ErrorPropertyIsNotValid(err)
 		}
 
@@ -283,7 +292,7 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	}
 	if input.PrimaryLanguage != nil {
 		//TODO implement this functionality
-		if err = enums.ValidateLanguage(*input.PrimaryLanguage); err != nil {
+		if err = references.ValidateLanguage(*input.PrimaryLanguage); err != nil {
 			return ape.ErrorPropertyIsNotValid(err)
 		}
 
@@ -306,12 +315,13 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 func BioFromDb(input dbx.BioModel) models.Biography {
 	return models.Biography{
 		UserID:          input.UserID,
-		Sex:             input.Sex,
 		Birthday:        input.Birthday,
+		Sex:             input.Sex,
+		City:            input.City,
+		Region:          input.Region,
+		Country:         input.Country,
 		Nationality:     input.Nationality,
 		PrimaryLanguage: input.PrimaryLanguage,
-		City:            input.City,
-		Country:         input.Country,
 
 		SexUpdatedAt:             input.SexUpdatedAt,
 		NationalityUpdatedAt:     input.NationalityUpdatedAt,

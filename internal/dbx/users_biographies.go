@@ -13,12 +13,13 @@ const UsersBiographies = "users_biographies"
 
 type BioModel struct {
 	UserID          uuid.UUID  `db:"user_id"`
-	Sex             *string    `db:"sex,omitempty"`
 	Birthday        *time.Time `db:"birthday,omitempty"`
+	Sex             *string    `db:"sex,omitempty"`
+	City            *string    `db:"city,omitempty"`
+	Region          *string    `db:"region,omitempty"`
+	Country         *string    `db:"country,omitempty"`
 	Nationality     *string    `db:"nationality,omitempty"`
 	PrimaryLanguage *string    `db:"primary_language,omitempty"`
-	Country         *string    `db:"country,omitempty"`
-	City            *string    `db:"city,omitempty"`
 
 	SexUpdatedAt             *time.Time `db:"sex_updated_at,omitempty"`
 	NationalityUpdatedAt     *time.Time `db:"nationality_updated_at,omitempty"`
@@ -54,12 +55,13 @@ func (q BiographiesQ) New() BiographiesQ {
 func (q BiographiesQ) Insert(ctx context.Context, m BioModel) error {
 	values := map[string]interface{}{
 		"user_id":                     m.UserID,
-		"sex":                         m.Sex,
 		"birthday":                    m.Birthday,
+		"sex":                         m.Sex,
+		"city":                        m.City,
+		"region":                      m.Region,
+		"country":                     m.Country,
 		"nationality":                 m.Nationality,
 		"primary_language":            m.PrimaryLanguage,
-		"country":                     m.Country,
-		"city":                        m.City,
 		"sex_updated_at":              m.SexUpdatedAt,
 		"nationality_updated_at":      m.NationalityUpdatedAt,
 		"primary_language_updated_at": m.PrimaryLanguageUpdatedAt,
@@ -89,6 +91,7 @@ type UpdateBioInput struct {
 	PrimaryLanguage          *string
 	PrimaryLanguageUpdatedAt *time.Time
 	Country                  *string
+	Region                   *string
 	City                     *string
 	ResidenceUpdatedAt       *time.Time
 }
@@ -119,6 +122,9 @@ func (q BiographiesQ) Update(ctx context.Context, input UpdateBioInput) error {
 	}
 	if input.Country != nil {
 		updates["country"] = *input.Country
+	}
+	if input.Region != nil {
+		updates["region"] = *input.Region
 	}
 	if input.City != nil {
 		updates["city"] = *input.City
@@ -156,12 +162,13 @@ func (q BiographiesQ) Get(ctx context.Context) (BioModel, error) {
 	}
 	err = row.Scan(
 		&personality.UserID,
-		&personality.Sex,
 		&personality.Birthday,
+		&personality.Sex,
+		&personality.City,
+		&personality.Region,
+		&personality.Country,
 		&personality.Nationality,
 		&personality.PrimaryLanguage,
-		&personality.Country,
-		&personality.City,
 		&personality.SexUpdatedAt,
 		&personality.NationalityUpdatedAt,
 		&personality.PrimaryLanguageUpdatedAt,
@@ -194,12 +201,13 @@ func (q BiographiesQ) Select(ctx context.Context) ([]BioModel, error) {
 		var personality BioModel
 		err := rows.Scan(
 			&personality.UserID,
-			&personality.Sex,
 			&personality.Birthday,
+			&personality.Sex,
+			&personality.City,
+			&personality.Region,
+			&personality.Country,
 			&personality.Nationality,
 			&personality.PrimaryLanguage,
-			&personality.Country,
-			&personality.City,
 			&personality.SexUpdatedAt,
 			&personality.NationalityUpdatedAt,
 			&personality.PrimaryLanguageUpdatedAt,

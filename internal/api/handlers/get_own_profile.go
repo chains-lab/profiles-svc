@@ -8,16 +8,16 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s Service) UpdateOwnSex(ctx context.Context, req *svc.UpdateOwnSexRequest) (*svc.Biography, error) {
+func (s Service) GetOwnProfile(ctx context.Context, _ *svc.Empty) (*svc.Profile, error) {
 	requestID := uuid.New()
 	meta := Meta(ctx)
 
-	bio, err := s.app.UpdateSex(ctx, meta.InitiatorID, req.Sex)
+	profile, err := s.app.GetProfileByUserID(ctx, meta.InitiatorID)
 	if err != nil {
-		Log(ctx, requestID).WithError(err).Error("failed to update user sex")
+		Log(ctx, requestID).WithError(err).Error("failed to get profile by ID")
 
 		return nil, responses.AppError(ctx, requestID, err)
 	}
 
-	return responses.Biography(bio), nil
+	return responses.Profile(profile), nil
 }

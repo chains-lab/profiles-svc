@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"context"
+	"time"
 
 	"github.com/chains-lab/elector-cab-svc/internal/api/interceptors"
 	"github.com/chains-lab/elector-cab-svc/internal/app"
-	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
+	"github.com/chains-lab/elector-cab-svc/internal/app/models"
+	"github.com/chains-lab/elector-cab-svc/internal/config"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 
@@ -13,6 +15,23 @@ import (
 )
 
 type App interface {
+	UpdateResidence(ctx context.Context, userID uuid.UUID, city, country string) (models.Biography, error)
+	UpdateSex(ctx context.Context, userID uuid.UUID, sex string) (models.Biography, error)
+	UpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) (models.Biography, error)
+	UpdateNationality(ctx context.Context, userID uuid.UUID, nationality string) (models.Biography, error)
+	UpdatePrimaryLanguage(ctx context.Context, userID uuid.UUID, primaryLanguage string) (models.Biography, error)
+	UpdateDegree(ctx context.Context, userID uuid.UUID, degree string) (models.JobResume, error)
+	UpdateIndustry(ctx context.Context, userID uuid.UUID, industry string) (models.JobResume, error)
+	UpdateIncome(ctx context.Context, userID uuid.UUID, income string) (models.JobResume, error)
+
+	CreateCabinet(ctx context.Context, userID uuid.UUID) error
+	GetCabinetByUserID(ctx context.Context, userID uuid.UUID) (models.Cabinet, error)
+	GetCabinetByUsername(ctx context.Context, username string) (models.Cabinet, error)
+	GetUserBiographyByUserID(ctx context.Context, userID uuid.UUID) (models.Biography, error)
+	GetUserJobResumeByID(ctx context.Context, userID uuid.UUID) (models.JobResume, error)
+	GetProfileByUserID(ctx context.Context, userID uuid.UUID) (models.Profile, error)
+	GetProfileByUsername(ctx context.Context, username string) (models.Profile, error)
+	UpdateProfile(ctx context.Context, userID uuid.UUID, profile app.UpdateProfileInput) (models.Profile, error)
 }
 
 type Service struct {

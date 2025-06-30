@@ -7,12 +7,12 @@ import (
 
 func Cabinet(model models.Cabinet) *electorcab.Cabinet {
 	bio := Biography(model.Biography)
-	job := Job(model.Job)
+	job := JobResume(model.Job)
 	profile := Profile(model.Profile)
 
 	return &electorcab.Cabinet{
 		Profile:   profile,
 		Biography: bio,
-		Job:       job,
+		JobResume: job,
 	}
 }

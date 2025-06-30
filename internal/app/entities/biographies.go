@@ -55,7 +55,7 @@ func (b Biographies) Create(ctx context.Context, userID uuid.UUID) error {
 	return nil
 }
 
-func (b Biographies) Get(ctx context.Context, userID uuid.UUID) (models.Biography, error) {
+func (b Biographies) GetByUserID(ctx context.Context, userID uuid.UUID) (models.Biography, error) {
 	bio, err := b.queries.New().FilterUserID(userID).Get(ctx)
 	if err != nil {
 		switch {
@@ -76,7 +76,7 @@ func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string
 
 	now := time.Now().UTC()
 
-	bio, err := b.Get(ctx, userID)
+	bio, err := b.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string
 }
 
 func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) error {
-	bio, err := b.Get(ctx, userID)
+	bio, err := b.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -132,7 +132,7 @@ func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, natio
 		return ape.ErrorPropertyIsNotValid(err)
 	}
 
-	bio, err := b.Get(ctx, userID)
+	bio, err := b.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -166,7 +166,7 @@ func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, p
 		return ape.ErrorPropertyIsNotValid(err)
 	}
 
-	bio, err := b.Get(ctx, userID)
+	bio, err := b.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -201,7 +201,7 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, coun
 		return ape.ErrorPropertyIsNotValid(err)
 	}
 
-	bio, err := b.Get(ctx, userID)
+	bio, err := b.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}
@@ -240,7 +240,7 @@ type AdminBioUpdate struct {
 }
 
 func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input AdminBioUpdate) error {
-	_, err := b.Get(ctx, userID)
+	_, err := b.GetByUserID(ctx, userID)
 	if err != nil {
 		return err
 	}

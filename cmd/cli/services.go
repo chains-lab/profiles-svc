@@ -2,22 +2,18 @@ package cli
 
 import (
 	"context"
-	"sync"
 
+	"github.com/chains-lab/elector-cab-svc/internal/api"
 	"github.com/chains-lab/elector-cab-svc/internal/app"
-	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
+	"github.com/chains-lab/elector-cab-svc/internal/config"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 )
 
-func runServices(ctx context.Context, cfg config.Config, log *logrus.Logger, wg *sync.WaitGroup, app *app.App) {
-	run := func(f func()) {
-		wg.Add(1)
-		go func() {
-			f()
-			wg.Done()
-		}()
-	}
+func Start(ctx context.Context, cfg config.Config, log *logrus.Logger, app *app.App) error {
+	eg, ctx := errgroup.WithContext(ctx)
 
-	restApi := rest.NewRest(cfg, log, app)
-	run(func() { restApi.Run(ctx, log) })
+	eg.Go(func() error { return api.Run(ctx, cfg, log, app) })
+
+	return eg.Wait()
 }

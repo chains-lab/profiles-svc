@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/chains-lab/elector-cab-svc/internal/app/domain"
+	"github.com/chains-lab/elector-cab-svc/internal/app/entities"
+	"github.com/chains-lab/elector-cab-svc/internal/config"
 	"github.com/chains-lab/elector-cab-svc/internal/dbx"
-	"github.com/chains-lab/elector-cab-svc/internal/utils/config"
 )
 
 type App struct {

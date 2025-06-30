@@ -5,8 +5,8 @@ import (
 	"github.com/chains-lab/proto-storage/gen/go/electorcab"
 )
 
-func Job(model models.JobResume) *electorcab.Job {
-	job := electorcab.Job{
+func JobResume(model models.JobResume) *electorcab.JobResume {
+	job := electorcab.JobResume{
 		UserId:   model.UserID.String(),
 		Degree:   model.Degree,
 		Industry: model.Industry,

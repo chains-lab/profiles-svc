@@ -10,17 +10,17 @@ import (
 
 	"github.com/alecthomas/kingpin"
 	"github.com/chains-lab/elector-cab-svc/internal/app"
-	config2 "github.com/chains-lab/elector-cab-svc/internal/utils/config"
-	"github.com/chains-lab/elector-cab-svc/internal/utils/migrator"
+	"github.com/chains-lab/elector-cab-svc/internal/config"
+	"github.com/chains-lab/elector-cab-svc/internal/dbx"
 )
 
 func Run(args []string) bool {
-	cfg, err := config2.LoadConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	logger := config2.SetupLogger(cfg.Server.Log.Level, cfg.Server.Log.Format)
+	logger := config.SetupLogger(cfg.Server.Log.Level, cfg.Server.Log.Format)
 	logger.Info("Starting server...")
 
 	var (
@@ -41,7 +41,7 @@ func Run(args []string) bool {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	application, err := app.NewApp(cfg, logger)
+	application, err := app.NewApp(cfg)
 	if err != nil {
 		logger.Fatalf("failed to create server: %v", err)
 		return false
@@ -57,15 +57,11 @@ func Run(args []string) bool {
 
 	switch cmd {
 	case serviceCmd.FullCommand():
-		runServices(ctx, cfg, logger, &wg, &application)
+		err = Start(ctx, cfg, logger, &application)
 	case migrateUpCmd.FullCommand():
-		err = migrator.RunUp(cfg)
+		err = dbx.MigrateUp(cfg)
 	case migrateDownCmd.FullCommand():
-		err = migrator.RunDown(cfg)
-	//case generateDocs.FullCommand():
-	//	err = GenerateDocs(ctx, cfg)
-	//case openDocs.FullCommand():
-	//	err = OpenDocs(ctx, cfg)
+		err = dbx.MigrateDown(cfg)
 	default:
 		logger.Errorf("unknown command %s", cmd)
 		return false

@@ -12,44 +12,52 @@ import (
 )
 
 func AppError(ctx context.Context, requestID uuid.UUID, err error) error {
-	errorID := uuid.New()
-	var appErr *ape.Error
+	var appErr *ape.BusinessError
 	if errors.As(err, &appErr) {
 		var code codes.Code
-		switch {
-		//case errors.Is(appErr.Reason, ape.ErrUserDoesNotExist),
-		//	errors.Is(appErr.Reason, ape.ErrSessionDoesNotExist):
-		//
-		//	code = codes.NotFound
-		//
-		//case errors.Is(appErr.Reason, ape.ErrUserAlreadyExists),
-		//	errors.Is(appErr.Reason, ape.ErrSessionsForUserNotExist),
-		//	errors.Is(appErr.Reason, ape.ErrSessionClientMismatch),
-		//	errors.Is(appErr.Reason, ape.ErrSessionTokenMismatch):
-		//
-		//	code = codes.AlreadyExists
-		//
-		//case errors.Is(appErr.Reason, ape.ErrInternal):
-		//	code = codes.Internal
+		switch appErr.Reason() {
+		case ape.ReasonInternal:
+			// внутренняя неожиданная ошибка
+			code = codes.Internal
+
+		case ape.ReasonPropertyUpdateNotAllowed:
+			// попытка изменить поле, которое нельзя менять
+			// семантически — предусловие не выполнено
+			code = codes.FailedPrecondition
+
+		case ape.ReasonPropertyIsNotValid:
+			// в теле запроса пришло некорректное значение поля
+			code = codes.InvalidArgument
+
+		case ape.ReasonUsernameAlreadyTaken:
+			// ресурс с таким уникальным ключом уже существует
+			code = codes.AlreadyExists
+
+		case ape.ReasonCabinetForUserDoesNotExist:
+			// не найден ресурс «кабинет» у данного пользователя
+			code = codes.NotFound
 
 		default:
+			// неожиданный бизнес-код
 			code = codes.Unknown
 		}
 
-		st := status.New(code, appErr.Reason.Error())
-		st, errWithDetails := st.WithDetails(&errdetails.ErrorInfo{
-			Reason: appErr.Reason.Error(),
-			Metadata: map[string]string{
-				"error_id":   errorID.String(),
-				"request_id": requestID.String(),
+		st := status.New(code, appErr.Error())
+		st, errWithDetails := st.WithDetails(
+			&errdetails.ErrorInfo{
+				Reason: appErr.Reason(),
+				Domain: "elector-cab.yourdomain.com", // ваше API/сервис
+				Metadata: map[string]string{
+					"request_id": requestID.String(),
+				},
 			},
-		})
+		)
 		if errWithDetails != nil {
 			return st.Err()
 		}
-
 		return st.Err()
 	}
 
-	return status.Errorf(codes.Internal, "Unexcpected error")
+	// всё, что «не BusinessError» — трактуем как Internal
+	return status.Errorf(codes.Internal, "unexpected error")
 }

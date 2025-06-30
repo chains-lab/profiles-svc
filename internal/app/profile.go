@@ -3,16 +3,16 @@ package app
 import (
 	"context"
 
-	"github.com/chains-lab/elector-cab-svc/internal/app/domain"
+	"github.com/chains-lab/elector-cab-svc/internal/app/entities"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/google/uuid"
 )
 
-func (a App) ProfileGetUserID(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
+func (a App) GetProfileByUserID(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
 	return a.profiles.GetByID(ctx, userID)
 }
 
-func (a App) ProfileGetUsername(ctx context.Context, username string) (models.Profile, error) {
+func (a App) GetProfileByUsername(ctx context.Context, username string) (models.Profile, error) {
 	return a.profiles.GetByUsername(ctx, username)
 }
 
@@ -24,7 +24,7 @@ type UpdateProfileInput struct {
 	Official    *bool   `json:"official,omitempty"`
 }
 
-func (a App) ProfileUpdate(ctx context.Context, userID uuid.UUID, profile UpdateProfileInput) (models.Profile, error) {
+func (a App) UpdateProfile(ctx context.Context, userID uuid.UUID, profile UpdateProfileInput) (models.Profile, error) {
 	err := a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
 		Username:    profile.Username,
 		Pseudonym:   profile.Pseudonym,
@@ -36,5 +36,5 @@ func (a App) ProfileUpdate(ctx context.Context, userID uuid.UUID, profile Update
 		return models.Profile{}, err
 	}
 
-	return a.ProfileGetUserID(ctx, userID)
+	return a.GetProfileByUserID(ctx, userID)
 }

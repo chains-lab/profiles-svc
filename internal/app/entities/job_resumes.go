@@ -70,7 +70,10 @@ func (j JobResumes) Get(ctx context.Context, userID uuid.UUID) (models.JobResume
 
 func (j JobResumes) UpdateDegree(ctx context.Context, userID uuid.UUID, degree string) error {
 	if err := references.ValidateDegree(degree); err != nil {
-		return ape.ErrorPropertyIsNotValid(err)
+		return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+			Field:       "degree",
+			Description: "degree is not valid",
+		})
 	}
 
 	job, err := j.Get(ctx, userID)
@@ -103,7 +106,10 @@ func (j JobResumes) UpdateDegree(ctx context.Context, userID uuid.UUID, degree s
 
 func (j JobResumes) UpdateIndustry(ctx context.Context, userID uuid.UUID, industry string) error {
 	if err := references.ValidateIndustry(industry); err != nil {
-		return ape.ErrorPropertyIsNotValid(err)
+		return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+			Field:       "industry",
+			Description: "industry is not valid",
+		})
 	}
 
 	job, err := j.Get(ctx, userID)
@@ -136,7 +142,10 @@ func (j JobResumes) UpdateIndustry(ctx context.Context, userID uuid.UUID, indust
 
 func (j JobResumes) UpdateIncome(ctx context.Context, userID uuid.UUID, income string) error {
 	if err := references.ValidateIncome(income); err != nil {
-		return ape.ErrorPropertyIsNotValid(err)
+		return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+			Field:       "income",
+			Description: "income is not valid",
+		})
 	}
 
 	job, err := j.Get(ctx, userID)
@@ -184,7 +193,10 @@ func (j JobResumes) AdminUpdate(ctx context.Context, userID uuid.UUID, input Adm
 
 	if input.Degree != nil {
 		if err = references.ValidateDegree(*input.Degree); err != nil {
-			return ape.ErrorPropertyIsNotValid(err)
+			return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+				Field:       "degree",
+				Description: "degree is not valid",
+			})
 		}
 
 		dbInput.Degree = input.Degree
@@ -193,7 +205,10 @@ func (j JobResumes) AdminUpdate(ctx context.Context, userID uuid.UUID, input Adm
 
 	if input.Industry != nil {
 		if err = references.ValidateIndustry(*input.Industry); err != nil {
-			return ape.ErrorPropertyIsNotValid(err)
+			return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+				Field:       "industry",
+				Description: "industry is not valid",
+			})
 		}
 
 		dbInput.Industry = input.Industry
@@ -203,7 +218,10 @@ func (j JobResumes) AdminUpdate(ctx context.Context, userID uuid.UUID, input Adm
 
 	if input.Income != nil {
 		if err = references.ValidateIncome(*input.Income); err != nil {
-			return ape.ErrorPropertyIsNotValid(err)
+			return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+				Field:       "income",
+				Description: "income is not valid",
+			})
 		}
 
 		dbInput.Income = input.Income

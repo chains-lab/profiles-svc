@@ -15,8 +15,8 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type UserService interface {
-	CreateCabinet(context.Context, *emptypb.Empty) (*svc.Cabinet, error)
+type userService interface {
+	CreateOwnCabinet(context.Context, *svc.CreateCabinetRequest) (*svc.Cabinet, error)
 
 	GetOwnCabinet(context.Context, *emptypb.Empty) (*svc.Cabinet, error)
 	GetOwnProfile(context.Context, *emptypb.Empty) (*svc.Profile, error)
@@ -36,20 +36,20 @@ type UserService interface {
 	UpdateOwnIncome(context.Context, *svc.UpdateOwnIncomeRequest) (*svc.JobResume, error)
 }
 
-type AdminService interface {
-	AdminGetCabinet(context.Context, *svc.AdminGetCabinetRequest) (*svc.Cabinet, error)
-	AdminGetProfile(context.Context, *svc.AdminGetProfileRequest) (*svc.Profile, error)
-	AdminUpdateProfile(context.Context, *svc.AdminUpdateProfileRequest) (*svc.Profile, error)
-	AdminGetBiography(context.Context, *svc.AdminGetBiographyRequest) (*svc.Biography, error)
-	AdminUpdateBiography(context.Context, *svc.AdminUpdateBiographyRequest) (*svc.Biography, error)
-	AdminGetJobResume(context.Context, *svc.AdminGetJobResumeRequest) (*svc.JobResume, error)
-	AdminUpdateJobResume(context.Context, *svc.AdminUpdateJobResumeRequest) (*svc.JobResume, error)
+type adminService interface {
+	GetCabinetByAdmin(context.Context, *svc.GetCabinetByAdminRequest) (*svc.Cabinet, error)
+	GetProfileByAdmin(context.Context, *svc.GetProfileByAdminRequest) (*svc.Profile, error)
+	UpdateProfileByAdmin(context.Context, *svc.UpdateProfileByAdminRequest) (*svc.Profile, error)
+	GetBiographyByAdmin(context.Context, *svc.GetBiographyByAdminRequest) (*svc.Biography, error)
+	UpdateBiographyByAdmin(context.Context, *svc.UpdateBiographyByAdminRequest) (*svc.Biography, error)
+	GetJobResumeByAdmin(context.Context, *svc.GetJobResumeByAdminRequest) (*svc.JobResume, error)
+	UpdateJobResumeByAdmin(context.Context, *svc.UpdateJobResumeByAdminRequest) (*svc.JobResume, error)
 }
 
 func Run(ctx context.Context, cfg config.Config, log *logrus.Logger, app *app.App) error {
 	// 1) Создаём реализацию хэндлеров и interceptor
 	server := service.NewService(cfg, app)
-	authInterceptor := interceptors.NewAuth(cfg.JWT.Service.SecretKey)
+	authInterceptor := interceptors.NewAuth(cfg.JWT.Service.SecretKey, cfg.JWT.User.AccessToken.SecretKey)
 
 	// 2) Инициализируем gRPC‐сервер
 	grpcServer := grpc.NewServer(

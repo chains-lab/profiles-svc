@@ -2,14 +2,12 @@ package entities
 
 import (
 	"context"
-	"crypto/rand"
 	"database/sql"
 	"errors"
-	"fmt"
-	"math/big"
 	"time"
 
 	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
+	"github.com/chains-lab/elector-cab-svc/internal/app/domain"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/chains-lab/elector-cab-svc/internal/dbx"
 	"github.com/google/uuid"
@@ -41,28 +39,41 @@ func NewProfile(db *sql.DB) (Profiles, error) {
 	}, nil
 }
 
-func (p Profiles) Create(ctx context.Context, userID uuid.UUID) error {
-	createdAt := time.Now().UTC()
+type CreateProfileInput struct {
+	Username    string
+	Pseudonym   *string
+	Description *string
+	Avatar      *string
+}
 
-	username, err := func() (string, error) {
-		const suffixLen = 12
-		max := new(big.Int).Exp(big.NewInt(10), big.NewInt(suffixLen), nil)
-		n, err := rand.Int(rand.Reader, max)
-		if err != nil {
-			return "", fmt.Errorf("генерация случайного суффикса для username: %w", err)
-		}
-		return "elector" + fmt.Sprintf("%0*d", suffixLen, n), nil
-	}()
-	if err != nil {
+func (p Profiles) Create(ctx context.Context, userID uuid.UUID, input CreateProfileInput) error {
+	_, err := p.GetByID(ctx, userID)
+	if !errors.Is(err, ape.ErrCabinetForUserDoesNotExist) {
 		return err
 	}
 
+	_, err = p.GetByUsername(ctx, input.Username)
+	if !errors.Is(err, ape.ErrCabinetForUserDoesNotExist) {
+		if err == nil {
+			return ape.ErrorUsernameAlreadyTaken(err, input.Username)
+		}
+	}
+
+	if err := domain.ValidateUsername(input.Username); err != nil {
+		return ape.ErrorInternal(err)
+	}
+
+	createdAt := time.Now().UTC()
+
 	err = p.queries.Insert(ctx, dbx.ProfileModel{
-		UserID:    userID,
-		Username:  username,
-		Official:  false,
-		UpdatedAt: createdAt,
-		CreatedAt: createdAt,
+		UserID:      userID,
+		Username:    input.Username,
+		Pseudonym:   input.Pseudonym,
+		Description: input.Description,
+		Avatar:      input.Avatar,
+		Official:    false,
+		UpdatedAt:   createdAt,
+		CreatedAt:   createdAt,
 	})
 	if err != nil {
 		return ape.ErrorInternal(err)
@@ -81,11 +92,9 @@ type UpdateProfileInput struct {
 
 func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProfileInput) error {
 	if input.Username != nil {
-		_, err := p.queries.New().FilterUsername(*input.Username).Get(ctx)
-		if errors.Is(err, sql.ErrNoRows) {
-
-		} else if err != nil {
-			return ape.ErrorInternal(err)
+		_, err := p.GetByID(ctx, userID)
+		if !errors.Is(err, ape.ErrCabinetForUserDoesNotExist) {
+			return err
 		}
 
 		if err == nil {

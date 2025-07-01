@@ -25,19 +25,13 @@ type MetaData struct {
 	RequestID      uuid.UUID  `json:"request_id,omitempty"`
 }
 
-func NewAuth(secretKey string) grpc.UnaryServerInterceptor {
+func NewAuth(skService, skUser string) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
 		req interface{},
 		info *grpc.UnaryServerInfo,
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
-		//switch info.FullMethod {
-		//case "/svc.AuthService/GoogleLogin",
-		//	"/svc.AuthService/GoogleCallback":
-		//	return handler(ctx, req)
-		//}
-
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
 			return nil, status.Errorf(codes.Unauthenticated, "missing metadata")
@@ -47,7 +41,7 @@ func NewAuth(secretKey string) grpc.UnaryServerInterceptor {
 			return nil, status.Errorf(codes.Unauthenticated, "authorization token not supplied")
 		}
 
-		data, err := tokens.VerifyServiceJWT(ctx, toksServ[0], "your-secret-key")
+		data, err := tokens.VerifyServiceJWT(ctx, toksServ[0], skService)
 		if err != nil {
 			return nil, status.Errorf(codes.Unauthenticated, "invalid token: %v", err)
 		}
@@ -62,7 +56,7 @@ func NewAuth(secretKey string) grpc.UnaryServerInterceptor {
 			return nil, status.Errorf(codes.Unauthenticated, "request ID not supplied")
 		}
 
-		userData, err := tokens.VerifyUserJWT(ctx, toksUser[0], "your-secret-key")
+		userData, err := tokens.VerifyUserJWT(ctx, toksUser[0], skUser)
 		if err != nil {
 			return nil, status.Errorf(codes.Unauthenticated, "invalid user token: %v", err)
 		}
@@ -92,7 +86,6 @@ func NewAuth(secretKey string) grpc.UnaryServerInterceptor {
 		return handler(ctx, req)
 	}
 }
-
 func GetMetaData(ctx context.Context) (MetaData, error) {
 	meta, ok := ctx.Value(MetaCtxKey).(MetaData)
 	if !ok {

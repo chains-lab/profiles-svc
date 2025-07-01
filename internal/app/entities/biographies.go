@@ -71,7 +71,10 @@ func (b Biographies) GetByUserID(ctx context.Context, userID uuid.UUID) (models.
 
 func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string) error {
 	if err := references.ValidateSex(sex); err != nil {
-		return ape.ErrorPropertyIsNotValid(err)
+		return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+			Field:       "sex",
+			Description: err.Error(), //TODO
+		})
 	}
 
 	now := time.Now().UTC()
@@ -129,7 +132,10 @@ func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birth
 func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, nationality string) error {
 	//TODO validate nationality from other api
 	if err := references.ValidateNationality(nationality); err != nil {
-		return ape.ErrorPropertyIsNotValid(err)
+		return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+			Field:       "nationality",
+			Description: err.Error(), //TODO
+		})
 	}
 
 	bio, err := b.GetByUserID(ctx, userID)
@@ -163,7 +169,10 @@ func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, natio
 func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, primaryLanguage string) error {
 	//TODO validate primaryLanguage from other api
 	if err := references.ValidateLanguage(primaryLanguage); err != nil {
-		return ape.ErrorPropertyIsNotValid(err)
+		return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+			Field:       "primary_language",
+			Description: err.Error(), //TODO
+		})
 	}
 
 	bio, err := b.GetByUserID(ctx, userID)
@@ -187,7 +196,7 @@ func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, p
 		case errors.Is(err, sql.ErrNoRows):
 			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err) //TODO
+			return ape.ErrorInternal(err)
 		}
 	}
 
@@ -204,7 +213,20 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req 
 	//TODO validate country and city from other api
 	err := references.ValidateResidence(req.City, req.Region, req.Country)
 	if err != nil {
-		return ape.ErrorPropertyIsNotValid(err)
+		return ape.ErrorPropertyIsNotValid(err,
+			ape.Violation{
+				Field:       "city",
+				Description: err.Error(),
+			},
+			ape.Violation{
+				Field:       "region",
+				Description: err.Error(),
+			},
+			ape.Violation{
+				Field:       "country",
+				Description: err.Error(),
+			},
+		)
 	}
 
 	bio, err := b.GetByUserID(ctx, userID)
@@ -263,7 +285,10 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 
 	if input.Sex != nil {
 		if err := references.ValidateSex(*input.Sex); err != nil {
-			return ape.ErrorPropertyIsNotValid(err)
+			return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+				Field:       "sex",
+				Description: err.Error(), //TODO
+			})
 		}
 
 		dbInput.Sex = input.Sex
@@ -273,7 +298,20 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	if input.City != nil && input.Country != nil {
 		//TODO implement this functionality
 		if err = references.ValidateResidence(*input.City, *input.Region, *input.Country); err != nil {
-			return ape.ErrorPropertyIsNotValid(err)
+			return ape.ErrorPropertyIsNotValid(err,
+				ape.Violation{
+					Field:       "city",
+					Description: err.Error(),
+				},
+				ape.Violation{
+					Field:       "region",
+					Description: err.Error(),
+				},
+				ape.Violation{
+					Field:       "country",
+					Description: err.Error(),
+				},
+			)
 		}
 
 		dbInput.City = input.City
@@ -284,7 +322,10 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	if input.Nationality != nil {
 		//TODO implement this functionality
 		if err = references.ValidateNationality(*input.Nationality); err != nil {
-			return ape.ErrorPropertyIsNotValid(err)
+			return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+				Field:       "nationality",
+				Description: err.Error(), //TODO
+			})
 		}
 
 		dbInput.Nationality = input.Nationality
@@ -293,7 +334,10 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	if input.PrimaryLanguage != nil {
 		//TODO implement this functionality
 		if err = references.ValidateLanguage(*input.PrimaryLanguage); err != nil {
-			return ape.ErrorPropertyIsNotValid(err)
+			return ape.ErrorPropertyIsNotValid(err, ape.Violation{
+				Field:       "primary_language",
+				Description: err.Error(), //TODO
+			})
 		}
 
 		dbInput.PrimaryLanguage = input.PrimaryLanguage
@@ -305,7 +349,7 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 		case errors.Is(err, sql.ErrNoRows):
 			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err) //TODO
+			return ape.ErrorInternal(err)
 		}
 	}
 

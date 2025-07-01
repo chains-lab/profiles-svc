@@ -3,11 +3,14 @@ package ape
 import "fmt"
 
 var (
-	ErrInternal                   = &BusinessError{reason: ReasonInternal}
-	ErrPropertyUpdateNotAllowed   = &BusinessError{reason: ReasonPropertyUpdateNotAllowed}
-	ErrPropertyIsNotValid         = &BusinessError{reason: ReasonPropertyIsNotValid}
-	ErrUsernameAlreadyTaken       = &BusinessError{reason: ReasonUsernameAlreadyTaken}
-	ErrCabinetForUserDoesNotExist = &BusinessError{reason: ReasonCabinetForUserDoesNotExist}
+	ErrInternal                    = &BusinessError{reason: ReasonInternal}
+	ErrPropertyUpdateNotAllowed    = &BusinessError{reason: ReasonPropertyUpdateNotAllowed}
+	ErrPropertyIsNotValid          = &BusinessError{reason: ReasonPropertyIsNotValid}
+	ErrUsernameAlreadyTaken        = &BusinessError{reason: ReasonUsernameAlreadyTaken}
+	ErrCabinetForUserDoesNotExist  = &BusinessError{reason: ReasonCabinetForUserDoesNotExist}
+	ErrCabinetForUserAlreadyExists = &BusinessError{reason: ReasonCabinetForUserAlreadyExists}
+	ErrOnlyUserCanHaveCabinet      = &BusinessError{reason: ReasonOnlyUserCanHaveCabinet}
+	ErrUsernameIsNotValid          = &BusinessError{reason: ReasonUsernameIsNotValid}
 )
 
 func ErrorInternal(cause error) error {
@@ -50,10 +53,36 @@ func ErrorPropertyUpdateNotAllowed(cause error) error {
 	}
 }
 
-func ErrorPropertyIsNotValid(cause error) error {
+func ErrorPropertyIsNotValid(cause error, violation ...Violation) error {
 	return &BusinessError{
-		reason:  ErrPropertyIsNotValid.reason,
+		reason:     ErrPropertyIsNotValid.reason,
+		message:    cause.Error(),
+		cause:      cause,
+		violations: violation,
+	}
+}
+
+func ErrorOnlyUserCanHaveCabinet(cause error) error {
+	return &BusinessError{
+		reason:  ErrOnlyUserCanHaveCabinet.reason,
 		message: cause.Error(),
 		cause:   cause,
+	}
+}
+
+func ErrorOnlyUserCanHaveCabinetWithMessage(cause error) error {
+	return &BusinessError{
+		reason:  ErrOnlyUserCanHaveCabinet.reason,
+		message: cause.Error(),
+		cause:   cause,
+	}
+}
+
+func ErrorUsernameIsNotValid(cause error, violations ...Violation) error {
+	return &BusinessError{
+		reason:     ErrUsernameIsNotValid.reason,
+		message:    cause.Error(),
+		cause:      cause,
+		violations: violations,
 	}
 }

@@ -3,13 +3,26 @@ package app
 import (
 	"context"
 
+	"github.com/chains-lab/elector-cab-svc/internal/app/entities"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/google/uuid"
 )
 
-func (a App) CreateCabinet(ctx context.Context, userID uuid.UUID) (models.Cabinet, error) {
+type CreateCabinetInput struct {
+	Username    string
+	Pseudonym   *string
+	Description *string
+	Avatar      *string
+}
+
+func (a App) CreateCabinet(ctx context.Context, userID uuid.UUID, input CreateCabinetInput) (models.Cabinet, error) {
 	txErr := a.transaction(func(ctx context.Context) error {
-		err := a.profiles.Create(ctx, userID)
+		err := a.profiles.Create(ctx, userID, entities.CreateProfileInput{
+			Username:    input.Username,
+			Pseudonym:   input.Pseudonym,
+			Description: input.Description,
+			Avatar:      input.Avatar,
+		})
 		if err != nil {
 			return err
 		}

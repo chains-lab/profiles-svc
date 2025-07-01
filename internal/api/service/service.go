@@ -24,7 +24,7 @@ type App interface {
 	UpdateIndustry(ctx context.Context, userID uuid.UUID, industry string) (models.JobResume, error)
 	UpdateIncome(ctx context.Context, userID uuid.UUID, income string) (models.JobResume, error)
 
-	CreateCabinet(ctx context.Context, userID uuid.UUID) (models.Cabinet, error)
+	CreateCabinet(ctx context.Context, userID uuid.UUID, input app.CreateCabinetInput) (models.Cabinet, error)
 	GetCabinetByUserID(ctx context.Context, userID uuid.UUID) (models.Cabinet, error)
 	GetCabinetByUsername(ctx context.Context, username string) (models.Cabinet, error)
 	GetUserBiographyByUserID(ctx context.Context, userID uuid.UUID) (models.Biography, error)

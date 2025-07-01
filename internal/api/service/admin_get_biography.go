@@ -7,7 +7,7 @@ import (
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 )
 
-func (s Service) AdminGetBiography(ctx context.Context, req *svc.AdminGetBiographyRequest) (*svc.Biography, error) {
+func (s Service) AdminGetBiography(ctx context.Context, req *svc.GetBiographyByAdminRequest) (*svc.Biography, error) {
 	meta := Meta(ctx)
 
 	bio, err := s.app.GetUserBiographyByUserID(ctx, meta.RequestID)

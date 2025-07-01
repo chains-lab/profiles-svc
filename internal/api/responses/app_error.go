@@ -17,7 +17,6 @@ func AppError(ctx context.Context, requestID uuid.UUID, err error) error {
 		var code codes.Code
 		switch appErr.Reason() {
 		case ape.ReasonInternal:
-			// внутренняя неожиданная ошибка
 			code = codes.Internal
 
 		case ape.ReasonPropertyUpdateNotAllowed:
@@ -25,8 +24,8 @@ func AppError(ctx context.Context, requestID uuid.UUID, err error) error {
 			// семантически — предусловие не выполнено
 			code = codes.FailedPrecondition
 
-		case ape.ReasonPropertyIsNotValid:
-			// в теле запроса пришло некорректное значение поля
+		case ape.ReasonPropertyIsNotValid,
+			ape.ReasonUsernameIsNotValid:
 			code = codes.InvalidArgument
 
 		case ape.ReasonUsernameAlreadyTaken:
@@ -38,23 +37,36 @@ func AppError(ctx context.Context, requestID uuid.UUID, err error) error {
 			code = codes.NotFound
 
 		default:
-			// неожиданный бизнес-код
 			code = codes.Unknown
 		}
 
 		st := status.New(code, appErr.Error())
-		st, errWithDetails := st.WithDetails(
-			&errdetails.ErrorInfo{
-				Reason: appErr.Reason(),
-				Domain: "elector-cab.yourdomain.com", // ваше API/сервис
-				Metadata: map[string]string{
-					"request_id": requestID.String(),
-				},
+
+		info := &errdetails.ErrorInfo{
+			Reason: appErr.Reason(),
+			Domain: "elector-cab-svc",
+			Metadata: map[string]string{
+				"request_id": requestID.String(),
 			},
-		)
-		if errWithDetails != nil {
-			return st.Err()
 		}
+
+		if code == codes.InvalidArgument {
+			var fb []*errdetails.BadRequest_FieldViolation
+
+			for _, v := range appErr.Violations() {
+				fb = append(fb, &errdetails.BadRequest_FieldViolation{
+					Field:       v.Field,
+					Description: v.Description,
+				})
+			}
+			br := &errdetails.BadRequest{FieldViolations: fb}
+
+			st, err := st.WithDetails(info, br)
+			if err != nil {
+				return st.Err()
+			}
+		}
+
 		return st.Err()
 	}
 

@@ -8,13 +8,11 @@ import (
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 )
 
-func (s Service) UpdateOwnProfile(ctx context.Context, req *svc.UpdateOwnProfileRequest) (*svc.Profile, error) {
+func (s Service) UpdateOwnUsername(ctx context.Context, req *svc.UpdateOwnUsernameRequest) (*svc.Profile, error) {
 	meta := Meta(ctx)
 
 	profile, err := s.app.UpdateProfile(ctx, meta.InitiatorID, app.UpdateProfileInput{
-		Pseudonym:   req.Pseudonym,
-		Description: req.Description,
-		Avatar:      req.Avatar,
+		Username: &req.Username,
 	})
 	if err != nil {
 		Log(ctx, meta.RequestID).WithError(err).Error("failed to update user profile")

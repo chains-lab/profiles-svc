@@ -47,11 +47,6 @@ func (a App) CreateCabinet(ctx context.Context, userID uuid.UUID, input CreateCa
 }
 
 func (a App) GetCabinetByUserID(ctx context.Context, userID uuid.UUID) (models.Cabinet, error) {
-	profile, err := a.profiles.GetByID(ctx, userID)
-	if err != nil {
-		return models.Cabinet{}, err
-	}
-
 	jobs, err := a.jobResumes.Get(ctx, userID)
 	if err != nil {
 		return models.Cabinet{}, err
@@ -63,7 +58,7 @@ func (a App) GetCabinetByUserID(ctx context.Context, userID uuid.UUID) (models.C
 	}
 
 	return models.Cabinet{
-		Profile:   profile,
+		UserID:    userID,
 		Job:       jobs,
 		Biography: biography,
 	}, nil
@@ -86,7 +81,7 @@ func (a App) GetCabinetByUsername(ctx context.Context, username string) (models.
 	}
 
 	return models.Cabinet{
-		Profile:   profile,
+		UserID:    profile.UserID,
 		Job:       jobs,
 		Biography: biography,
 	}, nil

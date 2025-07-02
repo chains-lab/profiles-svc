@@ -8,10 +8,9 @@ import (
 func Cabinet(model models.Cabinet) *electorcab.Cabinet {
 	bio := Biography(model.Biography)
 	job := JobResume(model.Job)
-	profile := Profile(model.Profile)
 
 	return &electorcab.Cabinet{
-		Profile:   profile,
+		UserId:    model.UserID.String(),
 		Biography: bio,
 		JobResume: job,
 	}

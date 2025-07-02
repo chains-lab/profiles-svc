@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s Service) AdminUpdateProfile(ctx context.Context, req *svc.UpdateProfileByAdminRequest) (*svc.Profile, error) {
+func (s Service) UpdateOfficialByAdmin(ctx context.Context, req *svc.UpdateOfficialByAdminRequest) (*svc.Profile, error) {
 	meta := Meta(ctx)
 
 	userID, err := uuid.Parse(req.UserId)
@@ -24,15 +24,11 @@ func (s Service) AdminUpdateProfile(ctx context.Context, req *svc.UpdateProfileB
 	}
 
 	profile, err := s.app.AdminUpdateProfile(ctx, userID, app.AdminUpdateProfileInput{
-		Username:    req.Username,
-		Pseudonym:   req.Pseudonym,
-		Description: req.Description,
-		Avatar:      req.Avatar,
-		Official:    req.Official,
+		Official: &req.Official,
 	})
 
 	if err != nil {
-		Log(ctx, meta.RequestID).WithError(err).Error("failed to update profile")
+		Log(ctx, meta.RequestID).WithError(err).Error("failed to update field official in profile")
 		return nil, responses.AppError(ctx, meta.RequestID, err)
 	}
 

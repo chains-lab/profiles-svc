@@ -36,6 +36,8 @@ type App interface {
 	AdminUpdateBiography(ctx context.Context, userID uuid.UUID, input app.UpdateBiographyInput) (models.Biography, error)
 	AdminUpdateJobResume(ctx context.Context, userID uuid.UUID, input app.AdminUpdateJobResumeInput) (models.JobResume, error)
 	AdminUpdateProfile(ctx context.Context, userID uuid.UUID, input app.AdminUpdateProfileInput) (models.Profile, error)
+	ResetUsername(ctx context.Context, userID uuid.UUID) (models.Profile, error)
+	ResetUserProfile(ctx context.Context, userID uuid.UUID, input app.ResetUserProfileInput) (models.Profile, error)
 }
 
 type Service struct {

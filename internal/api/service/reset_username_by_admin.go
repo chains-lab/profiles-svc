@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s Service) AdminGetProfile(ctx context.Context, req *svc.GetProfileByAdminRequest) (*svc.Profile, error) {
+func (s Service) ResetUsernameByAdmin(ctx context.Context, req *svc.ResetUsernameByAdminRequest) (*svc.Profile, error) {
 	meta := Meta(ctx)
 
 	userID, err := uuid.Parse(req.UserId)
@@ -22,10 +22,9 @@ func (s Service) AdminGetProfile(ctx context.Context, req *svc.GetProfileByAdmin
 		})
 	}
 
-	profile, err := s.app.GetProfileByUserID(ctx, userID)
+	profile, err := s.app.ResetUsername(ctx, userID)
 	if err != nil {
-		Log(ctx, meta.RequestID).WithError(err).Error("failed to get user profile")
-
+		Log(ctx, meta.RequestID).WithError(err).Error("failed to reset username")
 		return nil, responses.AppError(ctx, meta.RequestID, err)
 	}
 

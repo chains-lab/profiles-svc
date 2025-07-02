@@ -12,39 +12,7 @@ import (
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
-
-type userService interface {
-	CreateOwnCabinet(context.Context, *svc.CreateCabinetRequest) (*svc.Cabinet, error)
-
-	GetOwnCabinet(context.Context, *emptypb.Empty) (*svc.Cabinet, error)
-	GetOwnProfile(context.Context, *emptypb.Empty) (*svc.Profile, error)
-	GetOwnBiography(context.Context, *emptypb.Empty) (*svc.Biography, error)
-	GetOwnJobResume(context.Context, *emptypb.Empty) (*svc.JobResume, error)
-	// Profile
-	UpdateOwnProfile(context.Context, *svc.UpdateOwnProfileRequest) (*svc.Profile, error)
-	// Biography
-	UpdateOwnSex(context.Context, *svc.UpdateOwnSexRequest) (*svc.Biography, error)
-	UpdateOwnBirthday(context.Context, *svc.UpdateOwnBirthdayRequest) (*svc.Biography, error)
-	UpdateOwnNationality(context.Context, *svc.UpdateOwnNationalityRequest) (*svc.Biography, error)
-	UpdateOwnPrimaryLanguage(context.Context, *svc.UpdateOwnPrimaryLanguageRequest) (*svc.Biography, error)
-	UpdateOwnResidence(context.Context, *svc.UpdateOwnResidenceRequest) (*svc.Biography, error)
-	// Job
-	UpdateOwnDegree(context.Context, *svc.UpdateOwnDegreeRequest) (*svc.JobResume, error)
-	UpdateOwnIndustry(context.Context, *svc.UpdateOwnIndustryRequest) (*svc.JobResume, error)
-	UpdateOwnIncome(context.Context, *svc.UpdateOwnIncomeRequest) (*svc.JobResume, error)
-}
-
-type adminService interface {
-	GetCabinetByAdmin(context.Context, *svc.GetCabinetByAdminRequest) (*svc.Cabinet, error)
-	GetProfileByAdmin(context.Context, *svc.GetProfileByAdminRequest) (*svc.Profile, error)
-	UpdateProfileByAdmin(context.Context, *svc.UpdateProfileByAdminRequest) (*svc.Profile, error)
-	GetBiographyByAdmin(context.Context, *svc.GetBiographyByAdminRequest) (*svc.Biography, error)
-	UpdateBiographyByAdmin(context.Context, *svc.UpdateBiographyByAdminRequest) (*svc.Biography, error)
-	GetJobResumeByAdmin(context.Context, *svc.GetJobResumeByAdminRequest) (*svc.JobResume, error)
-	UpdateJobResumeByAdmin(context.Context, *svc.UpdateJobResumeByAdminRequest) (*svc.JobResume, error)
-}
 
 func Run(ctx context.Context, cfg config.Config, log *logrus.Logger, app *app.App) error {
 	// 1) Создаём реализацию хэндлеров и interceptor

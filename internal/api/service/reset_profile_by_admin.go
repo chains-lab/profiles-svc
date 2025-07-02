@@ -10,8 +10,9 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s Service) AdminUpdateJobResume(ctx context.Context, req *svc.UpdateJobResumeByAdminRequest) (*svc.JobResume, error) {
+func (s Service) ResetProfileByAdmin(ctx context.Context, req *svc.ResetProfileByAdminRequest) (*svc.Profile, error) {
 	meta := Meta(ctx)
+
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		Log(ctx, meta.RequestID).WithError(err).Error("invalid user ID format")
@@ -22,15 +23,15 @@ func (s Service) AdminUpdateJobResume(ctx context.Context, req *svc.UpdateJobRes
 		})
 	}
 
-	jobResume, err := s.app.AdminUpdateJobResume(ctx, userID, app.AdminUpdateJobResumeInput{
-		Degree:   req.Degree,
-		Industry: req.Industry,
-		Income:   req.Income,
+	profile, err := s.app.ResetUserProfile(ctx, userID, app.ResetUserProfileInput{
+		Pseudonym:   *req.Pseudonym,
+		Description: *req.Description,
+		Avatar:      *req.Avatar,
 	})
 	if err != nil {
-		Log(ctx, meta.RequestID).WithError(err).Error("failed to update job resume")
+		Log(ctx, meta.RequestID).WithError(err).Error("failed to reset profile")
 		return nil, responses.AppError(ctx, meta.RequestID, err)
 	}
 
-	return responses.JobResume(jobResume), nil
+	return responses.Profile(profile), nil
 }

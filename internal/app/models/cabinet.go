@@ -1,7 +1,9 @@
 package models
 
+import "github.com/google/uuid"
+
 type Cabinet struct {
-	Profile   Profile   `json:"profile"`
+	UserID    uuid.UUID `json:"user_id"`
 	Job       JobResume `json:"job"`
 	Biography Biography `json:"biography"`
 }

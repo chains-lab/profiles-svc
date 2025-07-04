@@ -14,9 +14,7 @@ type Profile struct {
 	Avatar      *string   `json:"avatar,omitempty"`
 	Official    bool      `json:"official"`
 
-	Biography *Biography `json:"biography"`
-	JobResume *JobResume `json:"job_resume"`
-
-	UpdatedAt time.Time `json:"updated_at"`
-	CreatedAt time.Time `json:"created_at"`
+	UsernameUpdatedAt time.Time `json:"username_updated_at"`
+	UpdatedAt         time.Time `json:"updated_at"`
+	CreatedAt         time.Time `json:"created_at"`
 }

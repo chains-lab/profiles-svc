@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
@@ -48,42 +49,42 @@ type CreateProfileInput struct {
 
 func (p Profiles) Create(ctx context.Context, userID uuid.UUID, input CreateProfileInput) error {
 	_, err := p.GetByID(ctx, userID)
-	if !errors.Is(err, ape.ErrCabinetForUserDoesNotExist) {
+	if !errors.Is(err, ape.ErrorProfileForUserDoesNotExist) {
 		return err
 	}
 
 	_, err = p.GetByUsername(ctx, input.Username)
-	if !errors.Is(err, ape.ErrCabinetForUserDoesNotExist) {
+	if !errors.Is(err, ape.ErrorProfileForUserDoesNotExist) {
 		if err == nil {
-			return ape.ErrorUsernameAlreadyTaken(err, input.Username)
+			return ape.RaiseUsernameAlreadyTaken(err, input.Username)
 		}
 	}
 
 	if err := domain.ValidateUsername(input.Username); err != nil {
-		return ape.ErrorInternal(err)
+		return ape.RaiseInternal(err)
 	}
 
 	createdAt := time.Now().UTC()
 
 	err = p.queries.Insert(ctx, dbx.ProfileModel{
-		UserID:      userID,
-		Username:    input.Username,
-		Pseudonym:   input.Pseudonym,
-		Description: input.Description,
-		Avatar:      input.Avatar,
-		Official:    false,
-		UpdatedAt:   createdAt,
-		CreatedAt:   createdAt,
+		UserID:            userID,
+		Username:          input.Username,
+		Pseudonym:         input.Pseudonym,
+		Description:       input.Description,
+		Avatar:            input.Avatar,
+		Official:          false,
+		UsernameUpdatedAt: createdAt,
+		UpdatedAt:         createdAt,
+		CreatedAt:         createdAt,
 	})
 	if err != nil {
-		return ape.ErrorInternal(err)
+		return ape.RaiseInternal(err)
 	}
 
 	return nil
 }
 
 type UpdateProfileInput struct {
-	Username    *string `json:"username,omitempty"`
 	Pseudonym   *string `json:"pseudonym,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Avatar      *string `json:"avatar,omitempty"`
@@ -91,19 +92,8 @@ type UpdateProfileInput struct {
 }
 
 func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProfileInput) error {
-	if input.Username != nil {
-		_, err := p.GetByID(ctx, userID)
-		if !errors.Is(err, ape.ErrCabinetForUserDoesNotExist) {
-			return err
-		}
-
-		if err == nil {
-			return ape.ErrorUsernameAlreadyTaken(err, *input.Username)
-		}
-	}
 
 	err := p.queries.FilterUserID(userID).Update(ctx, dbx.UpdateProfileInput{
-		Username:    input.Username,
 		Pseudonym:   input.Pseudonym,
 		Description: input.Description,
 		Avatar:      input.Avatar,
@@ -113,9 +103,57 @@ func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProf
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
+			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		}
-		return ape.ErrorInternal(err)
+		return ape.RaiseInternal(err)
+	}
+
+	return nil
+}
+
+func (p Profiles) UpdateUsername(ctx context.Context, userID uuid.UUID, username string) error {
+	if err := domain.ValidateUsername(username); err != nil {
+		return ape.RaiseUsernameIsNotValid(err)
+	}
+
+	now := time.Now().UTC()
+
+	profile, err := p.GetByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	elapsed := now.Sub(profile.UsernameUpdatedAt)
+	if elapsed < 14*24*time.Hour {
+		return ape.RaiseUsernameUpdateCooldown(
+			fmt.Errorf("username was updated %.0f hours ago", elapsed.Hours()),
+		)
+	}
+
+	_, err = p.GetByUsername(ctx, username)
+	if !errors.Is(err, ape.ErrorProfileForUserDoesNotExist) {
+		return err
+	}
+	if err == nil {
+		return ape.RaiseUsernameAlreadyTaken(err, username)
+	}
+
+	if profile.Username == username {
+		return nil // No change needed
+	}
+
+	err = p.queries.FilterUserID(userID).Update(ctx, dbx.UpdateProfileInput{
+		Username:          &username,
+		UsernameUpdatedAt: &now,
+		UpdatedAt:         now,
+	})
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+		default:
+			return ape.RaiseInternal(err)
+		}
 	}
 
 	return nil
@@ -126,9 +164,9 @@ func (p Profiles) GetByID(ctx context.Context, userID uuid.UUID) (models.Profile
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Profile{}, ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
+			return models.Profile{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return models.Profile{}, ape.ErrorInternal(err)
+			return models.Profile{}, ape.RaiseInternal(err)
 		}
 	}
 
@@ -140,9 +178,9 @@ func (p Profiles) GetByUsername(ctx context.Context, username string) (models.Pr
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Profile{}, ape.ErrorCabinetForUserDoesNotExist(err, username)
+			return models.Profile{}, ape.RaiseProfileForUserDoesNotExist(err, username)
 		default:
-			return models.Profile{}, ape.ErrorInternal(err)
+			return models.Profile{}, ape.RaiseInternal(err)
 		}
 	}
 

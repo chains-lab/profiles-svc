@@ -46,9 +46,9 @@ func (b Biographies) Create(ctx context.Context, userID uuid.UUID) error {
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.ErrorCabinetForUserAlreadyExists(err, userID.String())
+			return ape.RaiseProfileForUserAlreadyExists(err, userID.String())
 		default:
-			return ape.ErrorInternal(err)
+			return ape.RaiseInternal(err)
 		}
 	}
 
@@ -60,9 +60,9 @@ func (b Biographies) GetByUserID(ctx context.Context, userID uuid.UUID) (models.
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Biography{}, ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
+			return models.Biography{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return models.Biography{}, ape.ErrorInternal(err)
+			return models.Biography{}, ape.RaiseInternal(err)
 		}
 	}
 
@@ -71,10 +71,7 @@ func (b Biographies) GetByUserID(ctx context.Context, userID uuid.UUID) (models.
 
 func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string) error {
 	if err := references.ValidateSex(sex); err != nil {
-		return ape.ErrorPropertyIsNotValid(err, ape.Violation{
-			Field:       "sex",
-			Description: err.Error(), //TODO
-		})
+		return ape.RaiseSexIsNotValid(err)
 	}
 
 	now := time.Now().UTC()
@@ -87,7 +84,9 @@ func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string
 	if bio.SexUpdatedAt != nil {
 		last := *bio.SexUpdatedAt
 
-		return domain.ValidateUpdateProperty(last, 365*24*time.Hour)
+		if err := domain.ValidateUpdateProperty(last, 365*24*time.Hour); err != nil {
+			return ape.RaiseSexUpdateCooldown(err)
+		}
 	}
 
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
@@ -96,9 +95,9 @@ func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
+			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err)
+			return ape.RaiseInternal(err)
 		}
 	}
 
@@ -112,7 +111,7 @@ func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birth
 	}
 
 	if bio.Birthday != nil {
-		return ape.ErrorPropertyUpdateNotAllowed(fmt.Errorf("birthday is already set you can do it once")) //TODO: add error
+		return ape.RaiseBirthdayIsAlreadySet(fmt.Errorf("birthday is already set"))
 	}
 
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
@@ -120,9 +119,9 @@ func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birth
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
+			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err) //TODO
+			return ape.RaiseInternal(err) //TODO
 		}
 	}
 
@@ -132,10 +131,7 @@ func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birth
 func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, nationality string) error {
 	//TODO validate nationality from other api
 	if err := references.ValidateNationality(nationality); err != nil {
-		return ape.ErrorPropertyIsNotValid(err, ape.Violation{
-			Field:       "nationality",
-			Description: err.Error(), //TODO
-		})
+		return ape.RaiseNationalityIsNotValid(err)
 	}
 
 	bio, err := b.GetByUserID(ctx, userID)
@@ -148,7 +144,9 @@ func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, natio
 	if bio.NationalityUpdatedAt != nil {
 		last := *bio.NationalityUpdatedAt
 
-		return domain.ValidateUpdateProperty(last, 365*24*time.Hour)
+		if err := domain.ValidateUpdateProperty(last, 365*24*time.Hour); err != nil {
+			return ape.RaiseNationalityUpdateCooldown(err)
+		}
 	}
 
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
@@ -157,9 +155,9 @@ func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, natio
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
+			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err)
+			return ape.RaiseInternal(err)
 		}
 	}
 
@@ -169,10 +167,7 @@ func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, natio
 func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, primaryLanguage string) error {
 	//TODO validate primaryLanguage from other api
 	if err := references.ValidateLanguage(primaryLanguage); err != nil {
-		return ape.ErrorPropertyIsNotValid(err, ape.Violation{
-			Field:       "primary_language",
-			Description: err.Error(), //TODO
-		})
+		return ape.RaisePrimaryLanguageIsNotValid(err)
 	}
 
 	bio, err := b.GetByUserID(ctx, userID)
@@ -185,7 +180,9 @@ func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, p
 	if bio.PrimaryLanguageUpdatedAt != nil {
 		last := *bio.PrimaryLanguageUpdatedAt
 
-		return domain.ValidateUpdateProperty(last, 365*24*time.Hour)
+		if err := domain.ValidateUpdateProperty(last, 365*24*time.Hour); err != nil {
+			return ape.RaisePrimaryLanguageUpdateCooldown(err)
+		}
 	}
 
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
@@ -194,9 +191,9 @@ func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, p
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
+			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err)
+			return ape.RaiseInternal(err)
 		}
 	}
 
@@ -213,20 +210,7 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req 
 	//TODO validate country and city from other api
 	err := references.ValidateResidence(req.City, req.Region, req.Country)
 	if err != nil {
-		return ape.ErrorPropertyIsNotValid(err,
-			ape.Violation{
-				Field:       "city",
-				Description: err.Error(),
-			},
-			ape.Violation{
-				Field:       "region",
-				Description: err.Error(),
-			},
-			ape.Violation{
-				Field:       "country",
-				Description: err.Error(),
-			},
-		)
+		return ape.RaiseResidenceIsNotValid(err)
 	}
 
 	bio, err := b.GetByUserID(ctx, userID)
@@ -239,7 +223,9 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req 
 	if bio.ResidenceUpdatedAt != nil {
 		last := *bio.ResidenceUpdatedAt
 
-		return domain.ValidateUpdateProperty(last, 365*24*time.Hour)
+		if err := domain.ValidateUpdateProperty(last, 365*24*time.Hour); err != nil {
+			return ape.RaiseResidenceUpdateCooldown(err)
+		}
 	}
 
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
@@ -250,9 +236,9 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req 
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
+			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err)
+			return ape.RaiseInternal(err)
 		}
 	}
 
@@ -285,10 +271,7 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 
 	if input.Sex != nil {
 		if err := references.ValidateSex(*input.Sex); err != nil {
-			return ape.ErrorPropertyIsNotValid(err, ape.Violation{
-				Field:       "sex",
-				Description: err.Error(), //TODO
-			})
+			return ape.RaiseSexIsNotValid(err)
 		}
 
 		dbInput.Sex = input.Sex
@@ -298,20 +281,7 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	if input.City != nil && input.Country != nil {
 		//TODO implement this functionality
 		if err = references.ValidateResidence(*input.City, *input.Region, *input.Country); err != nil {
-			return ape.ErrorPropertyIsNotValid(err,
-				ape.Violation{
-					Field:       "city",
-					Description: err.Error(),
-				},
-				ape.Violation{
-					Field:       "region",
-					Description: err.Error(),
-				},
-				ape.Violation{
-					Field:       "country",
-					Description: err.Error(),
-				},
-			)
+			return ape.RaiseResidenceIsNotValid(err)
 		}
 
 		dbInput.City = input.City
@@ -322,10 +292,7 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	if input.Nationality != nil {
 		//TODO implement this functionality
 		if err = references.ValidateNationality(*input.Nationality); err != nil {
-			return ape.ErrorPropertyIsNotValid(err, ape.Violation{
-				Field:       "nationality",
-				Description: err.Error(), //TODO
-			})
+			return ape.RaiseNationalityIsNotValid(err)
 		}
 
 		dbInput.Nationality = input.Nationality
@@ -334,10 +301,7 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	if input.PrimaryLanguage != nil {
 		//TODO implement this functionality
 		if err = references.ValidateLanguage(*input.PrimaryLanguage); err != nil {
-			return ape.ErrorPropertyIsNotValid(err, ape.Violation{
-				Field:       "primary_language",
-				Description: err.Error(), //TODO
-			})
+			return ape.RaisePrimaryLanguageIsNotValid(err)
 		}
 
 		dbInput.PrimaryLanguage = input.PrimaryLanguage
@@ -347,9 +311,9 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbInput); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.ErrorCabinetForUserDoesNotExist(err, userID.String())
+			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.ErrorInternal(err)
+			return ape.RaiseInternal(err)
 		}
 	}
 

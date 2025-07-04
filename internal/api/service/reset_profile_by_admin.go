@@ -30,8 +30,11 @@ func (s Service) ResetProfileByAdmin(ctx context.Context, req *svc.ResetProfileB
 	})
 	if err != nil {
 		Log(ctx, meta.RequestID).WithError(err).Error("failed to reset profile")
+
 		return nil, responses.AppError(ctx, meta.RequestID, err)
 	}
+
+	Log(ctx, meta.RequestID).Infof("profile for user %s has been reset by admin %s", userID, meta.InitiatorID)
 
 	return responses.Profile(profile), nil
 }

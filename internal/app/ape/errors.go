@@ -1,88 +1,342 @@
 package ape
 
-import "fmt"
+import (
+	"fmt"
 
-var (
-	ErrInternal                    = &BusinessError{reason: ReasonInternal}
-	ErrPropertyUpdateNotAllowed    = &BusinessError{reason: ReasonPropertyUpdateNotAllowed}
-	ErrPropertyIsNotValid          = &BusinessError{reason: ReasonPropertyIsNotValid}
-	ErrUsernameAlreadyTaken        = &BusinessError{reason: ReasonUsernameAlreadyTaken}
-	ErrCabinetForUserDoesNotExist  = &BusinessError{reason: ReasonCabinetForUserDoesNotExist}
-	ErrCabinetForUserAlreadyExists = &BusinessError{reason: ReasonCabinetForUserAlreadyExists}
-	ErrOnlyUserCanHaveCabinet      = &BusinessError{reason: ReasonOnlyUserCanHaveCabinet}
-	ErrUsernameIsNotValid          = &BusinessError{reason: ReasonUsernameIsNotValid}
+	"google.golang.org/genproto/googleapis/rpc/errdetails"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/protoadapt"
 )
 
-func ErrorInternal(cause error) error {
-	return &BusinessError{
-		reason:  ErrInternal.reason,
+const ElectorCabSvcDomain = "elector-cab-svc"
+
+var (
+	ErrorInternal = &Error{reason: ReasonInternal}
+
+	ErrorOnlyUserCanHaveProfile      = &Error{reason: ReasonOnlyUserCanHaveProfile}
+	ErrorProfileForUserDoesNotExist  = &Error{reason: ReasonProfileForUserDoesNotExist}
+	ErrorProfileForUserAlreadyExists = &Error{reason: ReasonProfileForUserAlreadyExists}
+
+	ErrorUsernameAlreadyTaken   = &Error{reason: ReasonUsernameAlreadyTaken}
+	ErrorUsernameIsNotValid     = &Error{reason: ReasonUsernameIsNotValid}
+	ErrorUsernameUpdateCooldown = &Error{reason: ReasonUsernameUpdateCooldown}
+
+	ErrorBirthdayIsNotValid            = &Error{reason: ReasonBirthdayIsNotValid}
+	ErrorBirthdayIsAlreadySet          = &Error{reason: ReasonBirthdayIsAlreadySet}
+	ErrorSexIsNotValid                 = &Error{reason: ReasonSexIsNotValid}
+	ErrorSexUpdateCooldown             = &Error{reason: ReasonSexUpdateCooldown}
+	ErrorResidenceIsNotValid           = &Error{reason: ReasonResidenceIsNotValid}
+	ErrorResidenceUpdateCooldown       = &Error{reason: ReasonResidenceUpdateCooldown}
+	ErrorNationalityIsNotValid         = &Error{reason: ReasonNationalityIsNotValid}
+	ErrorNationalityUpdateCooldown     = &Error{reason: ReasonNationalityUpdateCooldown}
+	ErrorPrimaryLanguageIsNotValid     = &Error{reason: ReasonPrimaryLanguageIsNotValid}
+	ErrorPrimaryLanguageUpdateCooldown = &Error{reason: ReasonPrimaryLanguageUpdateCooldown}
+)
+
+func RaiseInternal(cause error) error {
+	return &Error{
+		code:    ErrorInternal.code,
+		reason:  ErrorInternal.reason,
 		message: "unexpected internal error occurred",
 		cause:   cause,
 	}
 }
 
-func ErrorUsernameAlreadyTaken(cause error, username string) error {
-	return &BusinessError{
-		reason:  ErrUsernameAlreadyTaken.reason,
-		message: fmt.Sprintf("username %s is already taken", username),
+func RaiseProfileForUserDoesNotExist(cause error, user string) error {
+	return &Error{
+		code:    codes.NotFound,
+		reason:  ErrorProfileForUserDoesNotExist.reason,
+		message: fmt.Sprintf("profile for user %s does not exist", user),
 		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ErrorProfileForUserDoesNotExist.reason,
+				Domain: ElectorCabSvcDomain,
+			},
+		},
 	}
 }
 
-func ErrorCabinetForUserDoesNotExist(cause error, user string) error {
-	return &BusinessError{
-		reason:  ErrCabinetForUserDoesNotExist.reason,
-		message: fmt.Sprintf("cabinet for user %s does not exist", user),
-		cause:   cause,
-	}
-}
-
-func ErrorCabinetForUserAlreadyExists(cause error, user string) error {
-	return &BusinessError{
-		reason:  ErrCabinetForUserDoesNotExist.reason,
+func RaiseProfileForUserAlreadyExists(cause error, user string) error {
+	return &Error{
+		code:    codes.AlreadyExists,
+		reason:  ErrorProfileForUserAlreadyExists.reason,
 		message: fmt.Sprintf("cabinet for user %s already exists", user),
 		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ErrorProfileForUserAlreadyExists.reason,
+				Domain: ElectorCabSvcDomain,
+			},
+		},
 	}
 }
 
-func ErrorPropertyUpdateNotAllowed(cause error) error {
-	return &BusinessError{
-		reason:  ErrPropertyUpdateNotAllowed.reason,
+func RaiseOnlyUserCanHaveCabinetAndProfile(cause error) error {
+	return &Error{
+		code:    codes.PermissionDenied,
+		reason:  ErrorOnlyUserCanHaveProfile.reason,
 		message: cause.Error(),
 		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ErrorOnlyUserCanHaveProfile.reason,
+				Domain: ElectorCabSvcDomain,
+			},
+		},
 	}
 }
 
-func ErrorPropertyIsNotValid(cause error, violation ...Violation) error {
-	return &BusinessError{
-		reason:     ErrPropertyIsNotValid.reason,
-		message:    cause.Error(),
-		cause:      cause,
-		violations: violation,
+func RaiseUsernameAlreadyTaken(cause error, username string) error {
+	return &Error{
+		code:    codes.FailedPrecondition,
+		reason:  ErrorUsernameAlreadyTaken.reason,
+		message: fmt.Sprintf("username %s is already taken", username),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ErrorUsernameAlreadyTaken.reason,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.ResourceInfo{
+				ResourceType: "username",
+				ResourceName: username,
+				Description:  "This username is already in use by another account",
+			},
+		},
 	}
 }
 
-func ErrorOnlyUserCanHaveCabinet(cause error) error {
-	return &BusinessError{
-		reason:  ErrOnlyUserCanHaveCabinet.reason,
+func RaiseUsernameIsNotValid(cause error) error {
+	return &Error{
+		code:    codes.InvalidArgument,
+		reason:  ErrorUsernameIsNotValid.reason,
 		message: cause.Error(),
 		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ErrorUsernameIsNotValid.reason,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
+				Field:       "username",
+				Description: "username is not valid, it must be 3-32 characters long, allowed characters are: a-z, A-Z, 0-9, _ (underscore), - (dash), . (dot)",
+			}}},
+		},
 	}
 }
 
-func ErrorOnlyUserCanHaveCabinetWithMessage(cause error) error {
-	return &BusinessError{
-		reason:  ErrOnlyUserCanHaveCabinet.reason,
+func RaiseUsernameUpdateCooldown(cause error) error {
+	return &Error{
+		code:    codes.FailedPrecondition,
+		reason:  ErrorUsernameUpdateCooldown.reason,
+		message: "username can be updated only once per 14 days",
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ErrorUsernameUpdateCooldown.reason,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
+				Type:        "username_update_cooldown",
+				Subject:     "username",
+				Description: "username can be updated only once per 14 days",
+			}}},
+		},
+	}
+}
+
+func RaiseBirthdayIsNotValid(cause error) error {
+	return &Error{
+		code:    codes.InvalidArgument,
+		reason:  ReasonBirthdayIsNotValid,
 		message: cause.Error(),
 		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ReasonBirthdayIsNotValid,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
+				Field:       "birthday",
+				Description: "birthday is not valid, it must be in the past, but not more than 1900-01-01",
+			}}},
+		},
 	}
 }
 
-func ErrorUsernameIsNotValid(cause error, violations ...Violation) error {
-	return &BusinessError{
-		reason:     ErrUsernameIsNotValid.reason,
-		message:    cause.Error(),
-		cause:      cause,
-		violations: violations,
+func RaiseBirthdayIsAlreadySet(cause error) error {
+	return &Error{
+		code:    codes.FailedPrecondition,
+		reason:  ReasonBirthdayIsAlreadySet,
+		message: "birthday is already set",
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ReasonBirthdayIsAlreadySet,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
+				Type:        "birthday_already_set",
+				Subject:     "birthday",
+				Description: "birthday is already set and cannot be changed",
+			}}},
+		},
+	}
+}
+
+func RaiseSexIsNotValid(cause error) error {
+	return &Error{
+		code:    codes.InvalidArgument,
+		reason:  ReasonSexIsNotValid,
+		message: cause.Error(),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ReasonSexIsNotValid,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
+				Field:       "sex",
+				Description: "sex is not valid", //TODO: add more details about valid values
+			}}},
+		},
+	}
+}
+
+func RaiseSexUpdateCooldown(cause error) error {
+	return &Error{
+		code:    codes.FailedPrecondition,
+		reason:  ReasonSexUpdateCooldown,
+		message: cause.Error(),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ReasonSexUpdateCooldown,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
+				Type:        "sex_update_cooldown",
+				Subject:     "sex",
+				Description: "sex can be updated only once per year",
+			}}},
+		},
+	}
+}
+
+func RaiseResidenceIsNotValid(cause error) error {
+	return &Error{
+		code:    codes.InvalidArgument,
+		reason:  ReasonResidenceIsNotValid,
+		message: cause.Error(),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ReasonResidenceIsNotValid,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
+				Field:       "residence",
+				Description: "residence is not valid, it must be a valid country name",
+			}}},
+		},
+	}
+}
+
+func RaiseResidenceUpdateCooldown(cause error) error {
+	return &Error{
+		code:    codes.FailedPrecondition,
+		reason:  ReasonResidenceUpdateCooldown,
+		message: cause.Error(),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ReasonResidenceUpdateCooldown,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
+				Type:        "residence_update_cooldown",
+				Subject:     "residence",
+				Description: "residence can be updated only once per 100 days",
+			}}},
+		},
+	}
+}
+
+func RaiseNationalityIsNotValid(cause error) error {
+	return &Error{
+		code:    codes.InvalidArgument,
+		reason:  ReasonNationalityIsNotValid,
+		message: cause.Error(),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ReasonNationalityIsNotValid,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
+				Field:       "nationality",
+				Description: "nationality is not valid",
+			}}},
+		},
+	}
+}
+
+func RaiseNationalityUpdateCooldown(cause error) error {
+	return &Error{
+		code:    codes.FailedPrecondition,
+		reason:  ReasonNationalityUpdateCooldown,
+		message: cause.Error(),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ReasonNationalityUpdateCooldown,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
+				Type:        "nationality_update_cooldown",
+				Subject:     "nationality",
+				Description: "nationality can be updated only once per year",
+			}}},
+		},
+	}
+}
+
+func RaisePrimaryLanguageIsNotValid(cause error) error {
+	return &Error{
+		code:    codes.InvalidArgument,
+		reason:  ReasonPrimaryLanguageIsNotValid,
+		message: cause.Error(),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ReasonPrimaryLanguageIsNotValid,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
+				Field:       "primary_language",
+				Description: "primary language is not valid, it must be a valid language code",
+			}}},
+		},
+	}
+}
+
+func RaisePrimaryLanguageUpdateCooldown(cause error) error {
+	return &Error{
+		code:    codes.FailedPrecondition,
+		reason:  ReasonPrimaryLanguageUpdateCooldown,
+		message: cause.Error(),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ErrorInfo{
+				Reason: ReasonPrimaryLanguageUpdateCooldown,
+				Domain: ElectorCabSvcDomain,
+			},
+			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
+				Type:        "primary_language_update_cooldown",
+				Subject:     "primary_language",
+				Description: "primary language can be updated only once per year",
+			}}},
+		},
 	}
 }

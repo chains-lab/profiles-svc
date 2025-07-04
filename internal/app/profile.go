@@ -19,7 +19,6 @@ func (a App) GetProfileByUsername(ctx context.Context, username string) (models.
 }
 
 type UpdateProfileInput struct {
-	Username    *string `json:"username,omitempty"`
 	Pseudonym   *string `json:"pseudonym,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Avatar      *string `json:"avatar,omitempty"`
@@ -27,7 +26,6 @@ type UpdateProfileInput struct {
 
 func (a App) UpdateProfile(ctx context.Context, userID uuid.UUID, profile UpdateProfileInput) (models.Profile, error) {
 	err := a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
-		Username:    profile.Username,
 		Pseudonym:   profile.Pseudonym,
 		Description: profile.Description,
 		Avatar:      profile.Avatar,
@@ -39,8 +37,15 @@ func (a App) UpdateProfile(ctx context.Context, userID uuid.UUID, profile Update
 	return a.GetProfileByUserID(ctx, userID)
 }
 
+func (a App) UpdateUsername(ctx context.Context, userID uuid.UUID, username string) (models.Profile, error) {
+	if err := a.profiles.UpdateUsername(ctx, userID, username); err != nil {
+		return models.Profile{}, err
+	}
+
+	return a.GetProfileByUserID(ctx, userID)
+}
+
 type AdminUpdateProfileInput struct {
-	Username    *string `json:"username,omitempty"`
 	Pseudonym   *string `json:"pseudonym,omitempty"`
 	Description *string `json:"description,omitempty"`
 	Avatar      *string `json:"avatar,omitempty"`
@@ -54,7 +59,6 @@ func (a App) AdminUpdateProfile(ctx context.Context, userID uuid.UUID, profile A
 	}
 
 	err = a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
-		Username:    profile.Username,
 		Pseudonym:   profile.Pseudonym,
 		Description: profile.Description,
 		Avatar:      profile.Avatar,
@@ -93,9 +97,7 @@ func (a App) ResetUsername(ctx context.Context, userID uuid.UUID) (models.Profil
 		return models.Profile{}, err
 	}
 
-	if err := a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
-		Username: &username,
-	}); err != nil {
+	if err := a.profiles.UpdateUsername(ctx, userID, username); err != nil {
 		return models.Profile{}, err
 	}
 

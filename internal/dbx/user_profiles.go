@@ -19,8 +19,10 @@ type ProfileModel struct {
 	Description *string   `db:"description,omitempty"`
 	Avatar      *string   `db:"avatar,omitempty"`
 	Official    bool      `db:"official"`
-	UpdatedAt   time.Time `db:"updated_at"`
-	CreatedAt   time.Time `db:"created_at"`
+
+	UsernameUpdatedAt time.Time `db:"username_updated_at"`
+	UpdatedAt         time.Time `db:"updated_at"`
+	CreatedAt         time.Time `db:"created_at"`
 }
 
 type ProfilesQ struct {
@@ -50,14 +52,15 @@ func (q ProfilesQ) New() ProfilesQ {
 
 func (q ProfilesQ) Insert(ctx context.Context, input ProfileModel) error {
 	values := map[string]interface{}{
-		"user_id":     input.UserID,
-		"username":    input.Username,
-		"pseudonym":   input.Pseudonym,
-		"description": input.Description,
-		"avatar":      input.Avatar,
-		"official":    input.Official,
-		"updated_at":  input.UpdatedAt,
-		"created_at":  input.CreatedAt,
+		"user_id":             input.UserID,
+		"username":            input.Username,
+		"pseudonym":           input.Pseudonym,
+		"description":         input.Description,
+		"avatar":              input.Avatar,
+		"official":            input.Official,
+		"username_updated_at": input.UsernameUpdatedAt,
+		"updated_at":          input.UpdatedAt,
+		"created_at":          input.CreatedAt,
 	}
 
 	query, args, err := q.inserter.SetMap(values).ToSql()
@@ -75,12 +78,13 @@ func (q ProfilesQ) Insert(ctx context.Context, input ProfileModel) error {
 }
 
 type UpdateProfileInput struct {
-	Username    *string
-	Pseudonym   *string
-	Description *string
-	Avatar      *string
-	Official    *bool
-	UpdatedAt   time.Time
+	Username          *string
+	Pseudonym         *string
+	Description       *string
+	Avatar            *string
+	Official          *bool
+	UsernameUpdatedAt *time.Time
+	UpdatedAt         time.Time
 }
 
 func (q ProfilesQ) Update(ctx context.Context, input UpdateProfileInput) error {
@@ -88,6 +92,9 @@ func (q ProfilesQ) Update(ctx context.Context, input UpdateProfileInput) error {
 
 	if input.Username != nil {
 		updates["username"] = *input.Username
+	}
+	if input.UsernameUpdatedAt != nil {
+		updates["username_updated_at"] = *input.UsernameUpdatedAt
 	}
 	if input.Pseudonym != nil {
 		updates["pseudonym"] = *input.Pseudonym
@@ -136,6 +143,7 @@ func (q ProfilesQ) Get(ctx context.Context) (ProfileModel, error) {
 		&profile.Description,
 		&profile.Avatar,
 		&profile.Official,
+		&profile.UsernameUpdatedAt,
 		&profile.UpdatedAt,
 		&profile.CreatedAt,
 	)
@@ -171,6 +179,7 @@ func (q ProfilesQ) Select(ctx context.Context) ([]ProfileModel, error) {
 			&profile.Description,
 			&profile.Avatar,
 			&profile.Official,
+			&profile.UsernameUpdatedAt,
 			&profile.UpdatedAt,
 			&profile.CreatedAt,
 		)

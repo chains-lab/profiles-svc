@@ -28,5 +28,7 @@ func (s Service) ResetUsernameByAdmin(ctx context.Context, req *svc.ResetUsernam
 		return nil, responses.AppError(ctx, meta.RequestID, err)
 	}
 
+	Log(ctx, meta.RequestID).Infof("username for user %s has been reset by admin %s", userID, meta.InitiatorID)
+
 	return responses.Profile(profile), nil
 }

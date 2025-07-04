@@ -10,8 +10,9 @@ CREATE TABLE user_profiles (
     avatar      TEXT,
     official    BOOLEAN NOT NULL DEFAULT FALSE,
 
-    updated_at  TIMESTAMP NOT NULL DEFAULT now(),
-    created_at  TIMESTAMP NOT NULL DEFAULT now()
+    username_updated_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at          TIMESTAMP NOT NULL DEFAULT now(),
+    created_at          TIMESTAMP NOT NULL DEFAULT now()
 );
 
 CREATE TABLE users_biographies (
@@ -25,26 +26,12 @@ CREATE TABLE users_biographies (
     nationality      VARCHAR(64), -- TODO names from reference-svc in future
     primary_language VARCHAR(64), -- TODO names from reference-svc in future
 
-
     sex_updated_at              timestamp,
     nationality_updated_at      timestamp,
     primary_language_updated_at timestamp,
     residence_updated_at        timestamp,
 )
 
-CREATE TABLE users_job_resumes (
-    user_id  UUID PRIMARY KEY REFERENCES user_profiles(user_id) ON DELETE CASCADE,
-
-    degree   VARCHAR(64), -- TODO names from reference-svc in future
-    industry VARCHAR(64), -- TODO names from reference-svc in future
-    income   VARCHAR(64), -- this field is not public TODO names from reference-svc in future
-
-    degree_updated_at    timestamp,
-    industry_updated_at  timestamp,
-    income_updated_at    timestamp,
-)
-
 -- +migrate Down
-DROP TABLE IF EXISTS users_job_resumes CASCADE;
 DROP TABLE IF EXISTS users_biographies CASCADE;
 DROP TABLE IF EXISTS user_profiles CASCADE;

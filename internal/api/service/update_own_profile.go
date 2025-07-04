@@ -22,5 +22,7 @@ func (s Service) UpdateOwnProfile(ctx context.Context, req *svc.UpdateOwnProfile
 		return nil, responses.AppError(ctx, meta.RequestID, err)
 	}
 
+	Log(ctx, meta.RequestID).Infof("profile for user %s has been updated", meta.InitiatorID)
+
 	return responses.Profile(profile), nil
 }

@@ -29,8 +29,11 @@ func (s Service) UpdateOfficialByAdmin(ctx context.Context, req *svc.UpdateOffic
 
 	if err != nil {
 		Log(ctx, meta.RequestID).WithError(err).Error("failed to update field official in profile")
+
 		return nil, responses.AppError(ctx, meta.RequestID, err)
 	}
+
+	Log(ctx, meta.RequestID).Infof("official status for user %s has been updated by admin %s", userID, meta.InitiatorID)
 
 	return responses.Profile(profile), nil
 }

@@ -12,7 +12,6 @@ import (
 
 type App struct {
 	profiles    entities.Profiles
-	jobResumes  entities.JobResumes
 	biographies entities.Biographies
 
 	db *sql.DB
@@ -28,10 +27,6 @@ func NewApp(cfg config.Config) (App, error) {
 	if err != nil {
 		return App{}, err
 	}
-	jobs, err := entities.NewJobResumes(pg)
-	if err != nil {
-		return App{}, err
-	}
 	biographies, err := entities.NewBiographies(pg)
 	if err != nil {
 		return App{}, err
@@ -39,7 +34,6 @@ func NewApp(cfg config.Config) (App, error) {
 
 	return App{
 		profiles:    profiles,
-		jobResumes:  jobs,
 		biographies: biographies,
 		db:          pg,
 	}, nil

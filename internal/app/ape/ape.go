@@ -7,8 +7,6 @@ import (
 	"google.golang.org/protobuf/protoadapt"
 )
 
-//
-
 type Error struct {
 	code    codes.Code
 	reason  string

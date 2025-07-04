@@ -8,7 +8,7 @@ import (
 	"google.golang.org/protobuf/protoadapt"
 )
 
-const ElectorCabSvcDomain = "elector-cab-svc"
+const ServiceName = "elector-cab-svc"
 
 var (
 	ErrorInternal = &Error{reason: ReasonInternal}
@@ -51,7 +51,7 @@ func RaiseProfileForUserDoesNotExist(cause error, user string) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ErrorProfileForUserDoesNotExist.reason,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 		},
 	}
@@ -66,7 +66,7 @@ func RaiseProfileForUserAlreadyExists(cause error, user string) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ErrorProfileForUserAlreadyExists.reason,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 		},
 	}
@@ -81,7 +81,7 @@ func RaiseOnlyUserCanHaveCabinetAndProfile(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ErrorOnlyUserCanHaveProfile.reason,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 		},
 	}
@@ -96,7 +96,7 @@ func RaiseUsernameAlreadyTaken(cause error, username string) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ErrorUsernameAlreadyTaken.reason,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.ResourceInfo{
 				ResourceType: "username",
@@ -116,7 +116,7 @@ func RaiseUsernameIsNotValid(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ErrorUsernameIsNotValid.reason,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field:       "username",
@@ -135,7 +135,7 @@ func RaiseUsernameUpdateCooldown(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ErrorUsernameUpdateCooldown.reason,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
 				Type:        "username_update_cooldown",
@@ -155,7 +155,7 @@ func RaiseBirthdayIsNotValid(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ReasonBirthdayIsNotValid,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field:       "birthday",
@@ -174,7 +174,7 @@ func RaiseBirthdayIsAlreadySet(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ReasonBirthdayIsAlreadySet,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
 				Type:        "birthday_already_set",
@@ -194,7 +194,7 @@ func RaiseSexIsNotValid(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ReasonSexIsNotValid,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field:       "sex",
@@ -213,7 +213,7 @@ func RaiseSexUpdateCooldown(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ReasonSexUpdateCooldown,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
 				Type:        "sex_update_cooldown",
@@ -233,7 +233,7 @@ func RaiseResidenceIsNotValid(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ReasonResidenceIsNotValid,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field:       "residence",
@@ -252,7 +252,7 @@ func RaiseResidenceUpdateCooldown(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ReasonResidenceUpdateCooldown,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
 				Type:        "residence_update_cooldown",
@@ -272,7 +272,7 @@ func RaiseNationalityIsNotValid(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ReasonNationalityIsNotValid,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field:       "nationality",
@@ -291,7 +291,7 @@ func RaiseNationalityUpdateCooldown(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ReasonNationalityUpdateCooldown,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
 				Type:        "nationality_update_cooldown",
@@ -311,7 +311,7 @@ func RaisePrimaryLanguageIsNotValid(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ReasonPrimaryLanguageIsNotValid,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field:       "primary_language",
@@ -330,7 +330,7 @@ func RaisePrimaryLanguageUpdateCooldown(cause error) error {
 		details: []protoadapt.MessageV1{
 			&errdetails.ErrorInfo{
 				Reason: ReasonPrimaryLanguageUpdateCooldown,
-				Domain: ElectorCabSvcDomain,
+				Domain: ServiceName,
 			},
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
 				Type:        "primary_language_update_cooldown",

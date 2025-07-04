@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
-	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -17,7 +16,7 @@ func (s Service) UpdateOwnBirthday(ctx context.Context, req *svc.UpdateOwnBirthd
 	if err != nil {
 		Log(ctx, meta.RequestID).WithError(err).Errorf("invalid date format for birthday: %s", req.Birthday)
 
-		return nil, responses.BadRequestError(ctx, meta.RequestID, ape.Violation{
+		return nil, responses.BadRequestError(ctx, meta.RequestID, responses.Violation{
 			Field:       "birthday",
 			Description: "invalid date format, expected YYYY-MM-DD",
 		})

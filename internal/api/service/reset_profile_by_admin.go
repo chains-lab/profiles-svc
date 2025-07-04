@@ -5,7 +5,6 @@ import (
 
 	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
 	"github.com/chains-lab/elector-cab-svc/internal/app"
-	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 	"github.com/google/uuid"
 )
@@ -17,7 +16,7 @@ func (s Service) ResetProfileByAdmin(ctx context.Context, req *svc.ResetProfileB
 	if err != nil {
 		Log(ctx, meta.RequestID).WithError(err).Error("invalid user ID format")
 
-		return nil, responses.BadRequestError(ctx, meta.RequestID, ape.Violation{
+		return nil, responses.BadRequestError(ctx, meta.RequestID, responses.Violation{
 			Field:       "user_id",
 			Description: "invalid UUID format for user ID",
 		})

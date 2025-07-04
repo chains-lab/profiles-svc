@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
-	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 	"github.com/google/uuid"
@@ -21,7 +20,7 @@ func (s Service) GetProfile(ctx context.Context, req *svc.GetProfileRequest) (*s
 		if err != nil {
 			Log(ctx, meta.RequestID).WithError(err).Error("invalid user ID format")
 
-			return nil, responses.BadRequestError(ctx, meta.RequestID, ape.Violation{
+			return nil, responses.BadRequestError(ctx, meta.RequestID, responses.Violation{
 				Field:       "user_id",
 				Description: "invalid UUID format for user ID",
 			})
@@ -42,8 +41,8 @@ func (s Service) GetProfile(ctx context.Context, req *svc.GetProfileRequest) (*s
 		}
 	} else {
 		return nil, responses.BadRequestError(ctx, meta.RequestID,
-			ape.Violation{Field: "username", Description: "username is required"},
-			ape.Violation{Field: "user_id", Description: "user_id is required"})
+			responses.Violation{Field: "username", Description: "username is required"},
+			responses.Violation{Field: "user_id", Description: "user_id is required"})
 	}
 
 	return responses.Profile(profile), nil

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
-	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 )
@@ -32,10 +31,10 @@ func (s Service) GetCabinet(ctx context.Context, req *svc.GetCabinetRequest) (*s
 			return nil, responses.AppError(ctx, meta.RequestID, err)
 		}
 	} else {
-		return nil, responses.BadRequestError(ctx, meta.RequestID, ape.Violation{
+		return nil, responses.BadRequestError(ctx, meta.RequestID, responses.Violation{
 			Field:       "username",
 			Description: "either username is required or user_id",
-		}, ape.Violation{
+		}, responses.Violation{
 			Field:       "user_id",
 			Description: "either user_id is required or username",
 		})

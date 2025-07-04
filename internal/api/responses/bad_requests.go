@@ -3,7 +3,6 @@ package responses
 import (
 	"context"
 
-	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
 	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -11,12 +10,16 @@ import (
 )
 
 // Violation описывает одно поле + ошибку в нём
+type Violation struct {
+	Field       string
+	Description string
+}
 
 // BadRequestError строит статус InvalidArgument с деталями
 func BadRequestError(
 	ctx context.Context,
 	requestID uuid.UUID,
-	violations ...ape.Violation,
+	violations ...Violation,
 ) error {
 	// 2) базовый статус
 	st := status.New(codes.InvalidArgument, "bad request")

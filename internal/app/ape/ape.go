@@ -7,10 +7,7 @@ import (
 	"google.golang.org/protobuf/protoadapt"
 )
 
-type Violation struct {
-	Field       string
-	Description string
-}
+//
 
 type Error struct {
 	code    codes.Code

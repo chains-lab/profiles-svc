@@ -6,7 +6,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/chains-lab/gatekit v0.0.7
-	github.com/chains-lab/proto-storage v0.0.5401
+	github.com/chains-lab/proto-storage v0.0.5502
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/pkg/errors v0.9.1
@@ -16,6 +16,7 @@ require (
 	golang.org/x/sync v0.12.0
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250324211829-b45e905df463
 	google.golang.org/grpc v1.73.0
+	google.golang.org/protobuf v1.36.6
 )
 
 require (
@@ -41,6 +42,5 @@ require (
 	golang.org/x/net v0.38.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
-	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

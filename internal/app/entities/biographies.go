@@ -11,6 +11,7 @@ import (
 	"github.com/chains-lab/elector-cab-svc/internal/app/domain"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/chains-lab/elector-cab-svc/internal/app/references"
+	"github.com/chains-lab/elector-cab-svc/internal/config"
 	"github.com/chains-lab/elector-cab-svc/internal/dbx"
 	"github.com/google/uuid"
 )
@@ -32,11 +33,13 @@ type BiographiesQ interface {
 
 type Biographies struct {
 	queries BiographiesQ
+	cfg     config.Config
 }
 
-func NewBiographies(db *sql.DB) (Biographies, error) {
+func NewBiographies(db *sql.DB, cfg config.Config) (Biographies, error) {
 	return Biographies{
 		queries: dbx.NewBiographies(db),
+		cfg:     cfg,
 	}, nil
 }
 
@@ -69,23 +72,23 @@ func (b Biographies) GetByUserID(ctx context.Context, userID uuid.UUID) (models.
 	return BioFromDb(bio), nil
 }
 
-func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string) error {
+func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string) (models.Biography, error) {
 	if err := references.ValidateSex(sex); err != nil {
-		return ape.RaiseSexIsNotValid(err)
+		return models.Biography{}, ape.RaiseSexIsNotValid(err)
 	}
 
 	now := time.Now().UTC()
 
 	bio, err := b.GetByUserID(ctx, userID)
 	if err != nil {
-		return err
+		return models.Biography{}, err
 	}
 
 	if bio.SexUpdatedAt != nil {
 		last := *bio.SexUpdatedAt
 
 		if err := domain.ValidateUpdateProperty(last, 365*24*time.Hour); err != nil {
-			return ape.RaiseSexUpdateCooldown(err)
+			return models.Biography{}, ape.RaiseSexUpdateCooldown(err)
 		}
 	}
 
@@ -95,23 +98,32 @@ func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return models.Biography{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.RaiseInternal(err)
+			return models.Biography{}, ape.RaiseInternal(err)
 		}
 	}
 
-	return nil
+	return models.Biography{
+		UserID:             userID,
+		Birthday:           bio.Birthday,
+		Sex:                &sex,
+		City:               bio.City,
+		Region:             bio.Region,
+		Country:            bio.Country,
+		SexUpdatedAt:       &now,
+		ResidenceUpdatedAt: bio.ResidenceUpdatedAt,
+	}, nil
 }
 
-func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) error {
+func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) (models.Biography, error) {
 	bio, err := b.GetByUserID(ctx, userID)
 	if err != nil {
-		return err
+		return models.Biography{}, err
 	}
 
 	if bio.Birthday != nil {
-		return ape.RaiseBirthdayIsAlreadySet(fmt.Errorf("birthday is already set"))
+		return models.Biography{}, ape.RaiseBirthdayIsAlreadySet(fmt.Errorf("birthday is already set"))
 	}
 
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
@@ -119,85 +131,22 @@ func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birth
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return models.Biography{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.RaiseInternal(err) //TODO
+			return models.Biography{}, ape.RaiseInternal(err) //TODO
 		}
 	}
 
-	return nil
-}
-
-func (b Biographies) SetNationality(ctx context.Context, userID uuid.UUID, nationality string) error {
-	//TODO validate nationality from other api
-	if err := references.ValidateNationality(nationality); err != nil {
-		return ape.RaiseNationalityIsNotValid(err)
-	}
-
-	bio, err := b.GetByUserID(ctx, userID)
-	if err != nil {
-		return err
-	}
-
-	now := time.Now().UTC()
-
-	if bio.NationalityUpdatedAt != nil {
-		last := *bio.NationalityUpdatedAt
-
-		if err := domain.ValidateUpdateProperty(last, 365*24*time.Hour); err != nil {
-			return ape.RaiseNationalityUpdateCooldown(err)
-		}
-	}
-
-	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
-		Nationality:          &nationality,
-		NationalityUpdatedAt: &now,
-	}); err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
-		default:
-			return ape.RaiseInternal(err)
-		}
-	}
-
-	return nil
-}
-
-func (b Biographies) SetPrimaryLanguage(ctx context.Context, userID uuid.UUID, primaryLanguage string) error {
-	//TODO validate primaryLanguage from other api
-	if err := references.ValidateLanguage(primaryLanguage); err != nil {
-		return ape.RaisePrimaryLanguageIsNotValid(err)
-	}
-
-	bio, err := b.GetByUserID(ctx, userID)
-	if err != nil {
-		return err
-	}
-
-	now := time.Now().UTC()
-
-	if bio.PrimaryLanguageUpdatedAt != nil {
-		last := *bio.PrimaryLanguageUpdatedAt
-
-		if err := domain.ValidateUpdateProperty(last, 365*24*time.Hour); err != nil {
-			return ape.RaisePrimaryLanguageUpdateCooldown(err)
-		}
-	}
-
-	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
-		PrimaryLanguage:          &primaryLanguage,
-		PrimaryLanguageUpdatedAt: &now,
-	}); err != nil {
-		switch {
-		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
-		default:
-			return ape.RaiseInternal(err)
-		}
-	}
-
-	return nil
+	return models.Biography{
+		UserID:             userID,
+		Birthday:           &birthday,
+		Sex:                bio.Sex,
+		City:               bio.City,
+		Region:             bio.Region,
+		Country:            bio.Country,
+		SexUpdatedAt:       bio.SexUpdatedAt,
+		ResidenceUpdatedAt: bio.ResidenceUpdatedAt,
+	}, nil
 }
 
 type UpdateResidenceInput struct {
@@ -206,16 +155,16 @@ type UpdateResidenceInput struct {
 	Country string `json:"country,omitempty"`
 }
 
-func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req UpdateResidenceInput) error {
+func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req UpdateResidenceInput) (models.Biography, error) {
 	//TODO validate country and city from other api
-	err := references.ValidateResidence(req.City, req.Region, req.Country)
+	err := references.ValidateResidence(req.City, req.Region, req.Country, b.cfg.Properties.Residence.ApiKey)
 	if err != nil {
-		return ape.RaiseResidenceIsNotValid(err)
+		return models.Biography{}, ape.RaiseResidenceIsNotValid(err)
 	}
 
 	bio, err := b.GetByUserID(ctx, userID)
 	if err != nil {
-		return err
+		return models.Biography{}, err
 	}
 
 	now := time.Now().UTC()
@@ -224,7 +173,7 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req 
 		last := *bio.ResidenceUpdatedAt
 
 		if err := domain.ValidateUpdateProperty(last, 365*24*time.Hour); err != nil {
-			return ape.RaiseResidenceUpdateCooldown(err)
+			return models.Biography{}, ape.RaiseResidenceUpdateCooldown(err)
 		}
 	}
 
@@ -236,29 +185,36 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req 
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return models.Biography{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.RaiseInternal(err)
+			return models.Biography{}, ape.RaiseInternal(err)
 		}
 	}
 
-	return nil
+	return models.Biography{
+		UserID:             userID,
+		Birthday:           bio.Birthday,
+		Sex:                bio.Sex,
+		City:               &req.City,
+		Region:             &req.Region,
+		Country:            &req.Country,
+		SexUpdatedAt:       bio.SexUpdatedAt,
+		ResidenceUpdatedAt: &now,
+	}, nil
 }
 
 type AdminBioUpdate struct {
-	Birthday        *time.Time
-	Sex             *string
-	City            *string
-	Region          *string
-	Country         *string
-	Nationality     *string
-	PrimaryLanguage *string
+	Birthday *time.Time
+	Sex      *string
+	City     *string
+	Region   *string
+	Country  *string
 }
 
-func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input AdminBioUpdate) error {
+func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input AdminBioUpdate) (models.Biography, error) {
 	_, err := b.GetByUserID(ctx, userID)
 	if err != nil {
-		return err
+		return models.Biography{}, err
 	}
 
 	now := time.Now().UTC()
@@ -271,7 +227,7 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 
 	if input.Sex != nil {
 		if err := references.ValidateSex(*input.Sex); err != nil {
-			return ape.RaiseSexIsNotValid(err)
+			return models.Biography{}, ape.RaiseSexIsNotValid(err)
 		}
 
 		dbInput.Sex = input.Sex
@@ -280,8 +236,8 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 
 	if input.City != nil && input.Country != nil {
 		//TODO implement this functionality
-		if err = references.ValidateResidence(*input.City, *input.Region, *input.Country); err != nil {
-			return ape.RaiseResidenceIsNotValid(err)
+		if err = references.ValidateResidence(*input.City, *input.Region, *input.Country, b.cfg.Properties.Residence.ApiKey); err != nil {
+			return models.Biography{}, ape.RaiseResidenceIsNotValid(err)
 		}
 
 		dbInput.City = input.City
@@ -289,51 +245,34 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 		dbInput.Region = input.Region
 		dbInput.ResidenceUpdatedAt = &now
 	}
-	if input.Nationality != nil {
-		//TODO implement this functionality
-		if err = references.ValidateNationality(*input.Nationality); err != nil {
-			return ape.RaiseNationalityIsNotValid(err)
-		}
-
-		dbInput.Nationality = input.Nationality
-		dbInput.NationalityUpdatedAt = &now
-	}
-	if input.PrimaryLanguage != nil {
-		//TODO implement this functionality
-		if err = references.ValidateLanguage(*input.PrimaryLanguage); err != nil {
-			return ape.RaisePrimaryLanguageIsNotValid(err)
-		}
-
-		dbInput.PrimaryLanguage = input.PrimaryLanguage
-		dbInput.PrimaryLanguageUpdatedAt = &now
-	}
 
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbInput); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return models.Biography{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
 		default:
-			return ape.RaiseInternal(err)
+			return models.Biography{}, ape.RaiseInternal(err)
 		}
 	}
 
-	return nil
+	bio, err := b.GetByUserID(ctx, userID)
+	if err != nil {
+		return models.Biography{}, err
+	}
+
+	return bio, nil
 }
 
 func BioFromDb(input dbx.BioModel) models.Biography {
 	return models.Biography{
-		UserID:          input.UserID,
-		Birthday:        input.Birthday,
-		Sex:             input.Sex,
-		City:            input.City,
-		Region:          input.Region,
-		Country:         input.Country,
-		Nationality:     input.Nationality,
-		PrimaryLanguage: input.PrimaryLanguage,
+		UserID:   input.UserID,
+		Birthday: input.Birthday,
+		Sex:      input.Sex,
+		City:     input.City,
+		Region:   input.Region,
+		Country:  input.Country,
 
-		SexUpdatedAt:             input.SexUpdatedAt,
-		NationalityUpdatedAt:     input.NationalityUpdatedAt,
-		PrimaryLanguageUpdatedAt: input.PrimaryLanguageUpdatedAt,
-		ResidenceUpdatedAt:       input.ResidenceUpdatedAt,
+		SexUpdatedAt:       input.SexUpdatedAt,
+		ResidenceUpdatedAt: input.ResidenceUpdatedAt,
 	}
 }

@@ -42,3 +42,7 @@ swagger:
   enabled: true
   url: "/swagger"
   port: "XXXX"
+
+properties:
+  residence:
+    api_key: "apikey" #form https://rapidapi.com/wirefreethought/api/geodb-cities

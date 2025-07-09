@@ -74,14 +74,21 @@ type SwaggerConfig struct {
 	Port    string `mapstructure:"port"`
 }
 
+type PropertiesConfig struct {
+	Residence struct {
+		ApiKey string `mapstructure:"api_key"`
+	}
+}
+
 type Config struct {
-	Server   ServerConfig   `mapstructure:"server"`
-	JWT      JWTConfig      `mapstructure:"jwt"`
-	OAuth    OAuthConfig    `mapstructure:"oauth"`
-	Rabbit   RabbitConfig   `mapstructure:"rabbit"`
-	Kafka    KafkaConfig    `mapstructure:"kafka"`
-	Database DatabaseConfig `mapstructure:"database"`
-	Swagger  SwaggerConfig  `mapstructure:"swagger"`
+	Server     ServerConfig     `mapstructure:"server"`
+	JWT        JWTConfig        `mapstructure:"jwt"`
+	OAuth      OAuthConfig      `mapstructure:"oauth"`
+	Rabbit     RabbitConfig     `mapstructure:"rabbit"`
+	Kafka      KafkaConfig      `mapstructure:"kafka"`
+	Database   DatabaseConfig   `mapstructure:"database"`
+	Swagger    SwaggerConfig    `mapstructure:"swagger"`
+	Properties PropertiesConfig `mapstructure:"properties"`
 }
 
 func LoadConfig() (Config, error) {

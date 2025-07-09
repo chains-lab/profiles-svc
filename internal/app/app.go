@@ -27,7 +27,7 @@ func NewApp(cfg config.Config) (App, error) {
 	if err != nil {
 		return App{}, err
 	}
-	biographies, err := entities.NewBiographies(pg)
+	biographies, err := entities.NewBiographies(pg, cfg)
 	if err != nil {
 		return App{}, err
 	}

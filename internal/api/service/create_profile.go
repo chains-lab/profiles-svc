@@ -11,7 +11,7 @@ import (
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 )
 
-func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfilrRequest) (*svc.Profile, error) {
+func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileRequest) (*svc.Profile, error) {
 	meta := Meta(ctx)
 
 	if meta.Role != roles.User {

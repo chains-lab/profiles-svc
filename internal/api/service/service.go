@@ -28,11 +28,9 @@ type App interface {
 	UpdateProfile(ctx context.Context, userID uuid.UUID, profile app.UpdateProfileInput) (models.Profile, error)
 	UpdateUsername(ctx context.Context, userID uuid.UUID, username string) (models.Profile, error)
 
-	UpdateSex(ctx context.Context, userID uuid.UUID, sex string) error
-	UpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) error
-	UpdateNationality(ctx context.Context, userID uuid.UUID, nationality string) error
-	UpdateResidence(ctx context.Context, userID uuid.UUID, input app.UpdateResidenceInput) error
-	UpdatePrimaryLanguage(ctx context.Context, userID uuid.UUID, primaryLanguage string) error
+	UpdateSex(ctx context.Context, userID uuid.UUID, sex string) (models.Biography, error)
+	UpdateBirthday(ctx context.Context, userID uuid.UUID, birthday time.Time) (models.Biography, error)
+	UpdateResidence(ctx context.Context, userID uuid.UUID, input app.UpdateResidenceInput) (models.Biography, error)
 
 	AdminUpdateBiography(ctx context.Context, userID uuid.UUID, input app.UpdateBiographyInput) (models.Biography, error)
 	AdminUpdateProfile(ctx context.Context, userID uuid.UUID, input app.AdminUpdateProfileInput) (models.Profile, error)

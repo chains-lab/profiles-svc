@@ -31,11 +31,6 @@ func Run(args []string) bool {
 		migrateCmd     = service.Command("migrate", "migrate command")
 		migrateUpCmd   = migrateCmd.Command("up", "migrate db up")
 		migrateDownCmd = migrateCmd.Command("down", "migrate db down")
-
-		//docs = service.Command("docs", "documentation command")
-		//
-		//generateDocs = docs.Command("generate", "generate API documentation")
-		//openDocs     = docs.Command("open", "open API documentation in browser")
 	)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

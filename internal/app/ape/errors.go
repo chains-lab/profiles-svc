@@ -21,16 +21,12 @@ var (
 	ErrorUsernameIsNotValid     = &Error{reason: ReasonUsernameIsNotValid}
 	ErrorUsernameUpdateCooldown = &Error{reason: ReasonUsernameUpdateCooldown}
 
-	ErrorBirthdayIsNotValid            = &Error{reason: ReasonBirthdayIsNotValid}
-	ErrorBirthdayIsAlreadySet          = &Error{reason: ReasonBirthdayIsAlreadySet}
-	ErrorSexIsNotValid                 = &Error{reason: ReasonSexIsNotValid}
-	ErrorSexUpdateCooldown             = &Error{reason: ReasonSexUpdateCooldown}
-	ErrorResidenceIsNotValid           = &Error{reason: ReasonResidenceIsNotValid}
-	ErrorResidenceUpdateCooldown       = &Error{reason: ReasonResidenceUpdateCooldown}
-	ErrorNationalityIsNotValid         = &Error{reason: ReasonNationalityIsNotValid}
-	ErrorNationalityUpdateCooldown     = &Error{reason: ReasonNationalityUpdateCooldown}
-	ErrorPrimaryLanguageIsNotValid     = &Error{reason: ReasonPrimaryLanguageIsNotValid}
-	ErrorPrimaryLanguageUpdateCooldown = &Error{reason: ReasonPrimaryLanguageUpdateCooldown}
+	ErrorBirthdayIsNotValid      = &Error{reason: ReasonBirthdayIsNotValid}
+	ErrorBirthdayIsAlreadySet    = &Error{reason: ReasonBirthdayIsAlreadySet}
+	ErrorSexIsNotValid           = &Error{reason: ReasonSexIsNotValid}
+	ErrorSexUpdateCooldown       = &Error{reason: ReasonSexUpdateCooldown}
+	ErrorResidenceIsNotValid     = &Error{reason: ReasonResidenceIsNotValid}
+	ErrorResidenceUpdateCooldown = &Error{reason: ReasonResidenceUpdateCooldown}
 )
 
 func RaiseInternal(cause error) error {
@@ -258,84 +254,6 @@ func RaiseResidenceUpdateCooldown(cause error) error {
 				Type:        "residence_update_cooldown",
 				Subject:     "residence",
 				Description: "residence can be updated only once per 100 days",
-			}}},
-		},
-	}
-}
-
-func RaiseNationalityIsNotValid(cause error) error {
-	return &Error{
-		code:    codes.InvalidArgument,
-		reason:  ReasonNationalityIsNotValid,
-		message: cause.Error(),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ReasonNationalityIsNotValid,
-				Domain: ServiceName,
-			},
-			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
-				Field:       "nationality",
-				Description: "nationality is not valid",
-			}}},
-		},
-	}
-}
-
-func RaiseNationalityUpdateCooldown(cause error) error {
-	return &Error{
-		code:    codes.FailedPrecondition,
-		reason:  ReasonNationalityUpdateCooldown,
-		message: cause.Error(),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ReasonNationalityUpdateCooldown,
-				Domain: ServiceName,
-			},
-			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
-				Type:        "nationality_update_cooldown",
-				Subject:     "nationality",
-				Description: "nationality can be updated only once per year",
-			}}},
-		},
-	}
-}
-
-func RaisePrimaryLanguageIsNotValid(cause error) error {
-	return &Error{
-		code:    codes.InvalidArgument,
-		reason:  ReasonPrimaryLanguageIsNotValid,
-		message: cause.Error(),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ReasonPrimaryLanguageIsNotValid,
-				Domain: ServiceName,
-			},
-			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
-				Field:       "primary_language",
-				Description: "primary language is not valid, it must be a valid language code",
-			}}},
-		},
-	}
-}
-
-func RaisePrimaryLanguageUpdateCooldown(cause error) error {
-	return &Error{
-		code:    codes.FailedPrecondition,
-		reason:  ReasonPrimaryLanguageUpdateCooldown,
-		message: cause.Error(),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ReasonPrimaryLanguageUpdateCooldown,
-				Domain: ServiceName,
-			},
-			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
-				Type:        "primary_language_update_cooldown",
-				Subject:     "primary_language",
-				Description: "primary language can be updated only once per year",
 			}}},
 		},
 	}

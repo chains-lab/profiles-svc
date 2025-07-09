@@ -5,7 +5,6 @@ node_modules
 main
 cmd/elector-cab-svc/main
 
-Makefile
 config_local.yaml
 config_docker.yaml
 

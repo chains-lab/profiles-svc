@@ -23,8 +23,6 @@ CREATE TABLE users_biographies (
     city             VARCHAR(64), -- TODO names from reference-svc in future
     region           VARCHAR(64), -- TODO names from reference-svc in future
     country          VARCHAR(64), -- TODO names from reference-svc in future
-    nationality      VARCHAR(64), -- TODO names from reference-svc in future
-    primary_language VARCHAR(64), -- TODO names from reference-svc in future
 
     sex_updated_at              timestamp,
     nationality_updated_at      timestamp,

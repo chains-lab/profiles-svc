@@ -7,12 +7,10 @@ import (
 
 func Biography(model models.Biography) *electorcab.Biography {
 	bio := electorcab.Biography{
-		UserId:          model.UserID.String(),
-		Sex:             model.Sex,
-		Nationality:     model.Nationality,
-		PrimaryLanguage: model.PrimaryLanguage,
-		Country:         model.Country,
-		City:            model.City,
+		UserId:  model.UserID.String(),
+		Sex:     model.Sex,
+		Country: model.Country,
+		City:    model.City,
 	}
 
 	if model.Birthday != nil {
@@ -23,16 +21,6 @@ func Biography(model models.Biography) *electorcab.Biography {
 	if model.SexUpdatedAt != nil {
 		upAt := model.SexUpdatedAt.String()
 		bio.SexUpdatedAt = &upAt
-	}
-
-	if model.NationalityUpdatedAt != nil {
-		upAt := model.NationalityUpdatedAt.String()
-		bio.NationalityUpdatedAt = &upAt
-	}
-
-	if model.PrimaryLanguageUpdatedAt != nil {
-		upAt := model.PrimaryLanguageUpdatedAt.String()
-		bio.PrimaryLanguageUpdatedAt = &upAt
 	}
 
 	if model.ResidenceUpdatedAt != nil {

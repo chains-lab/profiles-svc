@@ -27,8 +27,8 @@ CREATE TABLE users_biographies (
     sex_updated_at              timestamp,
     nationality_updated_at      timestamp,
     primary_language_updated_at timestamp,
-    residence_updated_at        timestamp,
-)
+    residence_updated_at        timestamp
+);
 
 -- +migrate Down
 DROP TABLE IF EXISTS users_biographies CASCADE;

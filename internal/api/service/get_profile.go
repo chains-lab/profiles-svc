@@ -5,6 +5,7 @@ import (
 
 	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
+	"github.com/chains-lab/elector-cab-svc/internal/logger"
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 	"github.com/google/uuid"
 )
@@ -18,7 +19,7 @@ func (s Service) GetProfile(ctx context.Context, req *svc.GetProfileRequest) (*s
 	if req.GetUserId() != "" {
 		userID, err := uuid.Parse(req.GetUserId())
 		if err != nil {
-			Log(ctx, meta.RequestID).WithError(err).Error("invalid user ID format")
+			logger.Log(ctx, meta.RequestID).WithError(err).Error("invalid user ID format")
 
 			return nil, responses.BadRequestError(ctx, meta.RequestID, responses.Violation{
 				Field:       "user_id",
@@ -28,14 +29,14 @@ func (s Service) GetProfile(ctx context.Context, req *svc.GetProfileRequest) (*s
 
 		profile, err = s.app.GetProfileByUserID(ctx, userID)
 		if err != nil {
-			Log(ctx, meta.RequestID).WithError(err).Error("failed to get profile by user ID")
+			logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to get profile by user ID")
 
 			return nil, responses.AppError(ctx, meta.RequestID, err)
 		}
 	} else if req.GetUsername() != "" {
 		profile, err = s.app.GetProfileByUsername(ctx, req.GetUsername())
 		if err != nil {
-			Log(ctx, meta.RequestID).WithError(err).Error("failed to get profile by username")
+			logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to get profile by username")
 
 			return nil, responses.AppError(ctx, meta.RequestID, err)
 		}

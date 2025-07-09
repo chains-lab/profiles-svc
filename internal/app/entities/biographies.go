@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chains-lab/elector-cab-svc/internal/app/ape"
+	"github.com/chains-lab/elector-cab-svc/internal/ape"
 	"github.com/chains-lab/elector-cab-svc/internal/app/domain"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
 	"github.com/chains-lab/elector-cab-svc/internal/app/references"

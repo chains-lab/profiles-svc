@@ -10,14 +10,13 @@ import (
 )
 
 type ServerConfig struct {
-	Name     string `mapstructure:"name"`
-	Port     string `mapstructure:"port"`
-	BasePath string `mapstructure:"base_path"`
-	TestMode bool   `mapstructure:"test_mode"`
-	Log      struct {
-		Level  string `mapstructure:"level"`
-		Format string `mapstructure:"format"`
-	} `mapstructure:"log"`
+	Name string `mapstructure:"name"`
+	Port string `mapstructure:"port"`
+}
+
+type LoggerConfig struct {
+	Level  string `mapstructure:"level"`
+	Format string `mapstructure:"format"`
 }
 
 type DatabaseConfig struct {
@@ -82,6 +81,7 @@ type PropertiesConfig struct {
 
 type Config struct {
 	Server     ServerConfig     `mapstructure:"server"`
+	Logger     LoggerConfig     `mapstructure:"logger"`
 	JWT        JWTConfig        `mapstructure:"jwt"`
 	OAuth      OAuthConfig      `mapstructure:"oauth"`
 	Rabbit     RabbitConfig     `mapstructure:"rabbit"`

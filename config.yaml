@@ -1,11 +1,10 @@
 server:
   name: "elector-cab-svc"
-  port: ":XXXX"
-  base_path: "/api/v1"
-  test_mode: true
-  log:
-    level: "debug"
-    format: "text"
+  port: ":8002"
+
+logger:
+  level: "debug"
+  format: "text"
 
 database:
   sql:

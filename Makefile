@@ -15,13 +15,10 @@ run-server:
 	KV_VIPER_FILE=$(CONFIG_FILE) ./cmd/elector-cab-svc/main run service
 
 docker-uo:
-	docker-compose up -d
+	docker compose up -d
 
 docker-down:
-	docker-compose down
+	docker compose down
 
 docker-rebuild:
-	docker-compose up -d --build --force-recreate
-
-swagger-docs:
-	cd docs && npm run start
+	docker compose up -d --build --force-recreate

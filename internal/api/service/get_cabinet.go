@@ -5,6 +5,7 @@ import (
 
 	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
 	"github.com/chains-lab/elector-cab-svc/internal/app/models"
+	"github.com/chains-lab/elector-cab-svc/internal/logger"
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
 )
 
@@ -19,14 +20,14 @@ func (s Service) GetCabinet(ctx context.Context, req *svc.GetCabinetRequest) (*s
 	if username != "" {
 		cabinet, err = s.app.GetCabinetByUserID(ctx, meta.InitiatorID)
 		if err != nil {
-			Log(ctx, meta.RequestID).WithError(err).Error("failed to get cabinet")
+			logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to get cabinet")
 
 			return nil, responses.AppError(ctx, meta.RequestID, err)
 		}
 	} else if userID != "" {
 		cabinet, err = s.app.GetCabinetByUsername(ctx, userID)
 		if err != nil {
-			Log(ctx, meta.RequestID).WithError(err).Error("failed to get cabinet by username")
+			logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to get cabinet by username")
 
 			return nil, responses.AppError(ctx, meta.RequestID, err)
 		}

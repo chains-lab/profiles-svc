@@ -1,7 +1,7 @@
 -- +migrate Up
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE user_profiles (
+CREATE TABLE profiles (
     user_id     UUID PRIMARY KEY,
 
     username    VARCHAR(32) NOT NULL UNIQUE,
@@ -15,8 +15,8 @@ CREATE TABLE user_profiles (
     created_at          TIMESTAMP NOT NULL DEFAULT now()
 );
 
-CREATE TABLE users_biographies (
-    user_id UUID PRIMARY KEY REFERENCES user_profiles(user_id) ON DELETE CASCADE,
+CREATE TABLE biographies (
+    user_id UUID PRIMARY KEY REFERENCES profiles(user_id) ON DELETE CASCADE,
 
     birthday         timestamp,
     sex              VARCHAR(64), -- TODO names from reference-svc in future
@@ -31,5 +31,5 @@ CREATE TABLE users_biographies (
 );
 
 -- +migrate Down
-DROP TABLE IF EXISTS users_biographies CASCADE;
-DROP TABLE IF EXISTS user_profiles CASCADE;
+DROP TABLE IF EXISTS biographies CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;

@@ -1,11 +1,12 @@
 package ape
 
 const (
-	ReasonBadRequest = "BAD_REQUEST"
-	ReasonInternal   = "INTERNAL_ERROR"
+	ReasonBadRequest   = "BAD_REQUEST"
+	ReasonInternal     = "INTERNAL_ERROR"
+	ReasonUnauthorized = "UNAUTHORIZED"
 
 	ReasonOnlyUserCanHaveProfile      = "ONLY_USER_CAN_HAVE_PROFILE"
-	ReasonProfileForUserDoesNotExist  = "PROFILE_FOR_USER_DOES_NOT_EXIST"
+	ReasonProfileForUserNotFound      = "PROFILE_FOR_USER_NOT_FOUND"
 	ReasonProfileForUserAlreadyExists = "PROFILE_FOR_USER_ALREADY_EXISTS"
 
 	ReasonUsernameAlreadyTaken    = "USERNAME_ALREADY_TAKEN"

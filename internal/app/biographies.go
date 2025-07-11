@@ -59,6 +59,7 @@ func (a App) AdminUpdateBiography(ctx context.Context, userID uuid.UUID, input U
 		Birthday: input.Birthday,
 		Sex:      input.Sex,
 		City:     input.City,
+		Region:   input.Region,
 		Country:  input.Country,
 	})
 	if err != nil {

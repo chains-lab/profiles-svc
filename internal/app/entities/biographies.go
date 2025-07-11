@@ -49,7 +49,7 @@ func (b Biographies) Create(ctx context.Context, userID uuid.UUID) error {
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserAlreadyExists(err, userID.String())
+			return ape.RaiseProfileForUserAlreadyExists(err, userID)
 		default:
 			return ape.RaiseInternal(err)
 		}
@@ -63,7 +63,7 @@ func (b Biographies) GetByUserID(ctx context.Context, userID uuid.UUID) (models.
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Biography{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return models.Biography{}, ape.RaiseProfileForUserNotFound(err, userID)
 		default:
 			return models.Biography{}, ape.RaiseInternal(err)
 		}
@@ -88,7 +88,7 @@ func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string
 		last := *bio.SexUpdatedAt
 
 		if err := domain.ValidateUpdateProperty(last, 365*24*time.Hour); err != nil {
-			return models.Biography{}, ape.RaiseSexUpdateCooldown(err)
+			return models.Biography{}, ape.RaiseSexUpdateCooldown(err, userID)
 		}
 	}
 
@@ -98,7 +98,7 @@ func (b Biographies) UpdateSex(ctx context.Context, userID uuid.UUID, sex string
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Biography{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return models.Biography{}, ape.RaiseProfileForUserNotFound(err, userID)
 		default:
 			return models.Biography{}, ape.RaiseInternal(err)
 		}
@@ -123,7 +123,7 @@ func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birth
 	}
 
 	if bio.Birthday != nil {
-		return models.Biography{}, ape.RaiseBirthdayIsAlreadySet(fmt.Errorf("birthday is already set"))
+		return models.Biography{}, ape.RaiseBirthdayIsAlreadySet(fmt.Errorf("birthday is already set"), userID)
 	}
 
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbx.UpdateBioInput{
@@ -131,7 +131,7 @@ func (b Biographies) UpdateBirthday(ctx context.Context, userID uuid.UUID, birth
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Biography{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return models.Biography{}, ape.RaiseProfileForUserNotFound(err, userID)
 		default:
 			return models.Biography{}, ape.RaiseInternal(err) //TODO
 		}
@@ -173,7 +173,7 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req 
 		last := *bio.ResidenceUpdatedAt
 
 		if err := domain.ValidateUpdateProperty(last, 365*24*time.Hour); err != nil {
-			return models.Biography{}, ape.RaiseResidenceUpdateCooldown(err)
+			return models.Biography{}, ape.RaiseResidenceUpdateCooldown(err, userID)
 		}
 	}
 
@@ -185,7 +185,7 @@ func (b Biographies) UpdateResidence(ctx context.Context, userID uuid.UUID, req 
 	}); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Biography{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return models.Biography{}, ape.RaiseProfileForUserNotFound(err, userID)
 		default:
 			return models.Biography{}, ape.RaiseInternal(err)
 		}
@@ -212,7 +212,7 @@ type AdminBioUpdate struct {
 }
 
 func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input AdminBioUpdate) (models.Biography, error) {
-	_, err := b.GetByUserID(ctx, userID)
+	u, err := b.GetByUserID(ctx, userID)
 	if err != nil {
 		return models.Biography{}, err
 	}
@@ -222,6 +222,14 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	var dbInput dbx.UpdateBioInput
 
 	if input.Birthday != nil {
+		if u.Birthday != nil {
+			return models.Biography{}, ape.RaiseBirthdayIsAlreadySet(fmt.Errorf("birthday is already set"), userID)
+		}
+
+		if input.Birthday.Year() < 1900 {
+			return models.Biography{}, ape.RaiseBirthdayIsNotValid(fmt.Errorf("birthday is not valid, must be after 1900"))
+		}
+
 		dbInput.Birthday = input.Birthday
 	}
 
@@ -235,7 +243,8 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	}
 
 	if input.City != nil && input.Country != nil {
-		//TODO implement this functionality
+
+		//TODO check functionality of this validation
 		if err = references.ValidateResidence(*input.City, *input.Region, *input.Country, b.cfg.Properties.Residence.ApiKey); err != nil {
 			return models.Biography{}, ape.RaiseResidenceIsNotValid(err)
 		}
@@ -249,7 +258,7 @@ func (b Biographies) AdminUpdateBio(ctx context.Context, userID uuid.UUID, input
 	if err = b.queries.New().FilterUserID(userID).Update(ctx, dbInput); err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Biography{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return models.Biography{}, ape.RaiseProfileForUserNotFound(err, userID)
 		default:
 			return models.Biography{}, ape.RaiseInternal(err)
 		}

@@ -2,15 +2,14 @@ package interceptors
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
 	"github.com/chains-lab/gatekit/roles"
 	"github.com/chains-lab/gatekit/tokens"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 )
 
 type MetaData struct {
@@ -34,41 +33,41 @@ func NewAuth(skService, skUser string) grpc.UnaryServerInterceptor {
 	) (interface{}, error) {
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
-			return nil, status.Errorf(codes.Unauthenticated, "missing metadata")
+			return nil, responses.UnauthorizedError(ctx, "metadata not found", nil)
 		}
 		toksServ := md["authorization"]
 		if len(toksServ) == 0 {
-			return nil, status.Errorf(codes.Unauthenticated, "authorization token not supplied")
+			return nil, responses.UnauthorizedError(ctx, "authorization token not supplied", nil)
 		}
 
 		data, err := tokens.VerifyServiceJWT(ctx, toksServ[0], skService)
 		if err != nil {
-			return nil, status.Errorf(codes.Unauthenticated, "invalid token: %v", err)
+			return nil, responses.UnauthorizedError(ctx, fmt.Sprintf("failed to verify token: %s", err), nil)
 		}
 
 		toksUser := md["x-user-token"]
 		if len(toksUser) == 0 {
-			return nil, status.Errorf(codes.Unauthenticated, "user token not supplied")
+			return nil, responses.UnauthorizedError(ctx, "user token not supplied", nil)
 		}
 
 		requestIDArr := md["x-request-id"]
 		if len(requestIDArr) == 0 {
-			return nil, status.Errorf(codes.Unauthenticated, "request ID not supplied")
+			return nil, responses.UnauthorizedError(ctx, "request ID not supplied", nil)
 		}
 
 		userData, err := tokens.VerifyUserJWT(ctx, toksUser[0], skUser)
 		if err != nil {
-			return nil, status.Errorf(codes.Unauthenticated, "invalid user token: %v", err)
+			return nil, responses.UnauthorizedError(ctx, fmt.Sprintf("invalid user token: %v", err), nil)
 		}
 
 		userID, err := uuid.Parse(userData.Subject)
 		if err != nil {
-			return nil, status.Errorf(codes.Unauthenticated, "invalid user ID: %v", err)
+			return nil, responses.UnauthorizedError(ctx, fmt.Sprintf("invalid user ID: %v", err), nil)
 		}
 
 		requestID, err := uuid.Parse(requestIDArr[0])
 		if err != nil {
-			return nil, status.Errorf(codes.Unauthenticated, "invalid request ID: %v", err)
+			return nil, responses.UnauthorizedError(ctx, fmt.Sprintf("invalid request ID: %v", err), nil)
 		}
 
 		ctx = context.WithValue(ctx, MetaCtxKey, MetaData{
@@ -84,23 +83,5 @@ func NewAuth(skService, skUser string) grpc.UnaryServerInterceptor {
 		})
 
 		return handler(ctx, req)
-	}
-}
-func GetMetaData(ctx context.Context) (MetaData, error) {
-	meta, ok := ctx.Value(MetaCtxKey).(MetaData)
-	if !ok {
-		return MetaData{}, status.Errorf(codes.Unauthenticated, "metadata not found in context")
-	}
-
-	if meta.Issuer == "" || meta.Subject == "" || len(meta.Audience) == 0 {
-		return MetaData{}, status.Errorf(codes.Unauthenticated, "incomplete metadata")
-	}
-
-	return meta, nil
-}
-
-func CtxLog(log *logrus.Logger) func(context.Context) context.Context {
-	return func(context.Context) context.Context {
-		return context.WithValue(context.Background(), LogCtxKey, log)
 	}
 }

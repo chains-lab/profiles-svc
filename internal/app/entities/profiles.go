@@ -103,7 +103,7 @@ func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProf
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return ape.RaiseProfileForUserNotFound(err, userID)
 		}
 		return ape.RaiseInternal(err)
 	}
@@ -127,6 +127,7 @@ func (p Profiles) UpdateUsername(ctx context.Context, userID uuid.UUID, username
 	if elapsed < 14*24*time.Hour {
 		return ape.RaiseUsernameUpdateCooldown(
 			fmt.Errorf("username was updated %.0f hours ago", elapsed.Hours()),
+			profile.UserID,
 		)
 	}
 
@@ -150,7 +151,7 @@ func (p Profiles) UpdateUsername(ctx context.Context, userID uuid.UUID, username
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return ape.RaiseProfileForUserNotFound(err, userID)
 		default:
 			return ape.RaiseInternal(err)
 		}
@@ -164,7 +165,7 @@ func (p Profiles) GetByID(ctx context.Context, userID uuid.UUID) (models.Profile
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Profile{}, ape.RaiseProfileForUserDoesNotExist(err, userID.String())
+			return models.Profile{}, ape.RaiseProfileForUserNotFound(err, userID)
 		default:
 			return models.Profile{}, ape.RaiseInternal(err)
 		}
@@ -178,7 +179,7 @@ func (p Profiles) GetByUsername(ctx context.Context, username string) (models.Pr
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Profile{}, ape.RaiseProfileForUserDoesNotExist(err, username)
+			return models.Profile{}, ape.RaiseProfileForUserNotFoundByUsername(err, username)
 		default:
 			return models.Profile{}, ape.RaiseInternal(err)
 		}

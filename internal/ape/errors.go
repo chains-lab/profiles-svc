@@ -3,6 +3,7 @@ package ape
 import (
 	"fmt"
 
+	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/protobuf/protoadapt"
@@ -10,24 +11,7 @@ import (
 
 const ServiceName = "elector-cab-svc"
 
-var (
-	ErrorInternal = &Error{reason: ReasonInternal}
-
-	ErrorOnlyUserCanHaveProfile      = &Error{reason: ReasonOnlyUserCanHaveProfile}
-	ErrorProfileForUserDoesNotExist  = &Error{reason: ReasonProfileForUserDoesNotExist}
-	ErrorProfileForUserAlreadyExists = &Error{reason: ReasonProfileForUserAlreadyExists}
-
-	ErrorUsernameAlreadyTaken   = &Error{reason: ReasonUsernameAlreadyTaken}
-	ErrorUsernameIsNotValid     = &Error{reason: ReasonUsernameIsNotValid}
-	ErrorUsernameUpdateCooldown = &Error{reason: ReasonUsernameUpdateCooldown}
-
-	ErrorBirthdayIsNotValid      = &Error{reason: ReasonBirthdayIsNotValid}
-	ErrorBirthdayIsAlreadySet    = &Error{reason: ReasonBirthdayIsAlreadySet}
-	ErrorSexIsNotValid           = &Error{reason: ReasonSexIsNotValid}
-	ErrorSexUpdateCooldown       = &Error{reason: ReasonSexUpdateCooldown}
-	ErrorResidenceIsNotValid     = &Error{reason: ReasonResidenceIsNotValid}
-	ErrorResidenceUpdateCooldown = &Error{reason: ReasonResidenceUpdateCooldown}
-)
+var ErrorInternal = &Error{reason: ReasonInternal, code: codes.Internal}
 
 func RaiseInternal(cause error) error {
 	return &Error{
@@ -38,221 +22,227 @@ func RaiseInternal(cause error) error {
 	}
 }
 
-func RaiseProfileForUserDoesNotExist(cause error, user string) error {
+var ErrorProfileForUserDoesNotExist = &Error{reason: ReasonProfileForUserNotFound, code: codes.NotFound}
+
+func RaiseProfileForUserNotFound(cause error, userID uuid.UUID) error {
 	return &Error{
-		code:    codes.NotFound,
+		code:    ErrorProfileForUserDoesNotExist.code,
 		reason:  ErrorProfileForUserDoesNotExist.reason,
-		message: fmt.Sprintf("profile for user %s does not exist", user),
+		message: fmt.Sprintf("profile for user with user_id: %s not found", userID),
 		cause:   cause,
 		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ErrorProfileForUserDoesNotExist.reason,
-				Domain: ServiceName,
+			&errdetails.ResourceInfo{
+				ResourceType: "profile",
+				ResourceName: fmt.Sprintf("profile:user_id:%s", userID),
+				Description:  fmt.Sprintf("profile for user with user_id: %s does not exist", userID),
 			},
 		},
 	}
 }
 
-func RaiseProfileForUserAlreadyExists(cause error, user string) error {
+func RaiseProfileForUserNotFoundByUsername(cause error, username string) error {
 	return &Error{
-		code:    codes.AlreadyExists,
-		reason:  ErrorProfileForUserAlreadyExists.reason,
-		message: fmt.Sprintf("cabinet for user %s already exists", user),
+		code:    ErrorProfileForUserDoesNotExist.code,
+		reason:  ErrorProfileForUserDoesNotExist.reason,
+		message: fmt.Sprintf("profile for user with username: %s not found", username),
 		cause:   cause,
 		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ErrorProfileForUserAlreadyExists.reason,
-				Domain: ServiceName,
+			&errdetails.ResourceInfo{
+				ResourceType: "profile",
+				ResourceName: fmt.Sprintf("profile:username:%s", username),
+				Description:  fmt.Sprintf("profile for user with username %s does not exist", username),
 			},
 		},
 	}
 }
+
+var ErrorProfileForUserAlreadyExists = &Error{reason: ReasonProfileForUserAlreadyExists, code: codes.AlreadyExists}
+
+func RaiseProfileForUserAlreadyExists(cause error, userID uuid.UUID) error {
+	return &Error{
+		code:    ErrorProfileForUserAlreadyExists.code,
+		reason:  ErrorProfileForUserAlreadyExists.reason,
+		message: fmt.Sprintf("cabinet for user with user_id: %s already exists", userID),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.ResourceInfo{
+				ResourceType: "profile",
+				ResourceName: fmt.Sprintf("profile:user_id:%s", userID),
+				Owner:        fmt.Sprintf("user:id:%s", userID),
+				Description:  fmt.Sprintf("cabinet for user with user_id: %s already exists", userID),
+			},
+		},
+	}
+}
+
+var ErrorOnlyUserCanHaveProfile = &Error{reason: ReasonOnlyUserCanHaveProfile, code: codes.PermissionDenied}
 
 func RaiseOnlyUserCanHaveCabinetAndProfile(cause error) error {
 	return &Error{
-		code:    codes.PermissionDenied,
+		code:    ErrorOnlyUserCanHaveProfile.code,
 		reason:  ErrorOnlyUserCanHaveProfile.reason,
-		message: cause.Error(),
+		message: "only users with role user can have a profile and cabinet",
 		cause:   cause,
-		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ErrorOnlyUserCanHaveProfile.reason,
-				Domain: ServiceName,
-			},
-		},
 	}
 }
 
+var ErrorUsernameAlreadyTaken = &Error{reason: ReasonUsernameAlreadyTaken, code: codes.FailedPrecondition}
+
 func RaiseUsernameAlreadyTaken(cause error, username string) error {
 	return &Error{
-		code:    codes.FailedPrecondition,
+		code:    ErrorUsernameAlreadyTaken.code,
 		reason:  ErrorUsernameAlreadyTaken.reason,
 		message: fmt.Sprintf("username %s is already taken", username),
 		cause:   cause,
 		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ErrorUsernameAlreadyTaken.reason,
-				Domain: ServiceName,
-			},
-			&errdetails.ResourceInfo{
-				ResourceType: "username",
-				ResourceName: username,
-				Description:  "This username is already in use by another account",
-			},
-		},
-	}
-}
-
-func RaiseUsernameIsNotValid(cause error) error {
-	return &Error{
-		code:    codes.InvalidArgument,
-		reason:  ErrorUsernameIsNotValid.reason,
-		message: cause.Error(),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ErrorUsernameIsNotValid.reason,
-				Domain: ServiceName,
-			},
-			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
-				Field:       "username",
-				Description: "username is not valid, it must be 3-32 characters long, allowed characters are: a-z, A-Z, 0-9, _ (underscore), - (dash), . (dot)",
+			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
+				Type:        ErrorUsernameAlreadyTaken.reason,
+				Subject:     fmt.Sprintf("profile:username:%s/username", username),
+				Description: fmt.Sprintf("username %s is already taken", username),
 			}}},
 		},
 	}
 }
 
-func RaiseUsernameUpdateCooldown(cause error) error {
+var ErrorUsernameIsNotValid = &Error{reason: ReasonUsernameIsNotValid, code: codes.InvalidArgument}
+
+func RaiseUsernameIsNotValid(cause error) error {
 	return &Error{
-		code:    codes.FailedPrecondition,
+		code:    ErrorUsernameIsNotValid.code,
+		reason:  ErrorUsernameIsNotValid.reason,
+		message: cause.Error(),
+		cause:   cause,
+		details: []protoadapt.MessageV1{
+			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
+				Field: "username",
+				Description: "username is not valid, it must be 3-32 characters long, allowed characters are:" +
+					" a-z, A-Z, 0-9, _ (underscore), - (dash), . (dot)",
+				Reason: ErrorUsernameIsNotValid.reason,
+			}}},
+		},
+	}
+}
+
+var ErrorUsernameUpdateCooldown = &Error{reason: ReasonUsernameUpdateCooldown, code: codes.FailedPrecondition}
+
+func RaiseUsernameUpdateCooldown(cause error, userID uuid.UUID) error {
+	return &Error{
+		code:    ErrorUsernameUpdateCooldown.code,
 		reason:  ErrorUsernameUpdateCooldown.reason,
 		message: "username can be updated only once per 14 days",
 		cause:   cause,
 		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ErrorUsernameUpdateCooldown.reason,
-				Domain: ServiceName,
-			},
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
-				Type:        "username_update_cooldown",
-				Subject:     "username",
+				Type:        ErrorUsernameUpdateCooldown.reason,
+				Subject:     fmt.Sprintf("profile:user_id:%s/username", userID),
 				Description: "username can be updated only once per 14 days",
 			}}},
 		},
 	}
 }
 
+var ErrorBirthdayIsNotValid = &Error{reason: ReasonBirthdayIsNotValid, code: codes.InvalidArgument}
+
 func RaiseBirthdayIsNotValid(cause error) error {
 	return &Error{
-		code:    codes.InvalidArgument,
-		reason:  ReasonBirthdayIsNotValid,
+		code:    ErrorBirthdayIsNotValid.code,
+		reason:  ErrorBirthdayIsNotValid.reason,
 		message: cause.Error(),
 		cause:   cause,
 		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ReasonBirthdayIsNotValid,
-				Domain: ServiceName,
-			},
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field:       "birthday",
 				Description: "birthday is not valid, it must be in the past, but not more than 1900-01-01",
+				Reason:      ErrorBirthdayIsNotValid.reason,
 			}}},
 		},
 	}
 }
 
-func RaiseBirthdayIsAlreadySet(cause error) error {
+var ErrorBirthdayIsAlreadySet = &Error{reason: ReasonBirthdayIsAlreadySet, code: codes.FailedPrecondition}
+
+func RaiseBirthdayIsAlreadySet(cause error, userID uuid.UUID) error {
 	return &Error{
-		code:    codes.FailedPrecondition,
-		reason:  ReasonBirthdayIsAlreadySet,
+		code:    ErrorBirthdayIsAlreadySet.code,
+		reason:  ErrorBirthdayIsAlreadySet.reason,
 		message: "birthday is already set",
 		cause:   cause,
 		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ReasonBirthdayIsAlreadySet,
-				Domain: ServiceName,
-			},
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
-				Type:        "birthday_already_set",
-				Subject:     "birthday",
+				Type:        ErrorBirthdayIsAlreadySet.reason,
+				Subject:     fmt.Sprintf("profile:user_id:%s/birthday", userID),
 				Description: "birthday is already set and cannot be changed",
 			}}},
 		},
 	}
 }
 
+var ErrorSexIsNotValid = &Error{reason: ReasonSexIsNotValid, code: codes.InvalidArgument}
+
 func RaiseSexIsNotValid(cause error) error {
 	return &Error{
-		code:    codes.InvalidArgument,
-		reason:  ReasonSexIsNotValid,
+		code:    ErrorSexIsNotValid.code,
+		reason:  ErrorSexIsNotValid.reason,
 		message: cause.Error(),
 		cause:   cause,
 		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ReasonSexIsNotValid,
-				Domain: ServiceName,
-			},
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field:       "sex",
-				Description: "sex is not valid", //TODO: add more details about valid values
+				Reason:      ErrorSexIsNotValid.reason,
+				Description: "sex is not valid",
 			}}},
 		},
 	}
 }
 
-func RaiseSexUpdateCooldown(cause error) error {
+var ErrorSexUpdateCooldown = &Error{reason: ReasonSexUpdateCooldown, code: codes.FailedPrecondition}
+
+func RaiseSexUpdateCooldown(cause error, userID uuid.UUID) error {
 	return &Error{
-		code:    codes.FailedPrecondition,
-		reason:  ReasonSexUpdateCooldown,
+		code:    ErrorSexUpdateCooldown.code,
+		reason:  ErrorSexUpdateCooldown.reason,
 		message: cause.Error(),
 		cause:   cause,
 		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ReasonSexUpdateCooldown,
-				Domain: ServiceName,
-			},
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
-				Type:        "sex_update_cooldown",
-				Subject:     "sex",
+				Type:        ErrorSexUpdateCooldown.reason,
+				Subject:     fmt.Sprintf("profile:user_id:%s/sex", userID),
 				Description: "sex can be updated only once per year",
 			}}},
 		},
 	}
 }
 
+var ErrorResidenceIsNotValid = &Error{reason: ReasonResidenceIsNotValid, code: codes.InvalidArgument}
+
 func RaiseResidenceIsNotValid(cause error) error {
 	return &Error{
 		code:    codes.InvalidArgument,
-		reason:  ReasonResidenceIsNotValid,
+		reason:  ErrorResidenceIsNotValid.reason,
 		message: cause.Error(),
 		cause:   cause,
 		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ReasonResidenceIsNotValid,
-				Domain: ServiceName,
-			},
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field:       "residence",
+				Reason:      ErrorResidenceIsNotValid.reason,
 				Description: "residence is not valid, it must be a valid country name",
 			}}},
 		},
 	}
 }
 
-func RaiseResidenceUpdateCooldown(cause error) error {
+var ErrorResidenceUpdateCooldown = &Error{reason: ReasonResidenceUpdateCooldown, code: codes.FailedPrecondition}
+
+func RaiseResidenceUpdateCooldown(cause error, userID uuid.UUID) error {
 	return &Error{
-		code:    codes.FailedPrecondition,
-		reason:  ReasonResidenceUpdateCooldown,
+		code:    ErrorResidenceUpdateCooldown.code,
+		reason:  ErrorResidenceUpdateCooldown.reason,
 		message: cause.Error(),
 		cause:   cause,
 		details: []protoadapt.MessageV1{
-			&errdetails.ErrorInfo{
-				Reason: ReasonResidenceUpdateCooldown,
-				Domain: ServiceName,
-			},
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
-				Type:        "residence_update_cooldown",
-				Subject:     "residence",
+				Type:        ErrorResidenceUpdateCooldown.reason,
+				Subject:     fmt.Sprintf("profile:user_id:%s/residence", userID),
 				Description: "residence can be updated only once per 100 days",
 			}}},
 		},

@@ -25,8 +25,6 @@ CREATE TABLE biographies (
     country          VARCHAR(64), -- TODO names from reference-svc in future
 
     sex_updated_at              timestamp,
-    nationality_updated_at      timestamp,
-    primary_language_updated_at timestamp,
     residence_updated_at        timestamp
 );
 

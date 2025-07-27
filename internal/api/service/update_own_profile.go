@@ -2,21 +2,38 @@ package service
 
 import (
 	"context"
+	"time"
 
-	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
-	"github.com/chains-lab/elector-cab-svc/internal/app"
-	"github.com/chains-lab/elector-cab-svc/internal/logger"
-	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
+	"github.com/chains-lab/citizen-cab-svc/internal/api/responses"
+	"github.com/chains-lab/citizen-cab-svc/internal/app"
+	"github.com/chains-lab/citizen-cab-svc/internal/logger"
+	svc "github.com/chains-lab/proto-storage/gen/go/svc/citizencab"
 )
 
 func (s Service) UpdateOwnProfile(ctx context.Context, req *svc.UpdateOwnProfileRequest) (*svc.Profile, error) {
 	meta := Meta(ctx)
 
-	profile, err := s.app.UpdateProfile(ctx, meta.InitiatorID, app.UpdateProfileInput{
+	input := app.UpdateProfileInput{
 		Pseudonym:   req.Pseudonym,
 		Description: req.Description,
 		Avatar:      req.Avatar,
-	})
+		Sex:         req.Sex,
+	}
+
+	if req.BirthDate != nil {
+		birthdate, err := time.Parse(time.RFC3339, *req.BirthDate)
+		if err != nil {
+			logger.Log(ctx, meta.RequestID).WithError(err).Error("invalid birth date format")
+
+			return nil, responses.BadRequestError(ctx, meta.RequestID, responses.Violation{
+				Field:       "birth_date",
+				Description: "invalid date format, expected RFC3339",
+			})
+		}
+		input.BirthDate = &birthdate
+	}
+
+	profile, err := s.app.UpdateProfile(ctx, meta.InitiatorID, input)
 	if err != nil {
 		logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to update user profile")
 

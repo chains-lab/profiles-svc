@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/chains-lab/elector-cab-svc/internal/ape"
-	"github.com/chains-lab/elector-cab-svc/internal/api/interceptors"
+	"github.com/chains-lab/citizen-cab-svc/internal/ape"
+	"github.com/chains-lab/citizen-cab-svc/internal/api/interceptors"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"

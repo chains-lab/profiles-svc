@@ -3,7 +3,7 @@ package config
 import (
 	"strings"
 
-	"github.com/chains-lab/elector-cab-svc/internal/logger"
+	"github.com/chains-lab/citizen-cab-svc/internal/logger"
 	"github.com/sirupsen/logrus"
 )
 

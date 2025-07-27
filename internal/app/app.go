@@ -5,14 +5,13 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/chains-lab/elector-cab-svc/internal/app/entities"
-	"github.com/chains-lab/elector-cab-svc/internal/config"
-	"github.com/chains-lab/elector-cab-svc/internal/dbx"
+	"github.com/chains-lab/citizen-cab-svc/internal/app/entities"
+	"github.com/chains-lab/citizen-cab-svc/internal/config"
+	"github.com/chains-lab/citizen-cab-svc/internal/dbx"
 )
 
 type App struct {
-	profiles    entities.Profiles
-	biographies entities.Biographies
+	profiles entities.Profiles
 
 	db *sql.DB
 }
@@ -27,15 +26,10 @@ func NewApp(cfg config.Config) (App, error) {
 	if err != nil {
 		return App{}, err
 	}
-	biographies, err := entities.NewBiographies(pg, cfg)
-	if err != nil {
-		return App{}, err
-	}
 
 	return App{
-		profiles:    profiles,
-		biographies: biographies,
-		db:          pg,
+		profiles: profiles,
+		db:       pg,
 	}, nil
 }
 

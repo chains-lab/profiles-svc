@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
-	"github.com/chains-lab/elector-cab-svc/internal/logger"
-	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
+	"github.com/chains-lab/citizen-cab-svc/internal/api/responses"
+	"github.com/chains-lab/citizen-cab-svc/internal/logger"
+	svc "github.com/chains-lab/proto-storage/gen/go/svc/citizencab"
 )
 
 func (s Service) UpdateOwnUsername(ctx context.Context, req *svc.UpdateOwnUsernameRequest) (*svc.Profile, error) {

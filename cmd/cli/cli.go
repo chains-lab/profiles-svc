@@ -9,9 +9,9 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/chains-lab/elector-cab-svc/internal/app"
-	"github.com/chains-lab/elector-cab-svc/internal/config"
-	"github.com/chains-lab/elector-cab-svc/internal/dbx"
+	"github.com/chains-lab/citizen-cab-svc/internal/app"
+	"github.com/chains-lab/citizen-cab-svc/internal/config"
+	"github.com/chains-lab/citizen-cab-svc/internal/dbx"
 )
 
 func Run(args []string) bool {

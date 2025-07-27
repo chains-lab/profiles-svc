@@ -3,10 +3,9 @@ package service
 import (
 	"context"
 
-	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
-	"github.com/chains-lab/elector-cab-svc/internal/app"
-	"github.com/chains-lab/elector-cab-svc/internal/logger"
-	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
+	"github.com/chains-lab/citizen-cab-svc/internal/api/responses"
+	"github.com/chains-lab/citizen-cab-svc/internal/logger"
+	svc "github.com/chains-lab/proto-storage/gen/go/svc/citizencab"
 	"github.com/google/uuid"
 )
 
@@ -23,9 +22,7 @@ func (s Service) UpdateOfficialByAdmin(ctx context.Context, req *svc.UpdateOffic
 		})
 	}
 
-	profile, err := s.app.AdminUpdateProfile(ctx, userID, app.AdminUpdateProfileInput{
-		Official: &req.Official,
-	})
+	profile, err := s.app.AdminUpdateProfileOfficial(ctx, userID, req.Official)
 
 	if err != nil {
 		logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to update field official in profile")

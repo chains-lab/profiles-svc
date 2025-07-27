@@ -3,16 +3,17 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
-	"github.com/chains-lab/elector-cab-svc/internal/ape"
-	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
-	"github.com/chains-lab/elector-cab-svc/internal/app"
-	"github.com/chains-lab/elector-cab-svc/internal/logger"
+	"github.com/chains-lab/citizen-cab-svc/internal/ape"
+	"github.com/chains-lab/citizen-cab-svc/internal/api/responses"
+	"github.com/chains-lab/citizen-cab-svc/internal/app"
+	"github.com/chains-lab/citizen-cab-svc/internal/logger"
 	"github.com/chains-lab/gatekit/roles"
-	svc "github.com/chains-lab/proto-storage/gen/go/svc/electorcab"
+	svc "github.com/chains-lab/proto-storage/gen/go/svc/citizencab"
 )
 
-func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileRequest) (*svc.Profile, error) {
+func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfilrRequest) (*svc.Profile, error) {
 	meta := Meta(ctx)
 
 	if meta.Role != roles.User {
@@ -26,12 +27,27 @@ func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileReq
 		)
 	}
 
-	profile, err := s.app.CreateProfileAndCabinet(ctx, meta.InitiatorID, app.CreateCabinetInput{
+	input := app.CreateProfileInput{
 		Username:    req.Username,
 		Pseudonym:   req.Pseudonym,
 		Description: req.Description,
 		Avatar:      req.Avatar,
-	})
+		Sex:         req.Sex,
+	}
+	if req.BirthDate != nil {
+		birthdate, err := time.Parse(time.RFC3339, *req.BirthDate)
+		if err != nil {
+			logger.Log(ctx, meta.RequestID).WithError(err).Error("invalid birth date format")
+
+			return nil, responses.BadRequestError(ctx, meta.RequestID, responses.Violation{
+				Field:       "birth_date",
+				Description: "invalid date format, expected RFC3339",
+			})
+		}
+		input.BirthDate = &birthdate
+	}
+
+	profile, err := s.app.CreateProfile(ctx, meta.InitiatorID, input)
 	if err != nil {
 		logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to create profile and cabinet")
 

@@ -1,7 +1,7 @@
 services:
-  elector-cab-svc:
+  citizen-cab-svc:
     build: .
-    container_name: elector-cab-svc
+    container_name: citizen-cab-svc
     environment:
       - KV_VIPER_FILE=./config_docker.yaml
     ports:
@@ -9,9 +9,9 @@ services:
     networks:
       - chains-net
 
-  elector-cab-postgres:
+  citizen-cab-postgres:
     image: postgres:15
-    container_name:  elector-cab-postgres
+    container_name:  citizen-cab-postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres

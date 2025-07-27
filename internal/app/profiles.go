@@ -4,9 +4,10 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"time"
 
-	"github.com/chains-lab/elector-cab-svc/internal/app/entities"
-	"github.com/chains-lab/elector-cab-svc/internal/app/models"
+	"github.com/chains-lab/citizen-cab-svc/internal/app/entities"
+	"github.com/chains-lab/citizen-cab-svc/internal/app/models"
 	"github.com/google/uuid"
 )
 
@@ -19,9 +20,11 @@ func (a App) GetProfileByUsername(ctx context.Context, username string) (models.
 }
 
 type UpdateProfileInput struct {
-	Pseudonym   *string `json:"pseudonym,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Avatar      *string `json:"avatar,omitempty"`
+	Pseudonym   *string
+	Description *string
+	Avatar      *string
+	Sex         *string
+	BirthDate   *time.Time
 }
 
 func (a App) UpdateProfile(ctx context.Context, userID uuid.UUID, profile UpdateProfileInput) (models.Profile, error) {
@@ -29,8 +32,29 @@ func (a App) UpdateProfile(ctx context.Context, userID uuid.UUID, profile Update
 		Pseudonym:   profile.Pseudonym,
 		Description: profile.Description,
 		Avatar:      profile.Avatar,
+		Sex:         profile.Sex,
+		BirthDate:   profile.BirthDate,
 	})
 	if err != nil {
+		return models.Profile{}, err
+	}
+
+	return a.GetProfileByUserID(ctx, userID)
+}
+
+func (a App) AdminUpdateProfileOfficial(ctx context.Context, userID uuid.UUID, official bool) (models.Profile, error) {
+	prof, err := a.GetProfileByUserID(ctx, userID)
+	if err != nil {
+		return models.Profile{}, err
+	}
+
+	if prof.Official == official {
+		return prof, nil
+	}
+
+	if err = a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
+		Official: &official,
+	}); err != nil {
 		return models.Profile{}, err
 	}
 
@@ -45,32 +69,6 @@ func (a App) UpdateUsername(ctx context.Context, userID uuid.UUID, username stri
 	return a.GetProfileByUserID(ctx, userID)
 }
 
-type AdminUpdateProfileInput struct {
-	Pseudonym   *string `json:"pseudonym,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Avatar      *string `json:"avatar,omitempty"`
-	Official    *bool   `json:"official,omitempty"`
-}
-
-func (a App) AdminUpdateProfile(ctx context.Context, userID uuid.UUID, profile AdminUpdateProfileInput) (models.Profile, error) {
-	prof, err := a.GetProfileByUserID(ctx, userID)
-	if err != nil {
-		return models.Profile{}, err
-	}
-
-	err = a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
-		Pseudonym:   profile.Pseudonym,
-		Description: profile.Description,
-		Avatar:      profile.Avatar,
-		Official:    profile.Official,
-	})
-	if err != nil {
-		return models.Profile{}, err
-	}
-
-	return prof, nil
-}
-
 func (a App) ResetUsername(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
 	prof, err := a.GetProfileByUserID(ctx, userID)
 	if err != nil {
@@ -79,7 +77,7 @@ func (a App) ResetUsername(ctx context.Context, userID uuid.UUID) (models.Profil
 
 	generateUsername := func() (string, error) {
 		const (
-			prefix = "elector"
+			prefix = "citizen"
 			digits = 8
 		)
 		buf := make([]byte, digits)
@@ -105,9 +103,9 @@ func (a App) ResetUsername(ctx context.Context, userID uuid.UUID) (models.Profil
 }
 
 type ResetUserProfileInput struct {
-	Pseudonym   bool `json:"pseudonym"`
-	Description bool `json:"description"`
-	Avatar      bool `json:"avatar"`
+	Pseudonym   bool
+	Description bool
+	Avatar      bool
 }
 
 func (a App) ResetUserProfile(ctx context.Context, userID uuid.UUID, input ResetUserProfileInput) (models.Profile, error) {
@@ -139,4 +137,29 @@ func (a App) ResetUserProfile(ctx context.Context, userID uuid.UUID, input Reset
 	}
 
 	return res, nil
+}
+
+type CreateProfileInput struct {
+	Username    string
+	Pseudonym   *string
+	Description *string
+	Avatar      *string
+	Sex         *string
+	BirthDate   *time.Time
+}
+
+func (a App) CreateProfile(ctx context.Context, userID uuid.UUID, input CreateProfileInput) (models.Profile, error) {
+	err := a.profiles.Create(ctx, userID, entities.CreateProfileInput{
+		Username:    input.Username,
+		Pseudonym:   input.Pseudonym,
+		Description: input.Description,
+		Avatar:      input.Avatar,
+		Sex:         input.Sex,
+		BirthDate:   input.BirthDate,
+	})
+	if err != nil {
+		return models.Profile{}, err
+	}
+
+	return a.GetProfileByUserID(ctx, userID)
 }

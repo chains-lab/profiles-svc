@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chains-lab/elector-cab-svc/internal/ape"
-	"github.com/chains-lab/elector-cab-svc/internal/app/domain"
-	"github.com/chains-lab/elector-cab-svc/internal/app/models"
-	"github.com/chains-lab/elector-cab-svc/internal/dbx"
+	"github.com/chains-lab/citizen-cab-svc/internal/ape"
+	"github.com/chains-lab/citizen-cab-svc/internal/app/domain"
+	"github.com/chains-lab/citizen-cab-svc/internal/app/models"
+	"github.com/chains-lab/citizen-cab-svc/internal/dbx"
 	"github.com/google/uuid"
 )
 
@@ -45,6 +45,8 @@ type CreateProfileInput struct {
 	Pseudonym   *string
 	Description *string
 	Avatar      *string
+	Sex         *string
+	BirthDate   *time.Time
 }
 
 func (p Profiles) Create(ctx context.Context, userID uuid.UUID, input CreateProfileInput) error {
@@ -73,6 +75,8 @@ func (p Profiles) Create(ctx context.Context, userID uuid.UUID, input CreateProf
 		Description:       input.Description,
 		Avatar:            input.Avatar,
 		Official:          false,
+		Sex:               input.Sex,
+		BirthDate:         input.BirthDate,
 		UsernameUpdatedAt: createdAt,
 		UpdatedAt:         createdAt,
 		CreatedAt:         createdAt,
@@ -85,19 +89,29 @@ func (p Profiles) Create(ctx context.Context, userID uuid.UUID, input CreateProf
 }
 
 type UpdateProfileInput struct {
-	Pseudonym   *string `json:"pseudonym,omitempty"`
-	Description *string `json:"description,omitempty"`
-	Avatar      *string `json:"avatar,omitempty"`
-	Official    *bool   `json:"official,omitempty"`
+	Pseudonym   *string
+	Description *string
+	Avatar      *string
+	Official    *bool
+	Sex         *string
+	BirthDate   *time.Time
 }
 
 func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProfileInput) error {
+	if input.Sex != nil {
+		//TODO: Validate sex value
+		//if err != nil {
+		//	return ape.RaiseSexIsNotValid(err)
+		//}
+	}
 
 	err := p.queries.FilterUserID(userID).Update(ctx, dbx.UpdateProfileInput{
 		Pseudonym:   input.Pseudonym,
 		Description: input.Description,
 		Avatar:      input.Avatar,
 		Official:    input.Official,
+		Sex:         input.Sex,
+		BirthDate:   input.BirthDate,
 		UpdatedAt:   time.Now().UTC(),
 	})
 	if err != nil {
@@ -190,13 +204,16 @@ func (p Profiles) GetByUsername(ctx context.Context, username string) (models.Pr
 
 func ProfileFromDb(input dbx.ProfileModel) models.Profile {
 	return models.Profile{
-		UserID:      input.UserID,
-		Username:    input.Username,
-		Pseudonym:   input.Pseudonym,
-		Description: input.Description,
-		Avatar:      input.Avatar,
-		Official:    input.Official,
-		UpdatedAt:   input.UpdatedAt,
-		CreatedAt:   input.CreatedAt,
+		UserID:            input.UserID,
+		Username:          input.Username,
+		Pseudonym:         input.Pseudonym,
+		Description:       input.Description,
+		Avatar:            input.Avatar,
+		Official:          input.Official,
+		Sex:               input.Sex,
+		BirthDate:         input.BirthDate,
+		UsernameUpdatedAt: input.UsernameUpdatedAt,
+		UpdatedAt:         input.UpdatedAt,
+		CreatedAt:         input.CreatedAt,
 	}
 }

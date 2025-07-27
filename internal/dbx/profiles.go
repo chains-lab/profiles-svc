@@ -13,12 +13,14 @@ import (
 const profilesTable = "profiles"
 
 type ProfileModel struct {
-	UserID      uuid.UUID `db:"user_id"`
-	Username    string    `db:"username"`
-	Pseudonym   *string   `db:"pseudonym,omitempty"`
-	Description *string   `db:"description,omitempty"`
-	Avatar      *string   `db:"avatar,omitempty"`
-	Official    bool      `db:"official"`
+	UserID      uuid.UUID  `db:"user_id"`
+	Username    string     `db:"username"`
+	Pseudonym   *string    `db:"pseudonym,omitempty"`
+	Description *string    `db:"description,omitempty"`
+	Avatar      *string    `db:"avatar,omitempty"`
+	Official    bool       `db:"official"`
+	Sex         *string    `db:"sex"`
+	BirthDate   *time.Time `db:"birth_date,omitempty"`
 
 	UsernameUpdatedAt time.Time `db:"username_updated_at"`
 	UpdatedAt         time.Time `db:"updated_at"`
@@ -58,6 +60,8 @@ func (q ProfilesQ) Insert(ctx context.Context, input ProfileModel) error {
 		"description":         input.Description,
 		"avatar":              input.Avatar,
 		"official":            input.Official,
+		"sex":                 input.Sex,
+		"birth_date":          input.BirthDate,
 		"username_updated_at": input.UsernameUpdatedAt,
 		"updated_at":          input.UpdatedAt,
 		"created_at":          input.CreatedAt,
@@ -83,6 +87,8 @@ type UpdateProfileInput struct {
 	Description       *string
 	Avatar            *string
 	Official          *bool
+	Sex               *string
+	BirthDate         *time.Time
 	UsernameUpdatedAt *time.Time
 	UpdatedAt         time.Time
 }
@@ -104,6 +110,12 @@ func (q ProfilesQ) Update(ctx context.Context, input UpdateProfileInput) error {
 	}
 	if input.Avatar != nil {
 		updates["avatar"] = *input.Avatar
+	}
+	if input.Sex != nil {
+		updates["sex"] = *input.Sex
+	}
+	if input.BirthDate != nil {
+		updates["birth_date"] = *input.BirthDate
 	}
 	if input.Official != nil {
 		updates["official"] = *input.Official
@@ -143,6 +155,8 @@ func (q ProfilesQ) Get(ctx context.Context) (ProfileModel, error) {
 		&profile.Description,
 		&profile.Avatar,
 		&profile.Official,
+		&profile.Sex,
+		&profile.BirthDate,
 		&profile.UsernameUpdatedAt,
 		&profile.UpdatedAt,
 		&profile.CreatedAt,
@@ -179,6 +193,8 @@ func (q ProfilesQ) Select(ctx context.Context) ([]ProfileModel, error) {
 			&profile.Description,
 			&profile.Avatar,
 			&profile.Official,
+			&profile.Sex,
+			&profile.BirthDate,
 			&profile.UsernameUpdatedAt,
 			&profile.UpdatedAt,
 			&profile.CreatedAt,

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/chains-lab/elector-cab-svc/internal/api/responses"
+	"github.com/chains-lab/citizen-cab-svc/internal/api/responses"
 	"github.com/chains-lab/gatekit/roles"
 	"github.com/chains-lab/gatekit/tokens"
 	"github.com/google/uuid"

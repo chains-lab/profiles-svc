@@ -1,5 +1,5 @@
 server:
-  name: "elector-cab-svc"
+  name: "citizen-cab-svc"
   port: ":8002"
 
 logger:

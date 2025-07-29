@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chains-lab/citizen-cab-svc/internal/ape"
-	"github.com/chains-lab/citizen-cab-svc/internal/api/responses"
-	"github.com/chains-lab/citizen-cab-svc/internal/app"
-	"github.com/chains-lab/citizen-cab-svc/internal/logger"
 	"github.com/chains-lab/gatekit/roles"
-	svc "github.com/chains-lab/proto-storage/gen/go/svc/citizencab"
+	"github.com/chains-lab/profile-svc/internal/ape"
+	"github.com/chains-lab/profile-svc/internal/api/responses"
+	"github.com/chains-lab/profile-svc/internal/app"
+	"github.com/chains-lab/profile-svc/internal/logger"
+	svc "github.com/chains-lab/proto-storage/gen/go/svc/profile"
 )
 
 func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfilrRequest) (*svc.Profile, error) {

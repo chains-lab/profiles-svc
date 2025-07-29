@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 
-	"github.com/chains-lab/citizen-cab-svc/internal/api/responses"
-	"github.com/chains-lab/citizen-cab-svc/internal/app/models"
-	"github.com/chains-lab/citizen-cab-svc/internal/logger"
-	svc "github.com/chains-lab/proto-storage/gen/go/svc/citizencab"
+	"github.com/chains-lab/profile-svc/internal/api/responses"
+	"github.com/chains-lab/profile-svc/internal/app/models"
+	"github.com/chains-lab/profile-svc/internal/logger"
+	svc "github.com/chains-lab/proto-storage/gen/go/svc/profile"
 	"github.com/google/uuid"
 )
 

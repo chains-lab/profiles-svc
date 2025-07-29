@@ -9,7 +9,7 @@ import (
 	"google.golang.org/protobuf/protoadapt"
 )
 
-const ServiceName = "citizen-cab-svc"
+const ServiceName = "profile-svc"
 
 var ErrorInternal = &Error{reason: ReasonInternal, code: codes.Internal}
 

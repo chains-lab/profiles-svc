@@ -1,5 +1,5 @@
 server:
-  name: "citizen-cab-svc"
+  name: "profile-svc"
   port: ":8002"
 
 logger:

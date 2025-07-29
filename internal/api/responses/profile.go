@@ -1,17 +1,17 @@
 package responses
 
 import (
-	"github.com/chains-lab/citizen-cab-svc/internal/app/models"
-	"github.com/chains-lab/proto-storage/gen/go/svc/citizencab"
+	"github.com/chains-lab/profile-svc/internal/app/models"
+	"github.com/chains-lab/proto-storage/gen/go/svc/profile"
 )
 
-func Profile(model models.Profile) *citizencab.Profile {
+func Profile(model models.Profile) *profile.Profile {
 	var birthdate string
 	if model.BirthDate != nil {
 		birthdate = model.BirthDate.String()
 	}
 
-	return &citizencab.Profile{
+	return &profile.Profile{
 		UserId:      model.UserID.String(),
 		Username:    model.Username,
 		Pseudonym:   model.Pseudonym,

@@ -3,19 +3,19 @@ OPENAPI_GENERATOR := java -jar ~/openapi-generator-cli.jar
 CONFIG_FILE := ./config.yaml
 
 build:
-	KV_VIPER_FILE=$(CONFIG_FILE) go build -o ./cmd/citizen-cab-svc/main ./cmd/citizen-cab-svc/main.go
+	KV_VIPER_FILE=$(CONFIG_FILE) go build -o ./cmd/profile-svc/main ./cmd/profile-svc/main.go
 
 migrate-up:
-	KV_VIPER_FILE=$(CONFIG_FILE) go build -o ./cmd/citizen-cab-svc/main ./cmd/citizen-cab-svc/main.go
-	KV_VIPER_FILE=$(CONFIG_FILE) ./cmd/citizen-cab-svc/main migrate up
+	KV_VIPER_FILE=$(CONFIG_FILE) go build -o ./cmd/profile-svc/main ./cmd/profile-svc/main.go
+	KV_VIPER_FILE=$(CONFIG_FILE) ./cmd/profile-svc/main migrate up
 
 migrate-down:
-	KV_VIPER_FILE=$(CONFIG_FILE) go build -o ./cmd/citizen-cab-svc/main ./cmd/citizen-cab-svc/main.go
-	KV_VIPER_FILE=$(CONFIG_FILE) ./cmd/citizen-cab-svc/main migrate down
+	KV_VIPER_FILE=$(CONFIG_FILE) go build -o ./cmd/profile-svc/main ./cmd/profile-svc/main.go
+	KV_VIPER_FILE=$(CONFIG_FILE) ./cmd/profile-svc/main migrate down
 
 run-server:
-	KV_VIPER_FILE=$(CONFIG_FILE) go build -o ./cmd/citizen-cab-svc/main ./cmd/citizen-cab-svc/main.go
-	KV_VIPER_FILE=$(CONFIG_FILE) ./cmd/citizen-cab-svc/main run service
+	KV_VIPER_FILE=$(CONFIG_FILE) go build -o ./cmd/profile-svc/main ./cmd/profile-svc/main.go
+	KV_VIPER_FILE=$(CONFIG_FILE) ./cmd/profile-svc/main run service
 
 docker-uo:
 	docker compose up -d

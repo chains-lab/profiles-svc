@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chains-lab/citizen-cab-svc/internal/ape"
-	"github.com/chains-lab/citizen-cab-svc/internal/app/domain"
-	"github.com/chains-lab/citizen-cab-svc/internal/app/models"
-	"github.com/chains-lab/citizen-cab-svc/internal/dbx"
+	"github.com/chains-lab/profile-svc/internal/ape"
+	"github.com/chains-lab/profile-svc/internal/app/domain"
+	"github.com/chains-lab/profile-svc/internal/app/models"
+	"github.com/chains-lab/profile-svc/internal/dbx"
 	"github.com/google/uuid"
 )
 

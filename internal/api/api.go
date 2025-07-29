@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/chains-lab/citizen-cab-svc/internal/api/interceptors"
-	"github.com/chains-lab/citizen-cab-svc/internal/api/service"
-	"github.com/chains-lab/citizen-cab-svc/internal/app"
-	"github.com/chains-lab/citizen-cab-svc/internal/config"
-	"github.com/chains-lab/citizen-cab-svc/internal/logger"
-	svc "github.com/chains-lab/proto-storage/gen/go/svc/citizencab"
+	"github.com/chains-lab/profile-svc/internal/api/interceptors"
+	"github.com/chains-lab/profile-svc/internal/api/service"
+	"github.com/chains-lab/profile-svc/internal/app"
+	"github.com/chains-lab/profile-svc/internal/config"
+	"github.com/chains-lab/profile-svc/internal/logger"
+	svc "github.com/chains-lab/proto-storage/gen/go/svc/profile"
 	"google.golang.org/grpc"
 )
 

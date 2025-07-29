@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/chains-lab/citizen-cab-svc/internal/api/responses"
 	"github.com/chains-lab/gatekit/auth"
 	"github.com/chains-lab/gatekit/roles"
+	"github.com/chains-lab/profile-svc/internal/api/responses"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"

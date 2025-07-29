@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chains-lab/citizen-cab-svc/internal/app/entities"
-	"github.com/chains-lab/citizen-cab-svc/internal/app/models"
+	"github.com/chains-lab/profile-svc/internal/app/entities"
+	"github.com/chains-lab/profile-svc/internal/app/models"
 	"github.com/google/uuid"
 )
 

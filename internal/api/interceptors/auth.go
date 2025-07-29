@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/chains-lab/citizen-cab-svc/internal/api/responses"
+	"github.com/chains-lab/gatekit/auth"
 	"github.com/chains-lab/gatekit/roles"
-	"github.com/chains-lab/gatekit/tokens"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -40,7 +40,7 @@ func NewAuth(skService, skUser string) grpc.UnaryServerInterceptor {
 			return nil, responses.UnauthorizedError(ctx, "authorization token not supplied", nil)
 		}
 
-		data, err := tokens.VerifyServiceJWT(ctx, toksServ[0], skService)
+		data, err := auth.VerifyServiceJWT(ctx, toksServ[0], skService)
 		if err != nil {
 			return nil, responses.UnauthorizedError(ctx, fmt.Sprintf("failed to verify token: %s", err), nil)
 		}
@@ -55,7 +55,7 @@ func NewAuth(skService, skUser string) grpc.UnaryServerInterceptor {
 			return nil, responses.UnauthorizedError(ctx, "request ID not supplied", nil)
 		}
 
-		userData, err := tokens.VerifyUserJWT(ctx, toksUser[0], skUser)
+		userData, err := auth.VerifyUserJWT(ctx, toksUser[0], skUser)
 		if err != nil {
 			return nil, responses.UnauthorizedError(ctx, fmt.Sprintf("invalid user token: %v", err), nil)
 		}
@@ -71,15 +71,14 @@ func NewAuth(skService, skUser string) grpc.UnaryServerInterceptor {
 		}
 
 		ctx = context.WithValue(ctx, MetaCtxKey, MetaData{
-			Issuer:         data.Issuer,
-			Subject:        data.Subject,
-			Audience:       data.Audience,
-			InitiatorID:    userID,
-			SessionID:      userData.Session,
-			SubscriptionID: userData.Subscription,
-			Verified:       userData.Verified,
-			Role:           userData.Role,
-			RequestID:      requestID,
+			Issuer:      data.Issuer,
+			Subject:     data.Subject,
+			Audience:    data.Audience,
+			InitiatorID: userID,
+			SessionID:   userData.Session,
+			Verified:    userData.Verified,
+			Role:        userData.Role,
+			RequestID:   requestID,
 		})
 
 		return handler(ctx, req)

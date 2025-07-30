@@ -3,6 +3,7 @@ package ape
 import (
 	"fmt"
 
+	"github.com/chains-lab/apperr"
 	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -11,26 +12,26 @@ import (
 
 const ServiceName = "profile-svc"
 
-var ErrorInternal = &Error{reason: ReasonInternal, code: codes.Internal}
+var ErrorInternal = &apperr.ErrorObject{Reason: ReasonInternal, Code: codes.Internal}
 
 func RaiseInternal(cause error) error {
-	return &Error{
-		code:    ErrorInternal.code,
-		reason:  ErrorInternal.reason,
-		message: "unexpected internal error occurred",
-		cause:   cause,
+	return &apperr.ErrorObject{
+		Code:    ErrorInternal.Code,
+		Reason:  ErrorInternal.Reason,
+		Message: "unexpected internal error occurred",
+		Cause:   cause,
 	}
 }
 
-var ErrorProfileForUserDoesNotExist = &Error{reason: ReasonProfileForUserNotFound, code: codes.NotFound}
+var ErrorProfileForUserDoesNotExist = &apperr.ErrorObject{Reason: ReasonProfileForUserNotFound, Code: codes.NotFound}
 
 func RaiseProfileForUserNotFound(cause error, userID uuid.UUID) error {
-	return &Error{
-		code:    ErrorProfileForUserDoesNotExist.code,
-		reason:  ErrorProfileForUserDoesNotExist.reason,
-		message: fmt.Sprintf("profile for user with user_id: %s not found", userID),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
+	return &apperr.ErrorObject{
+		Code:    ErrorProfileForUserDoesNotExist.Code,
+		Reason:  ErrorProfileForUserDoesNotExist.Reason,
+		Message: fmt.Sprintf("profile for user with user_id: %s not found", userID),
+		Cause:   cause,
+		Details: []protoadapt.MessageV1{
 			&errdetails.ResourceInfo{
 				ResourceType: "profile",
 				ResourceName: fmt.Sprintf("profile:user_id:%s", userID),
@@ -41,12 +42,12 @@ func RaiseProfileForUserNotFound(cause error, userID uuid.UUID) error {
 }
 
 func RaiseProfileForUserNotFoundByUsername(cause error, username string) error {
-	return &Error{
-		code:    ErrorProfileForUserDoesNotExist.code,
-		reason:  ErrorProfileForUserDoesNotExist.reason,
-		message: fmt.Sprintf("profile for user with username: %s not found", username),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
+	return &apperr.ErrorObject{
+		Code:    ErrorProfileForUserDoesNotExist.Code,
+		Reason:  ErrorProfileForUserDoesNotExist.Reason,
+		Message: fmt.Sprintf("profile for user with username: %s not found", username),
+		Cause:   cause,
+		Details: []protoadapt.MessageV1{
 			&errdetails.ResourceInfo{
 				ResourceType: "profile",
 				ResourceName: fmt.Sprintf("profile:username:%s", username),
@@ -56,15 +57,15 @@ func RaiseProfileForUserNotFoundByUsername(cause error, username string) error {
 	}
 }
 
-var ErrorProfileForUserAlreadyExists = &Error{reason: ReasonProfileForUserAlreadyExists, code: codes.AlreadyExists}
+var ErrorProfileForUserAlreadyExists = &apperr.ErrorObject{Reason: ReasonProfileForUserAlreadyExists, Code: codes.AlreadyExists}
 
 func RaiseProfileForUserAlreadyExists(cause error, userID uuid.UUID) error {
-	return &Error{
-		code:    ErrorProfileForUserAlreadyExists.code,
-		reason:  ErrorProfileForUserAlreadyExists.reason,
-		message: fmt.Sprintf("cabinet for user with user_id: %s already exists", userID),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
+	return &apperr.ErrorObject{
+		Code:    ErrorProfileForUserAlreadyExists.Code,
+		Reason:  ErrorProfileForUserAlreadyExists.Reason,
+		Message: fmt.Sprintf("cabinet for user with user_id: %s already exists", userID),
+		Cause:   cause,
+		Details: []protoadapt.MessageV1{
 			&errdetails.ResourceInfo{
 				ResourceType: "profile",
 				ResourceName: fmt.Sprintf("profile:user_id:%s", userID),
@@ -75,28 +76,28 @@ func RaiseProfileForUserAlreadyExists(cause error, userID uuid.UUID) error {
 	}
 }
 
-var ErrorOnlyUserCanHaveProfile = &Error{reason: ReasonOnlyUserCanHaveProfile, code: codes.PermissionDenied}
+var ErrorOnlyUserCanHaveProfile = &apperr.ErrorObject{Reason: ReasonOnlyUserCanHaveProfile, Code: codes.PermissionDenied}
 
 func RaiseOnlyUserCanHaveCabinetAndProfile(cause error) error {
-	return &Error{
-		code:    ErrorOnlyUserCanHaveProfile.code,
-		reason:  ErrorOnlyUserCanHaveProfile.reason,
-		message: "only users with role user can have a profile and cabinet",
-		cause:   cause,
+	return &apperr.ErrorObject{
+		Code:    ErrorOnlyUserCanHaveProfile.Code,
+		Reason:  ErrorOnlyUserCanHaveProfile.Reason,
+		Message: "only users with role user can have a profile and cabinet",
+		Cause:   cause,
 	}
 }
 
-var ErrorUsernameAlreadyTaken = &Error{reason: ReasonUsernameAlreadyTaken, code: codes.FailedPrecondition}
+var ErrorUsernameAlreadyTaken = &apperr.ErrorObject{Reason: ReasonUsernameAlreadyTaken, Code: codes.FailedPrecondition}
 
 func RaiseUsernameAlreadyTaken(cause error, username string) error {
-	return &Error{
-		code:    ErrorUsernameAlreadyTaken.code,
-		reason:  ErrorUsernameAlreadyTaken.reason,
-		message: fmt.Sprintf("username %s is already taken", username),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
+	return &apperr.ErrorObject{
+		Code:    ErrorUsernameAlreadyTaken.Code,
+		Reason:  ErrorUsernameAlreadyTaken.Reason,
+		Message: fmt.Sprintf("username %s is already taken", username),
+		Cause:   cause,
+		Details: []protoadapt.MessageV1{
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
-				Type:        ErrorUsernameAlreadyTaken.reason,
+				Type:        ErrorUsernameAlreadyTaken.Reason,
 				Subject:     fmt.Sprintf("profile:username:%s/username", username),
 				Description: fmt.Sprintf("username %s is already taken", username),
 			}}},
@@ -104,36 +105,36 @@ func RaiseUsernameAlreadyTaken(cause error, username string) error {
 	}
 }
 
-var ErrorUsernameIsNotValid = &Error{reason: ReasonUsernameIsNotValid, code: codes.InvalidArgument}
+var ErrorUsernameIsNotValid = &apperr.ErrorObject{Reason: ReasonUsernameIsNotValid, Code: codes.InvalidArgument}
 
 func RaiseUsernameIsNotValid(cause error) error {
-	return &Error{
-		code:    ErrorUsernameIsNotValid.code,
-		reason:  ErrorUsernameIsNotValid.reason,
-		message: cause.Error(),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
+	return &apperr.ErrorObject{
+		Code:    ErrorUsernameIsNotValid.Code,
+		Reason:  ErrorUsernameIsNotValid.Reason,
+		Message: cause.Error(),
+		Cause:   cause,
+		Details: []protoadapt.MessageV1{
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field: "username",
 				Description: "username is not valid, it must be 3-32 characters long, allowed characters are:" +
 					" a-z, A-Z, 0-9, _ (underscore), - (dash), . (dot)",
-				Reason: ErrorUsernameIsNotValid.reason,
+				Reason: ErrorUsernameIsNotValid.Reason,
 			}}},
 		},
 	}
 }
 
-var ErrorUsernameUpdateCooldown = &Error{reason: ReasonUsernameUpdateCooldown, code: codes.FailedPrecondition}
+var ErrorUsernameUpdateCooldown = &apperr.ErrorObject{Reason: ReasonUsernameUpdateCooldown, Code: codes.FailedPrecondition}
 
 func RaiseUsernameUpdateCooldown(cause error, userID uuid.UUID) error {
-	return &Error{
-		code:    ErrorUsernameUpdateCooldown.code,
-		reason:  ErrorUsernameUpdateCooldown.reason,
-		message: "username can be updated only once per 14 days",
-		cause:   cause,
-		details: []protoadapt.MessageV1{
+	return &apperr.ErrorObject{
+		Code:    ErrorUsernameUpdateCooldown.Code,
+		Reason:  ErrorUsernameUpdateCooldown.Reason,
+		Message: "username can be updated only once per 14 days",
+		Cause:   cause,
+		Details: []protoadapt.MessageV1{
 			&errdetails.PreconditionFailure{Violations: []*errdetails.PreconditionFailure_Violation{{
-				Type:        ErrorUsernameUpdateCooldown.reason,
+				Type:        ErrorUsernameUpdateCooldown.Reason,
 				Subject:     fmt.Sprintf("profile:user_id:%s/username", userID),
 				Description: "username can be updated only once per 14 days",
 			}}},
@@ -141,18 +142,18 @@ func RaiseUsernameUpdateCooldown(cause error, userID uuid.UUID) error {
 	}
 }
 
-var ErrorSexIsNotValid = &Error{reason: ReasonSexIsNotValid, code: codes.InvalidArgument}
+var ErrorSexIsNotValid = &apperr.ErrorObject{Reason: ReasonSexIsNotValid, Code: codes.InvalidArgument}
 
 func RaiseSexIsNotValid(cause error) error {
-	return &Error{
-		code:    ErrorSexIsNotValid.code,
-		reason:  ErrorSexIsNotValid.reason,
-		message: cause.Error(),
-		cause:   cause,
-		details: []protoadapt.MessageV1{
+	return &apperr.ErrorObject{
+		Code:    ErrorSexIsNotValid.Code,
+		Reason:  ErrorSexIsNotValid.Reason,
+		Message: cause.Error(),
+		Cause:   cause,
+		Details: []protoadapt.MessageV1{
 			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
 				Field:       "sex",
-				Reason:      ErrorSexIsNotValid.reason,
+				Reason:      ErrorSexIsNotValid.Reason,
 				Description: "sex is not valid",
 			}}},
 		},

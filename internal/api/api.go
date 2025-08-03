@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/chains-lab/profiles-proto/gen/go/svc"
 	"github.com/chains-lab/profiles-svc/internal/api/interceptors"
 	"github.com/chains-lab/profiles-svc/internal/api/service"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/config"
 	"github.com/chains-lab/profiles-svc/internal/logger"
-	svc "github.com/chains-lab/proto-storage/gen/go/svc/profile"
 	"google.golang.org/grpc"
 )
 
@@ -26,8 +26,7 @@ func Run(ctx context.Context, cfg config.Config, log logger.Logger, app *app.App
 		),
 	)
 
-	svc.RegisterUserServiceServer(grpcServer, server)
-	svc.RegisterAdminServiceServer(grpcServer, server)
+	svc.RegisterProfilesServer(grpcServer, server)
 
 	lis, err := net.Listen("tcp", cfg.Server.Port)
 	if err != nil {

@@ -3,11 +3,11 @@ package service
 import (
 	"context"
 
+	"github.com/chains-lab/profiles-proto/gen/go/svc"
 	"github.com/chains-lab/profiles-svc/internal/api/interceptors"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/app/models"
 	"github.com/chains-lab/profiles-svc/internal/config"
-	svc "github.com/chains-lab/proto-storage/gen/go/svc/profile"
 	"github.com/google/uuid"
 )
 
@@ -29,8 +29,7 @@ type Service struct {
 	app App
 	cfg config.Config
 
-	svc.UserServiceServer
-	svc.AdminServiceServer
+	svc.ProfilesServer
 }
 
 func NewService(cfg config.Config, app *app.App) Service {

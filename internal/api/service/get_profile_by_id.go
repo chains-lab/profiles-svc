@@ -9,10 +9,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s Service) UpdateOfficialByAdmin(ctx context.Context, req *svc.UpdateOfficialByAdminRequest) (*svc.Profile, error) {
+func (s Service) GetProfileById(ctx context.Context, req *svc.GetProfileByIdRequest) (*svc.Profile, error) {
 	meta := Meta(ctx)
 
-	userID, err := uuid.Parse(req.UserId)
+	userID, err := uuid.Parse(req.GetUserId())
 	if err != nil {
 		logger.Log(ctx, meta.RequestID).WithError(err).Error("invalid user ID format")
 
@@ -22,15 +22,12 @@ func (s Service) UpdateOfficialByAdmin(ctx context.Context, req *svc.UpdateOffic
 		})
 	}
 
-	profile, err := s.app.AdminUpdateProfileOfficial(ctx, userID, req.Official)
-
+	profile, err := s.app.GetProfileByUserID(ctx, userID)
 	if err != nil {
-		logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to update field official in profile")
+		logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to get profile by user ID")
 
 		return nil, responses.AppError(ctx, meta.RequestID, err)
 	}
-
-	logger.Log(ctx, meta.RequestID).Infof("official status for user %s has been updated by admin %s", userID, meta.InitiatorID)
 
 	return responses.Profile(profile), nil
 }

@@ -10,6 +10,12 @@ github.com/chains-lab/apperr v0.0.4 h1:Ki8STqNZucyew9txQbbmWXVpt1L89vfg5WOALvWxD
 github.com/chains-lab/apperr v0.0.4/go.mod h1:xF7lQpv31V/9FyBcRTMewsbxvxzSi1uTmLJExERVx1o=
 github.com/chains-lab/gatekit v0.1.1 h1:ItVe+BYqI4baDOGIYbYRrCKK9NzTDV0Em87pUSNSY60=
 github.com/chains-lab/gatekit v0.1.1/go.mod h1:4Bm8BXPMR+HTnMg7uEPGA4nCLMA8xD+fYifuKkn766Q=
+github.com/chains-lab/profiles-proto v0.0.1 h1:4p31sEwoDG/6Jm5et0UtD2lSgv7uHslg/+VfBUbFkG8=
+github.com/chains-lab/profiles-proto v0.0.1/go.mod h1:AS8OcQR0vjjavAc6KDKMMjbLHgyxe465IbGvRxHi8Yo=
+github.com/chains-lab/profiles-proto v0.0.3 h1:Zeb4grnY7R4FinsUILSfrLVvIsQIoDCmPXTyosdUMcU=
+github.com/chains-lab/profiles-proto v0.0.3/go.mod h1:AS8OcQR0vjjavAc6KDKMMjbLHgyxe465IbGvRxHi8Yo=
+github.com/chains-lab/profiles-proto v0.0.5 h1:VOYjvkwy2mCY7WJxo6y+zTiCOsOuOSXbRCSpAqkmzvA=
+github.com/chains-lab/profiles-proto v0.0.5/go.mod h1:AS8OcQR0vjjavAc6KDKMMjbLHgyxe465IbGvRxHi8Yo=
 github.com/chains-lab/proto-storage v0.0.8 h1:gK7e51Fr1mykuD+A2Md/ist9lNTNmQwXki3VzwzUr54=
 github.com/chains-lab/proto-storage v0.0.8/go.mod h1:LRT/DzERSmdJL5HKzKAa8G+2ouFjwmRwaD0wpllY2FU=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

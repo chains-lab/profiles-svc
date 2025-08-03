@@ -6,14 +6,14 @@ import (
 	"time"
 
 	"github.com/chains-lab/gatekit/roles"
+	"github.com/chains-lab/profiles-proto/gen/go/svc"
 	"github.com/chains-lab/profiles-svc/internal/ape"
 	"github.com/chains-lab/profiles-svc/internal/api/responses"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/logger"
-	svc "github.com/chains-lab/proto-storage/gen/go/svc/profile"
 )
 
-func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfilrRequest) (*svc.Profile, error) {
+func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileRequest) (*svc.Profile, error) {
 	meta := Meta(ctx)
 
 	if meta.Role != roles.User {

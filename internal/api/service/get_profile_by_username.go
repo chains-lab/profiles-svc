@@ -6,15 +6,14 @@ import (
 	"github.com/chains-lab/profiles-proto/gen/go/svc"
 	"github.com/chains-lab/profiles-svc/internal/api/responses"
 	"github.com/chains-lab/profiles-svc/internal/logger"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (s Service) GetOwnProfile(ctx context.Context, _ *emptypb.Empty) (*svc.Profile, error) {
+func (s Service) GetProfileByUsername(ctx context.Context, req *svc.GetProfileByUsernameRequest) (*svc.Profile, error) {
 	meta := Meta(ctx)
 
-	profile, err := s.app.GetProfileByUserID(ctx, meta.InitiatorID)
+	profile, err := s.app.GetProfileByUsername(ctx, req.Username)
 	if err != nil {
-		logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to get profile by ID")
+		logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to get profile by username")
 
 		return nil, responses.AppError(ctx, meta.RequestID, err)
 	}

@@ -1,13 +1,13 @@
 module github.com/chains-lab/profiles-svc
 
-go 1.24.4
+go 1.24.5
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/chains-lab/apperr v0.0.4
 	github.com/chains-lab/gatekit v0.1.1
-	github.com/chains-lab/proto-storage v0.0.8
+	github.com/chains-lab/profiles-proto v0.0.5
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/pkg/errors v0.9.1

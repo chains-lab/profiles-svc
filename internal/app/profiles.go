@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chains-lab/profile-svc/internal/app/entities"
-	"github.com/chains-lab/profile-svc/internal/app/models"
+	"github.com/chains-lab/profiles-svc/internal/app/entities"
+	"github.com/chains-lab/profiles-svc/internal/app/models"
 	"github.com/google/uuid"
 )
 
@@ -70,7 +70,7 @@ func (a App) UpdateUsername(ctx context.Context, userID uuid.UUID, username stri
 }
 
 func (a App) ResetUsername(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
-	prof, err := a.GetProfileByUserID(ctx, userID)
+	_, err := a.GetProfileByUserID(ctx, userID)
 	if err != nil {
 		return models.Profile{}, err
 	}
@@ -99,7 +99,7 @@ func (a App) ResetUsername(ctx context.Context, userID uuid.UUID) (models.Profil
 		return models.Profile{}, err
 	}
 
-	return prof, nil
+	return a.GetProfileByUserID(ctx, userID)
 }
 
 type ResetUserProfileInput struct {

@@ -12,5 +12,4 @@ const (
 	ReasonUsernameAlreadyTaken   = "USERNAME_ALREADY_TAKEN"
 	ReasonUsernameIsNotValid     = "USERNAME_IS_NOT_VALID"
 	ReasonUsernameUpdateCooldown = "USERNAME_UPDATE_COOLDOWN"
-	ReasonSexIsNotValid          = "SEX_IS_NOT_VALID"
 )

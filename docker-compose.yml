@@ -1,7 +1,7 @@
 services:
   citizen-cab-svc:
     build: .
-    container_name: profile-svc
+    container_name: profiles-svc
     environment:
       - KV_VIPER_FILE=./config_docker.yaml
     ports:

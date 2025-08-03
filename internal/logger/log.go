@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/chains-lab/apperr"
-	"github.com/chains-lab/profile-svc/internal/api/interceptors"
+	"github.com/chains-lab/profiles-svc/internal/api/interceptors"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"

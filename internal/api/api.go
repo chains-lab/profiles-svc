@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/chains-lab/profile-svc/internal/api/interceptors"
-	"github.com/chains-lab/profile-svc/internal/api/service"
-	"github.com/chains-lab/profile-svc/internal/app"
-	"github.com/chains-lab/profile-svc/internal/config"
-	"github.com/chains-lab/profile-svc/internal/logger"
+	"github.com/chains-lab/profiles-svc/internal/api/interceptors"
+	"github.com/chains-lab/profiles-svc/internal/api/service"
+	"github.com/chains-lab/profiles-svc/internal/app"
+	"github.com/chains-lab/profiles-svc/internal/config"
+	"github.com/chains-lab/profiles-svc/internal/logger"
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/profile"
 	"google.golang.org/grpc"
 )

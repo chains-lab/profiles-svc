@@ -1,5 +1,5 @@
 server:
-  name: "profile-svc"
+  name: "profiles-svc"
   port: ":8002"
 
 logger:

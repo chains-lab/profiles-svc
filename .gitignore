@@ -3,7 +3,7 @@ vendor
 node_modules
 
 main
-cmd/profile-svc/m ain
+cmd/profiles-svc/m ain
 
 config_local.yaml
 config_docker.yaml

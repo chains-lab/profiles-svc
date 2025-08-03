@@ -3,7 +3,7 @@ package config
 import (
 	"strings"
 
-	"github.com/chains-lab/profile-svc/internal/logger"
+	"github.com/chains-lab/profiles-svc/internal/logger"
 	"github.com/sirupsen/logrus"
 )
 

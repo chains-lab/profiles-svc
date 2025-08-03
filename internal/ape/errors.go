@@ -10,7 +10,7 @@ import (
 	"google.golang.org/protobuf/protoadapt"
 )
 
-const ServiceName = "profile-svc"
+const ServiceName = "profiles-svc"
 
 var ErrorInternal = &apperr.ErrorObject{Reason: ReasonInternal, Code: codes.Internal}
 
@@ -57,20 +57,22 @@ func RaiseProfileForUserNotFoundByUsername(cause error, username string) error {
 	}
 }
 
+// TODO idk its error is useless, maybe I should remove it
+
 var ErrorProfileForUserAlreadyExists = &apperr.ErrorObject{Reason: ReasonProfileForUserAlreadyExists, Code: codes.AlreadyExists}
 
 func RaiseProfileForUserAlreadyExists(cause error, userID uuid.UUID) error {
 	return &apperr.ErrorObject{
 		Code:    ErrorProfileForUserAlreadyExists.Code,
 		Reason:  ErrorProfileForUserAlreadyExists.Reason,
-		Message: fmt.Sprintf("cabinet for user with user_id: %s already exists", userID),
+		Message: fmt.Sprintf("profile for user with user_id: %s already exists", userID),
 		Cause:   cause,
 		Details: []protoadapt.MessageV1{
 			&errdetails.ResourceInfo{
 				ResourceType: "profile",
 				ResourceName: fmt.Sprintf("profile:user_id:%s", userID),
 				Owner:        fmt.Sprintf("user:id:%s", userID),
-				Description:  fmt.Sprintf("cabinet for user with user_id: %s already exists", userID),
+				Description:  fmt.Sprintf("profile for user with user_id: %s already exists", userID),
 			},
 		},
 	}
@@ -78,11 +80,11 @@ func RaiseProfileForUserAlreadyExists(cause error, userID uuid.UUID) error {
 
 var ErrorOnlyUserCanHaveProfile = &apperr.ErrorObject{Reason: ReasonOnlyUserCanHaveProfile, Code: codes.PermissionDenied}
 
-func RaiseOnlyUserCanHaveCabinetAndProfile(cause error) error {
+func RaiseOnlyUserCanHaveProfile(cause error) error {
 	return &apperr.ErrorObject{
 		Code:    ErrorOnlyUserCanHaveProfile.Code,
 		Reason:  ErrorOnlyUserCanHaveProfile.Reason,
-		Message: "only users with role user can have a profile and cabinet",
+		Message: "only users with role user can have a profile",
 		Cause:   cause,
 	}
 }
@@ -137,24 +139,6 @@ func RaiseUsernameUpdateCooldown(cause error, userID uuid.UUID) error {
 				Type:        ErrorUsernameUpdateCooldown.Reason,
 				Subject:     fmt.Sprintf("profile:user_id:%s/username", userID),
 				Description: "username can be updated only once per 14 days",
-			}}},
-		},
-	}
-}
-
-var ErrorSexIsNotValid = &apperr.ErrorObject{Reason: ReasonSexIsNotValid, Code: codes.InvalidArgument}
-
-func RaiseSexIsNotValid(cause error) error {
-	return &apperr.ErrorObject{
-		Code:    ErrorSexIsNotValid.Code,
-		Reason:  ErrorSexIsNotValid.Reason,
-		Message: cause.Error(),
-		Cause:   cause,
-		Details: []protoadapt.MessageV1{
-			&errdetails.BadRequest{FieldViolations: []*errdetails.BadRequest_FieldViolation{{
-				Field:       "sex",
-				Reason:      ErrorSexIsNotValid.Reason,
-				Description: "sex is not valid",
 			}}},
 		},
 	}

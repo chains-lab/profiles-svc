@@ -3,10 +3,10 @@ package cli
 import (
 	"context"
 
-	"github.com/chains-lab/profile-svc/internal/api"
-	"github.com/chains-lab/profile-svc/internal/app"
-	"github.com/chains-lab/profile-svc/internal/config"
-	"github.com/chains-lab/profile-svc/internal/logger"
+	"github.com/chains-lab/profiles-svc/internal/api"
+	"github.com/chains-lab/profiles-svc/internal/app"
+	"github.com/chains-lab/profiles-svc/internal/config"
+	"github.com/chains-lab/profiles-svc/internal/logger"
 	"golang.org/x/sync/errgroup"
 )
 

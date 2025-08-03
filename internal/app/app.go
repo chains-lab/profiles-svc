@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/chains-lab/profile-svc/internal/app/entities"
-	"github.com/chains-lab/profile-svc/internal/config"
-	"github.com/chains-lab/profile-svc/internal/dbx"
+	"github.com/chains-lab/profiles-svc/internal/app/entities"
+	"github.com/chains-lab/profiles-svc/internal/config"
+	"github.com/chains-lab/profiles-svc/internal/dbx"
 )
 
 type App struct {

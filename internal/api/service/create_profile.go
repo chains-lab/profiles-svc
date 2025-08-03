@@ -6,10 +6,10 @@ import (
 	"time"
 
 	"github.com/chains-lab/gatekit/roles"
-	"github.com/chains-lab/profile-svc/internal/ape"
-	"github.com/chains-lab/profile-svc/internal/api/responses"
-	"github.com/chains-lab/profile-svc/internal/app"
-	"github.com/chains-lab/profile-svc/internal/logger"
+	"github.com/chains-lab/profiles-svc/internal/ape"
+	"github.com/chains-lab/profiles-svc/internal/api/responses"
+	"github.com/chains-lab/profiles-svc/internal/app"
+	"github.com/chains-lab/profiles-svc/internal/logger"
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/profile"
 )
 
@@ -18,12 +18,12 @@ func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfilrReq
 
 	if meta.Role != roles.User {
 		logger.Log(ctx, meta.RequestID).Warnf(fmt.Sprintf(
-			"user %s with role %s tried to create a cabinet, but only users can create profiles and cabinets",
+			"user %s with role %s tried to create a profile, but only users can create profile",
 			meta.InitiatorID, meta.Role),
 		)
 
-		return nil, responses.AppError(ctx, meta.RequestID, ape.RaiseOnlyUserCanHaveCabinetAndProfile(
-			fmt.Errorf("user %s with role %s tried to create a profile and cabinet", meta.InitiatorID, meta.Role)),
+		return nil, responses.AppError(ctx, meta.RequestID, ape.RaiseOnlyUserCanHaveProfile(
+			fmt.Errorf("user %s with role %s tried to create a profile", meta.InitiatorID, meta.Role)),
 		)
 	}
 
@@ -49,12 +49,12 @@ func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfilrReq
 
 	profile, err := s.app.CreateProfile(ctx, meta.InitiatorID, input)
 	if err != nil {
-		logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to create profile and cabinet")
+		logger.Log(ctx, meta.RequestID).WithError(err).Error("failed to create profile")
 
 		return nil, responses.AppError(ctx, meta.RequestID, err)
 	}
 
-	logger.Log(ctx, meta.RequestID).Infof("created profile and cabinet for user %s", meta.InitiatorID)
+	logger.Log(ctx, meta.RequestID).Infof("created profile for user %s", meta.InitiatorID)
 
 	return responses.Profile(profile), nil
 }

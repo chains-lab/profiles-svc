@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 
-	"github.com/chains-lab/profile-svc/internal/api/interceptors"
-	"github.com/chains-lab/profile-svc/internal/app"
-	"github.com/chains-lab/profile-svc/internal/app/models"
-	"github.com/chains-lab/profile-svc/internal/config"
+	"github.com/chains-lab/profiles-svc/internal/api/interceptors"
+	"github.com/chains-lab/profiles-svc/internal/app"
+	"github.com/chains-lab/profiles-svc/internal/app/models"
+	"github.com/chains-lab/profiles-svc/internal/config"
 	svc "github.com/chains-lab/proto-storage/gen/go/svc/profile"
 	"github.com/google/uuid"
 )

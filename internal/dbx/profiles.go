@@ -94,8 +94,9 @@ type UpdateProfileInput struct {
 }
 
 func (q ProfilesQ) Update(ctx context.Context, input UpdateProfileInput) error {
-	updates := make(map[string]interface{})
-
+	updates := map[string]interface{}{
+		"updated_at": input.UpdatedAt,
+	}
 	if input.Username != nil {
 		updates["username"] = *input.Username
 	}

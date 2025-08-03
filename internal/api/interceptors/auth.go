@@ -6,7 +6,7 @@ import (
 
 	"github.com/chains-lab/gatekit/auth"
 	"github.com/chains-lab/gatekit/roles"
-	"github.com/chains-lab/profile-svc/internal/api/responses"
+	"github.com/chains-lab/profiles-svc/internal/api/responses"
 	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"

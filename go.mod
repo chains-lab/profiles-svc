@@ -1,4 +1,4 @@
-module github.com/chains-lab/profile-svc
+module github.com/chains-lab/profiles-svc
 
 go 1.24.4
 

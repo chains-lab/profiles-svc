@@ -29,7 +29,8 @@ func NewApp(cfg config.Config) (App, error) {
 
 	return App{
 		profiles: profiles,
-		db:       pg,
+
+		db: pg,
 	}, nil
 }
 

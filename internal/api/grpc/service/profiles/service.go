@@ -1,10 +1,9 @@
-package service
+package profiles
 
 import (
 	"context"
 
-	"github.com/chains-lab/profiles-proto/gen/go/svc"
-	"github.com/chains-lab/profiles-svc/internal/api/interceptors"
+	profilesProto "github.com/chains-lab/profiles-proto/gen/go/profile"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/app/models"
 	"github.com/chains-lab/profiles-svc/internal/config"
@@ -29,7 +28,7 @@ type Service struct {
 	app App
 	cfg config.Config
 
-	svc.ProfilesServer
+	profilesProto.UnimplementedProfilesServer
 }
 
 func NewService(cfg config.Config, app *app.App) Service {
@@ -37,12 +36,4 @@ func NewService(cfg config.Config, app *app.App) Service {
 		app: app,
 		cfg: cfg,
 	}
-}
-
-func Meta(ctx context.Context) interceptors.MetaData {
-	md, ok := ctx.Value(interceptors.MetaCtxKey).(interceptors.MetaData)
-	if !ok {
-		return interceptors.MetaData{}
-	}
-	return md
 }

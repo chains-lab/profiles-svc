@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/chains-lab/profiles-proto/gen/go/svc"
-	"github.com/chains-lab/profiles-svc/internal/api/interceptors"
-	"github.com/chains-lab/profiles-svc/internal/api/service"
+	profilesProto "github.com/chains-lab/profiles-proto/gen/go/profile"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/interceptor"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/service/profiles"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/config"
 	"github.com/chains-lab/profiles-svc/internal/logger"
@@ -15,8 +15,8 @@ import (
 )
 
 func Run(ctx context.Context, cfg config.Config, log logger.Logger, app *app.App) error {
-	server := service.NewService(cfg, app)
-	authInterceptor := interceptors.NewAuth(cfg.JWT.Service.SecretKey, cfg.JWT.User.AccessToken.SecretKey)
+	server := profiles.NewService(cfg, app)
+	authInterceptor := interceptor.Auth(cfg.JWT.Service.SecretKey)
 	logInterceptor := logger.UnaryLogInterceptor(log)
 
 	grpcServer := grpc.NewServer(
@@ -26,7 +26,7 @@ func Run(ctx context.Context, cfg config.Config, log logger.Logger, app *app.App
 		),
 	)
 
-	svc.RegisterProfilesServer(grpcServer, server)
+	profilesProto.RegisterProfilesServer(grpcServer, server)
 
 	lis, err := net.Listen("tcp", cfg.Server.Port)
 	if err != nil {

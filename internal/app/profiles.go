@@ -130,13 +130,8 @@ func (a App) ResetUserProfile(ctx context.Context, userID uuid.UUID, input Reset
 	if err := a.profiles.Update(ctx, userID, dmInput); err != nil {
 		return models.Profile{}, err
 	}
-
-	res, err := a.GetProfileByUserID(ctx, userID)
-	if err != nil {
-		return models.Profile{}, err
-	}
-
-	return res, nil
+	
+	return a.GetProfileByUserID(ctx, userID)
 }
 
 type CreateProfileInput struct {

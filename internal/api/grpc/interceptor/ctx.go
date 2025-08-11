@@ -1,8 +1,8 @@
-package interceptors
+package interceptor
 
 type ctxKey int
 
 const (
 	LogCtxKey ctxKey = iota
-	MetaCtxKey
+	RequestIDCtxKey
 )

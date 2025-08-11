@@ -1,17 +1,17 @@
-package responses
+package response
 
 import (
-	"github.com/chains-lab/profiles-proto/gen/go/svc"
+	profilesProto "github.com/chains-lab/profiles-proto/gen/go/profile"
 	"github.com/chains-lab/profiles-svc/internal/app/models"
 )
 
-func Profile(model models.Profile) *svc.Profile {
+func Profile(model models.Profile) *profilesProto.Profile {
 	var birthdate string
 	if model.BirthDate != nil {
 		birthdate = model.BirthDate.String()
 	}
 
-	return &svc.Profile{
+	return &profilesProto.Profile{
 		UserId:      model.UserID.String(),
 		Username:    model.Username,
 		Pseudonym:   model.Pseudonym,

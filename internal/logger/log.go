@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/chains-lab/apperr"
-	"github.com/chains-lab/profiles-svc/internal/api/interceptors"
-	"github.com/google/uuid"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/interceptor"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/meta"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 )
@@ -22,7 +22,7 @@ func UnaryLogInterceptor(log Logger) grpc.UnaryServerInterceptor {
 		// чтобы не потерять таймауты и другую информацию.
 		ctxWithLog := context.WithValue(
 			ctx,
-			interceptors.LogCtxKey,
+			interceptor.LogCtxKey,
 			log, // ваш интерфейс Logger
 		)
 
@@ -31,13 +31,16 @@ func UnaryLogInterceptor(log Logger) grpc.UnaryServerInterceptor {
 	}
 }
 
-func Log(ctx context.Context, requestID uuid.UUID) Logger {
-	entry, ok := ctx.Value(interceptors.LogCtxKey).(Logger)
+func Log(ctx context.Context) Logger {
+	entry, ok := ctx.Value(interceptor.LogCtxKey).(Logger)
 	if !ok {
 		logrus.Info("no logger in context")
 
 		entry = NewWithBase(logrus.New())
 	}
+
+	requestID := meta.RequestID(ctx)
+
 	return &logger{Entry: entry.WithField("request_id", requestID)}
 }
 

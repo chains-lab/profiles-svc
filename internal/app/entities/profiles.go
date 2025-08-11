@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chains-lab/profiles-svc/internal/ape"
 	"github.com/chains-lab/profiles-svc/internal/app/domain"
 	"github.com/chains-lab/profiles-svc/internal/app/models"
 	"github.com/chains-lab/profiles-svc/internal/dbx"
+	"github.com/chains-lab/profiles-svc/internal/errx"
 	"github.com/google/uuid"
 )
 
@@ -51,19 +51,19 @@ type CreateProfileInput struct {
 
 func (p Profiles) Create(ctx context.Context, userID uuid.UUID, input CreateProfileInput) error {
 	_, err := p.GetByID(ctx, userID)
-	if !errors.Is(err, ape.ErrorProfileForUserDoesNotExist) {
+	if !errors.Is(err, errx.ErrorProfileForUserDoesNotExist) {
 		return err
 	}
 
 	_, err = p.GetByUsername(ctx, input.Username)
-	if !errors.Is(err, ape.ErrorProfileForUserDoesNotExist) {
+	if !errors.Is(err, errx.ErrorProfileForUserDoesNotExist) {
 		if err == nil {
-			return ape.RaiseUsernameAlreadyTaken(err, input.Username)
+			return errx.RaiseUsernameAlreadyTaken(ctx, err, input.Username)
 		}
 	}
 
-	if err := domain.ValidateUsername(input.Username); err != nil {
-		return ape.RaiseInternal(err)
+	if err = domain.ValidateUsername(input.Username); err != nil {
+		return errx.RaiseInternal(ctx, err)
 	}
 
 	createdAt := time.Now().UTC()
@@ -82,7 +82,7 @@ func (p Profiles) Create(ctx context.Context, userID uuid.UUID, input CreateProf
 		CreatedAt:         createdAt,
 	})
 	if err != nil {
-		return ape.RaiseInternal(err)
+		return errx.RaiseInternal(ctx, err)
 	}
 
 	return nil
@@ -101,7 +101,7 @@ func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProf
 	if input.Sex != nil {
 		//TODO: Validate sex value
 		//if err != nil {
-		//	return ape.RaiseSexIsNotValid(err)
+		//	return errx.RaiseSexIsNotValid(err)
 		//}
 	}
 
@@ -117,9 +117,9 @@ func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProf
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserNotFound(err, userID)
+			return errx.RaiseProfileForUserNotFound(ctx, err, userID)
 		}
-		return ape.RaiseInternal(err)
+		return errx.RaiseInternal(ctx, err)
 	}
 
 	return nil
@@ -127,7 +127,7 @@ func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProf
 
 func (p Profiles) UpdateUsername(ctx context.Context, userID uuid.UUID, username string) error {
 	if err := domain.ValidateUsername(username); err != nil {
-		return ape.RaiseUsernameIsNotValid(err)
+		return errx.RaiseUsernameIsNotValid(ctx, err)
 	}
 
 	now := time.Now().UTC()
@@ -139,18 +139,19 @@ func (p Profiles) UpdateUsername(ctx context.Context, userID uuid.UUID, username
 
 	elapsed := now.Sub(profile.UsernameUpdatedAt)
 	if elapsed < 14*24*time.Hour {
-		return ape.RaiseUsernameUpdateCooldown(
+		return errx.RaiseUsernameUpdateCooldown(
+			ctx,
 			fmt.Errorf("username was updated %.0f hours ago", elapsed.Hours()),
 			profile.UserID,
 		)
 	}
 
 	_, err = p.GetByUsername(ctx, username)
-	if !errors.Is(err, ape.ErrorProfileForUserDoesNotExist) {
+	if !errors.Is(err, errx.ErrorProfileForUserDoesNotExist) {
 		return err
 	}
 	if err == nil {
-		return ape.RaiseUsernameAlreadyTaken(err, username)
+		return errx.RaiseUsernameAlreadyTaken(ctx, err, username)
 	}
 
 	if profile.Username == username {
@@ -165,9 +166,9 @@ func (p Profiles) UpdateUsername(ctx context.Context, userID uuid.UUID, username
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return ape.RaiseProfileForUserNotFound(err, userID)
+			return errx.RaiseProfileForUserNotFound(ctx, err, userID)
 		default:
-			return ape.RaiseInternal(err)
+			return errx.RaiseInternal(ctx, err)
 		}
 	}
 
@@ -179,9 +180,9 @@ func (p Profiles) GetByID(ctx context.Context, userID uuid.UUID) (models.Profile
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Profile{}, ape.RaiseProfileForUserNotFound(err, userID)
+			return models.Profile{}, errx.RaiseProfileForUserNotFound(ctx, err, userID)
 		default:
-			return models.Profile{}, ape.RaiseInternal(err)
+			return models.Profile{}, errx.RaiseInternal(ctx, err)
 		}
 	}
 
@@ -193,9 +194,9 @@ func (p Profiles) GetByUsername(ctx context.Context, username string) (models.Pr
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Profile{}, ape.RaiseProfileForUserNotFoundByUsername(err, username)
+			return models.Profile{}, errx.RaiseProfileForUserNotFoundByUsername(ctx, err, username)
 		default:
-			return models.Profile{}, ape.RaiseInternal(err)
+			return models.Profile{}, errx.RaiseInternal(ctx, err)
 		}
 	}
 

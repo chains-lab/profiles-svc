@@ -13,7 +13,7 @@ import (
 )
 
 func (s Service) ResetUsernameByAdmin(ctx context.Context, req *svc.ResetUsernameByAdminRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset profile",
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset username by admin",
 		roles.Moder, roles.Admin, roles.SuperUser)
 	if err != nil {
 		return nil, err

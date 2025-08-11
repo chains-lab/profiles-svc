@@ -14,7 +14,7 @@ import (
 )
 
 func (s Service) ResetProfileByAdmin(ctx context.Context, req *svc.ResetProfileByAdminRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset profile",
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset profile by admin",
 		roles.Moder, roles.Admin, roles.SuperUser)
 	if err != nil {
 		return nil, err

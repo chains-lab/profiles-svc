@@ -10,7 +10,7 @@ import (
 )
 
 func (s Service) UpdateOwnUsername(ctx context.Context, req *svc.UpdateOwnUsernameRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset profile", roles.User)
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "update own username", roles.User)
 
 	profile, err := s.app.UpdateUsername(ctx, initiatorID, req.Username)
 	if err != nil {

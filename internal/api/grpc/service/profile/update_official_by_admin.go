@@ -13,7 +13,7 @@ import (
 )
 
 func (s Service) UpdateOfficialByAdmin(ctx context.Context, req *svc.UpdateOfficialByAdminRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset profile",
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "update official status by admin",
 		roles.Moder, roles.Admin, roles.SuperUser)
 
 	userID, err := uuid.Parse(req.UserId)

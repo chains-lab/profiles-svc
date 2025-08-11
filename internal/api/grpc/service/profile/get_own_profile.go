@@ -10,7 +10,7 @@ import (
 )
 
 func (s Service) GetOwnProfile(ctx context.Context, req *svc.GetOwnProfileRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "create profile", roles.User)
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "gtt own profile", roles.User)
 	if err != nil {
 		return nil, err
 	}

@@ -14,7 +14,7 @@ import (
 )
 
 func (s Service) UpdateOwnProfile(ctx context.Context, req *svc.UpdateOwnProfileRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset profile", roles.User)
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "update own profile", roles.User)
 	input := app.UpdateProfileInput{
 		Pseudonym:   req.Pseudonym,
 		Description: req.Description,

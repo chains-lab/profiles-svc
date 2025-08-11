@@ -5,13 +5,13 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/chains-lab/profiles-svc/internal/app/entities"
+	"github.com/chains-lab/profiles-svc/internal/app/entity"
 	"github.com/chains-lab/profiles-svc/internal/config"
 	"github.com/chains-lab/profiles-svc/internal/dbx"
 )
 
 type App struct {
-	profiles entities.Profiles
+	profiles entity.Profiles
 
 	db *sql.DB
 }
@@ -22,7 +22,7 @@ func NewApp(cfg config.Config) (App, error) {
 		return App{}, err
 	}
 
-	profiles, err := entities.NewProfile(pg)
+	profiles, err := entity.NewProfile(pg)
 	if err != nil {
 		return App{}, err
 	}

@@ -1,4 +1,4 @@
-package profiles
+package profile
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/chains-lab/gatekit/roles"
 	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
-	"github.com/chains-lab/profiles-svc/internal/api/grpc/problems"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -21,7 +21,7 @@ func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileReq
 	if err != nil {
 		logger.Log(ctx).WithError(err).Error("failed to parse initiator ID")
 
-		return nil, problems.UnauthenticatedError(ctx, "invalid initiator ID format")
+		return nil, problem.UnauthenticatedError(ctx, "invalid initiator ID format")
 	}
 
 	if req.Initiator.Role != roles.User {
@@ -30,7 +30,7 @@ func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileReq
 			req.Initiator.UserId, req.Initiator.Role),
 		)
 
-		return nil, problems.PermissionDeniedError(ctx, "only common users can create profile")
+		return nil, problem.PermissionDeniedError(ctx, "only common users can create profile")
 	}
 
 	input := app.CreateProfileInput{
@@ -45,7 +45,7 @@ func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileReq
 		if err != nil {
 			logger.Log(ctx).WithError(err).Error("invalid birth date format")
 
-			return nil, problems.InvalidArgumentError(ctx, "birthdate is invalid format", &errdetails.BadRequest_FieldViolation{
+			return nil, problem.InvalidArgumentError(ctx, "birthdate is invalid format", &errdetails.BadRequest_FieldViolation{
 				Field:       "birth_date",
 				Description: "invalid date format, expected RFC3339",
 			})

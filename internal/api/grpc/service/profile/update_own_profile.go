@@ -1,11 +1,11 @@
-package profiles
+package profile
 
 import (
 	"context"
 	"time"
 
 	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
-	"github.com/chains-lab/profiles-svc/internal/api/grpc/problems"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/logger"
@@ -18,7 +18,7 @@ func (s Service) UpdateOwnProfile(ctx context.Context, req *svc.UpdateOwnProfile
 	if err != nil {
 		logger.Log(ctx).WithError(err).Error("failed to parse initiator ID")
 
-		return nil, problems.UnauthenticatedError(ctx, "invalid initiator ID format")
+		return nil, problem.UnauthenticatedError(ctx, "invalid initiator ID format")
 	}
 
 	input := app.UpdateProfileInput{
@@ -33,7 +33,7 @@ func (s Service) UpdateOwnProfile(ctx context.Context, req *svc.UpdateOwnProfile
 		if err != nil {
 			logger.Log(ctx).WithError(err).Error("invalid birth date format")
 
-			return nil, problems.InvalidArgumentError(ctx, "invalid ", &errdetails.BadRequest_FieldViolation{
+			return nil, problem.InvalidArgumentError(ctx, "invalid ", &errdetails.BadRequest_FieldViolation{
 				Field:       "birth_date",
 				Description: "invalid date format, expected RFC3339",
 			})

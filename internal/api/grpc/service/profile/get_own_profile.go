@@ -1,10 +1,10 @@
-package profiles
+package profile
 
 import (
 	"context"
 
 	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
-	"github.com/chains-lab/profiles-svc/internal/api/grpc/problems"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/chains-lab/profiles-svc/internal/logger"
 	"github.com/google/uuid"
@@ -15,7 +15,7 @@ func (s Service) GetOwnProfile(ctx context.Context, req *svc.GetOwnProfileReques
 	if err != nil {
 		logger.Log(ctx).WithError(err).Error("failed to parse initiator ID")
 
-		return nil, problems.UnauthenticatedError(ctx, "invalid initiator ID format")
+		return nil, problem.UnauthenticatedError(ctx, "invalid initiator ID format")
 	}
 
 	profile, err := s.app.GetProfileByUserID(ctx, initiatorID)

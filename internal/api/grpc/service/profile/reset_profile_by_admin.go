@@ -1,11 +1,11 @@
-package profiles
+package profile
 
 import (
 	"context"
 
 	"github.com/chains-lab/gatekit/roles"
 	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
-	"github.com/chains-lab/profiles-svc/internal/api/grpc/problems"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/logger"
@@ -17,30 +17,30 @@ func (s Service) ResetProfileByAdmin(ctx context.Context, req *svc.ResetProfileB
 	if req.Initiator.Role == roles.Admin || req.Initiator.Role == roles.SuperUser {
 		logger.Log(ctx).Error("unauthorized access")
 
-		return nil, problems.PermissionDeniedError(ctx, "only admins roles can reset profile")
+		return nil, problem.PermissionDeniedError(ctx, "only admins roles can reset profile")
 	}
 
 	initiatorID, err := uuid.Parse(req.Initiator.UserId)
 	if err != nil {
 		logger.Log(ctx).WithError(err).Error("failed to parse initiator ID")
 
-		return nil, problems.UnauthenticatedError(ctx, "invalid initiator ID format")
+		return nil, problem.UnauthenticatedError(ctx, "invalid initiator ID format")
 	}
 
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		logger.Log(ctx).WithError(err).Error("invalid user ID format")
 
-		return nil, problems.InvalidArgumentError(ctx, "invalid user id format", &errdetails.BadRequest_FieldViolation{
+		return nil, problem.InvalidArgumentError(ctx, "invalid user id format", &errdetails.BadRequest_FieldViolation{
 			Field:       "user_id",
 			Description: "invalid UUID format for user ID",
 		})
 	}
 
 	profile, err := s.app.ResetUserProfile(ctx, userID, app.ResetUserProfileInput{
-		Pseudonym:   *req.Pseudonym,
-		Description: *req.Description,
-		Avatar:      *req.Avatar,
+		Pseudonym:   req.Pseudonym,
+		Description: req.Description,
+		Avatar:      req.Avatar,
 	})
 	if err != nil {
 		logger.Log(ctx).WithError(err).Error("failed to reset profile")

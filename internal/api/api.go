@@ -7,7 +7,7 @@ import (
 
 	profilesProto "github.com/chains-lab/profiles-proto/gen/go/profile"
 	"github.com/chains-lab/profiles-svc/internal/api/grpc/interceptor"
-	"github.com/chains-lab/profiles-svc/internal/api/grpc/service/profiles"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/service/profile"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/config"
 	"github.com/chains-lab/profiles-svc/internal/logger"
@@ -15,7 +15,7 @@ import (
 )
 
 func Run(ctx context.Context, cfg config.Config, log logger.Logger, app *app.App) error {
-	server := profiles.NewService(cfg, app)
+	server := profile.NewService(cfg, app)
 	authInterceptor := interceptor.Auth(cfg.JWT.Service.SecretKey)
 	logInterceptor := logger.UnaryLogInterceptor(log)
 

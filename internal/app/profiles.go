@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chains-lab/profiles-svc/internal/app/entities"
+	"github.com/chains-lab/profiles-svc/internal/app/entity"
 	"github.com/chains-lab/profiles-svc/internal/app/models"
 	"github.com/google/uuid"
 )
@@ -28,7 +28,7 @@ type UpdateProfileInput struct {
 }
 
 func (a App) UpdateProfile(ctx context.Context, userID uuid.UUID, profile UpdateProfileInput) (models.Profile, error) {
-	err := a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
+	err := a.profiles.Update(ctx, userID, entity.UpdateProfileInput{
 		Pseudonym:   profile.Pseudonym,
 		Description: profile.Description,
 		Avatar:      profile.Avatar,
@@ -52,7 +52,7 @@ func (a App) AdminUpdateProfileOfficial(ctx context.Context, userID uuid.UUID, o
 		return prof, nil
 	}
 
-	if err = a.profiles.Update(ctx, userID, entities.UpdateProfileInput{
+	if err = a.profiles.Update(ctx, userID, entity.UpdateProfileInput{
 		Official: &official,
 	}); err != nil {
 		return models.Profile{}, err
@@ -116,7 +116,7 @@ func (a App) ResetUserProfile(ctx context.Context, userID uuid.UUID, input Reset
 
 	empty := ""
 
-	dmInput := entities.UpdateProfileInput{}
+	dmInput := entity.UpdateProfileInput{}
 	if input.Pseudonym {
 		dmInput.Pseudonym = &empty
 	}
@@ -130,7 +130,7 @@ func (a App) ResetUserProfile(ctx context.Context, userID uuid.UUID, input Reset
 	if err := a.profiles.Update(ctx, userID, dmInput); err != nil {
 		return models.Profile{}, err
 	}
-	
+
 	return a.GetProfileByUserID(ctx, userID)
 }
 
@@ -144,7 +144,7 @@ type CreateProfileInput struct {
 }
 
 func (a App) CreateProfile(ctx context.Context, userID uuid.UUID, input CreateProfileInput) (models.Profile, error) {
-	err := a.profiles.Create(ctx, userID, entities.CreateProfileInput{
+	err := a.profiles.Create(ctx, userID, entity.CreateProfileInput{
 		Username:    input.Username,
 		Pseudonym:   input.Pseudonym,
 		Description: input.Description,

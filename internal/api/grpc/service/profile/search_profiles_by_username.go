@@ -9,5 +9,5 @@ import (
 )
 
 func (s Service) SearchProfilesByUsername(ctx context.Context, req *svc.SearchProfilesByUsernameRequest) (*svc.ProfilesList, error) {
-	return nil, status.New(codes.Internal, "not implemented").Err()
+	return nil, status.New(codes.Internal, "not this methods is not implemented").Err()
 }

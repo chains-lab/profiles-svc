@@ -2,14 +2,12 @@ package profile
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/chains-lab/gatekit/roles"
 	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
 	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
-	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 
 	"github.com/chains-lab/profiles-svc/internal/app"
@@ -17,20 +15,9 @@ import (
 )
 
 func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileRequest) (*svc.Profile, error) {
-	initiatorID, err := uuid.Parse(req.Initiator.UserId)
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "create profile", roles.User)
 	if err != nil {
-		logger.Log(ctx).WithError(err).Error("failed to parse initiator ID")
-
-		return nil, problem.UnauthenticatedError(ctx, "invalid initiator ID format")
-	}
-
-	if req.Initiator.Role != roles.User {
-		logger.Log(ctx).Warnf(fmt.Sprintf(
-			"user %s with role %s tried to create a profile, but only users can create profile",
-			req.Initiator.UserId, req.Initiator.Role),
-		)
-
-		return nil, problem.PermissionDeniedError(ctx, "only common users can create profile")
+		return nil, err
 	}
 
 	input := app.CreateProfileInput{

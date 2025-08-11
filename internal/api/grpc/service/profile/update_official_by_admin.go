@@ -13,18 +13,8 @@ import (
 )
 
 func (s Service) UpdateOfficialByAdmin(ctx context.Context, req *svc.UpdateOfficialByAdminRequest) (*svc.Profile, error) {
-	if req.Initiator.Role == roles.Admin || req.Initiator.Role == roles.SuperUser {
-		logger.Log(ctx).Error("unauthorized access")
-
-		return nil, problem.PermissionDeniedError(ctx, "only admins roles can reset profile")
-	}
-
-	initiatorID, err := uuid.Parse(req.Initiator.UserId)
-	if err != nil {
-		logger.Log(ctx).WithError(err).Error("failed to parse initiator ID")
-
-		return nil, problem.UnauthenticatedError(ctx, "invalid initiator ID format")
-	}
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset profile",
+		roles.Moder, roles.Admin, roles.SuperUser)
 
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {

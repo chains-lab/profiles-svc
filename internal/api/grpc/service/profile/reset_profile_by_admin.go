@@ -14,17 +14,10 @@ import (
 )
 
 func (s Service) ResetProfileByAdmin(ctx context.Context, req *svc.ResetProfileByAdminRequest) (*svc.Profile, error) {
-	if req.Initiator.Role == roles.Admin || req.Initiator.Role == roles.SuperUser {
-		logger.Log(ctx).Error("unauthorized access")
-
-		return nil, problem.PermissionDeniedError(ctx, "only admins roles can reset profile")
-	}
-
-	initiatorID, err := uuid.Parse(req.Initiator.UserId)
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset profile",
+		roles.Moder, roles.Admin, roles.SuperUser)
 	if err != nil {
-		logger.Log(ctx).WithError(err).Error("failed to parse initiator ID")
-
-		return nil, problem.UnauthenticatedError(ctx, "invalid initiator ID format")
+		return nil, err
 	}
 
 	userID, err := uuid.Parse(req.UserId)

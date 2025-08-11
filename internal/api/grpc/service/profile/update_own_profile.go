@@ -4,23 +4,17 @@ import (
 	"context"
 	"time"
 
+	"github.com/chains-lab/gatekit/roles"
 	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
 	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/logger"
-	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 )
 
 func (s Service) UpdateOwnProfile(ctx context.Context, req *svc.UpdateOwnProfileRequest) (*svc.Profile, error) {
-	initiatorID, err := uuid.Parse(req.Initiator.UserId)
-	if err != nil {
-		logger.Log(ctx).WithError(err).Error("failed to parse initiator ID")
-
-		return nil, problem.UnauthenticatedError(ctx, "invalid initiator ID format")
-	}
-
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset profile", roles.User)
 	input := app.UpdateProfileInput{
 		Pseudonym:   req.Pseudonym,
 		Description: req.Description,

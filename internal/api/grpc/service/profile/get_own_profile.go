@@ -3,19 +3,16 @@ package profile
 import (
 	"context"
 
+	"github.com/chains-lab/gatekit/roles"
 	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
-	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/chains-lab/profiles-svc/internal/logger"
-	"github.com/google/uuid"
 )
 
 func (s Service) GetOwnProfile(ctx context.Context, req *svc.GetOwnProfileRequest) (*svc.Profile, error) {
-	initiatorID, err := uuid.Parse(req.Initiator.UserId)
+	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "create profile", roles.User)
 	if err != nil {
-		logger.Log(ctx).WithError(err).Error("failed to parse initiator ID")
-
-		return nil, problem.UnauthenticatedError(ctx, "invalid initiator ID format")
+		return nil, err
 	}
 
 	profile, err := s.app.GetProfileByUserID(ctx, initiatorID)

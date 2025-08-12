@@ -4,13 +4,14 @@ import (
 	"context"
 
 	"github.com/chains-lab/gatekit/roles"
-	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
+	svc "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/guard"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/chains-lab/profiles-svc/internal/logger"
 )
 
 func (s Service) UpdateOwnUsername(ctx context.Context, req *svc.UpdateOwnUsernameRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "update own username", roles.User)
+	initiatorID, err := guard.AllowedRoles(ctx, req.Initiator, "update own username", roles.User)
 
 	profile, err := s.app.UpdateUsername(ctx, initiatorID, req.Username)
 	if err != nil {

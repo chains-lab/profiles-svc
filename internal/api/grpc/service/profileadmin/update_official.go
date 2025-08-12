@@ -1,10 +1,12 @@
-package profile
+package profileadmin
 
 import (
 	"context"
 
 	"github.com/chains-lab/gatekit/roles"
-	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
+	svc "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
+	profileAdmiProto "github.com/chains-lab/profiles-proto/gen/go/svc/profileadmin"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/guard"
 	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/chains-lab/profiles-svc/internal/logger"
@@ -12,12 +14,9 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 )
 
-func (s Service) ResetUsernameByAdmin(ctx context.Context, req *svc.ResetUsernameByAdminRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset username by admin",
+func (s Service) UpdateOfficial(ctx context.Context, req *profileAdmiProto.UpdateOfficialRequest) (*svc.Profile, error) {
+	initiatorID, err := guard.AllowedRoles(ctx, req.Initiator, "update official status by admin",
 		roles.Moder, roles.Admin, roles.SuperUser)
-	if err != nil {
-		return nil, err
-	}
 
 	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
@@ -29,14 +28,15 @@ func (s Service) ResetUsernameByAdmin(ctx context.Context, req *svc.ResetUsernam
 		})
 	}
 
-	profile, err := s.app.ResetUsername(ctx, userID)
+	profile, err := s.app.AdminUpdateProfileOfficial(ctx, userID, req.Official)
+
 	if err != nil {
-		logger.Log(ctx).WithError(err).Error("failed to reset username")
+		logger.Log(ctx).WithError(err).Error("failed to update field official in profile")
 
 		return nil, err
 	}
 
-	logger.Log(ctx).Infof("username for user %s has been reset by admin %s", userID, initiatorID)
+	logger.Log(ctx).Infof("official status for user %s has been updated by admin %s", userID, initiatorID)
 
 	return responses.Profile(profile), nil
 }

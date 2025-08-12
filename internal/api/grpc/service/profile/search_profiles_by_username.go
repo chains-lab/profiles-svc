@@ -3,7 +3,7 @@ package profile
 import (
 	"context"
 
-	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
+	svc "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

@@ -1,9 +1,9 @@
-package profile
+package profileadmin
 
 import (
 	"context"
 
-	profilesProto "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
+	profilesAdminProto "github.com/chains-lab/profiles-proto/gen/go/svc/profileadmin"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/app/models"
 	"github.com/chains-lab/profiles-svc/internal/config"
@@ -28,7 +28,7 @@ type Service struct {
 	app App
 	cfg config.Config
 
-	profilesProto.UnimplementedProfilesServiceServer
+	profilesAdminProto.UnimplementedProfileAdminServiceServer
 }
 
 func NewService(cfg config.Config, app *app.App) Service {

@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/chains-lab/gatekit/roles"
-	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
+	svc "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/guard"
 	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -15,7 +16,7 @@ import (
 )
 
 func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "create profile", roles.User)
+	initiatorID, err := guard.AllowedRoles(ctx, req.Initiator, "create profile", roles.User)
 	if err != nil {
 		return nil, err
 	}

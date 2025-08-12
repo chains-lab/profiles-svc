@@ -1,7 +1,7 @@
 package response
 
 import (
-	profilesProto "github.com/chains-lab/profiles-proto/gen/go/profile"
+	profilesProto "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
 	"github.com/chains-lab/profiles-svc/internal/app/models"
 )
 

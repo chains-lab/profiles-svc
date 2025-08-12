@@ -1,10 +1,12 @@
-package profile
+package profileadmin
 
 import (
 	"context"
 
 	"github.com/chains-lab/gatekit/roles"
-	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
+	profileProto "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
+	profileAdmiProto "github.com/chains-lab/profiles-proto/gen/go/svc/profileadmin"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/guard"
 	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/chains-lab/profiles-svc/internal/app"
@@ -13,8 +15,8 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 )
 
-func (s Service) ResetProfileByAdmin(ctx context.Context, req *svc.ResetProfileByAdminRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "reset profile by admin",
+func (s Service) ResetProfile(ctx context.Context, req *profileAdmiProto.ResetProfileRequest) (*profileProto.Profile, error) {
+	initiatorID, err := guard.AllowedRoles(ctx, req.Initiator, "reset profile by admin",
 		roles.Moder, roles.Admin, roles.SuperUser)
 	if err != nil {
 		return nil, err

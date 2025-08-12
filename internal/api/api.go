@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"net"
 
-	profilesProto "github.com/chains-lab/profiles-proto/gen/go/profile"
+	profilesProto "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
+	profilesAdminProto "github.com/chains-lab/profiles-proto/gen/go/svc/profileadmin"
 	"github.com/chains-lab/profiles-svc/internal/api/grpc/interceptor"
 	"github.com/chains-lab/profiles-svc/internal/api/grpc/service/profile"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/service/profileadmin"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/config"
 	"github.com/chains-lab/profiles-svc/internal/logger"
@@ -15,7 +17,8 @@ import (
 )
 
 func Run(ctx context.Context, cfg config.Config, log logger.Logger, app *app.App) error {
-	server := profile.NewService(cfg, app)
+	profileSVC := profile.NewService(cfg, app)
+	profileAdminSVC := profileadmin.NewService(cfg, app)
 	authInterceptor := interceptor.Auth(cfg.JWT.Service.SecretKey)
 	logInterceptor := logger.UnaryLogInterceptor(log)
 
@@ -26,7 +29,8 @@ func Run(ctx context.Context, cfg config.Config, log logger.Logger, app *app.App
 		),
 	)
 
-	profilesProto.RegisterProfilesServer(grpcServer, server)
+	profilesProto.RegisterProfilesServiceServer(grpcServer, profileSVC)
+	profilesAdminProto.RegisterProfileAdminServiceServer(grpcServer, profileAdminSVC)
 
 	lis, err := net.Listen("tcp", cfg.Server.Port)
 	if err != nil {

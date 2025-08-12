@@ -4,13 +4,14 @@ import (
 	"context"
 
 	"github.com/chains-lab/gatekit/roles"
-	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
+	svc "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/guard"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/chains-lab/profiles-svc/internal/logger"
 )
 
 func (s Service) GetOwnProfile(ctx context.Context, req *svc.GetOwnProfileRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "gtt own profile", roles.User)
+	initiatorID, err := guard.AllowedRoles(ctx, req.Initiator, "gtt own profile", roles.User)
 	if err != nil {
 		return nil, err
 	}

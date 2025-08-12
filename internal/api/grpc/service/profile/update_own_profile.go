@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/chains-lab/gatekit/roles"
-	svc "github.com/chains-lab/profiles-proto/gen/go/profile"
+	svc "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/guard"
 	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
 	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
 	"github.com/chains-lab/profiles-svc/internal/app"
@@ -14,7 +15,7 @@ import (
 )
 
 func (s Service) UpdateOwnProfile(ctx context.Context, req *svc.UpdateOwnProfileRequest) (*svc.Profile, error) {
-	initiatorID, err := s.allowedRoles(ctx, req.Initiator, "update own profile", roles.User)
+	initiatorID, err := guard.AllowedRoles(ctx, req.Initiator, "update own profile", roles.User)
 	input := app.UpdateProfileInput{
 		Pseudonym:   req.Pseudonym,
 		Description: req.Description,

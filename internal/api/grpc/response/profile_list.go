@@ -2,7 +2,7 @@ package response
 
 import (
 	pagProto "github.com/chains-lab/profiles-proto/gen/go/common/pagination"
-	profilesProto "github.com/chains-lab/profiles-proto/gen/go/profile"
+	profilesProto "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
 	"github.com/chains-lab/profiles-svc/internal/app/models"
 	"github.com/chains-lab/profiles-svc/internal/pagination"
 )

@@ -1,4 +1,4 @@
-package response
+package responses
 
 import (
 	profilesProto "github.com/chains-lab/profiles-proto/gen/go/svc/profile"

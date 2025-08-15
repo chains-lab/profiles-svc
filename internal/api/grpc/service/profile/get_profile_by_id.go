@@ -4,8 +4,8 @@ import (
 	"context"
 
 	svc "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
-	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
-	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/problems"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/responses"
 	"github.com/chains-lab/profiles-svc/internal/logger"
 	"github.com/google/uuid"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
@@ -16,7 +16,7 @@ func (s Service) GetProfileById(ctx context.Context, req *svc.GetProfileByIdRequ
 	if err != nil {
 		logger.Log(ctx).WithError(err).Error("invalid user ID format")
 
-		return nil, problem.InvalidArgumentError(ctx, "invalid format user id", &errdetails.BadRequest_FieldViolation{
+		return nil, problems.InvalidArgumentError(ctx, "invalid format user id", &errdetails.BadRequest_FieldViolation{
 			Field:       "user_id",
 			Description: "invalid UUID format for user ID",
 		})

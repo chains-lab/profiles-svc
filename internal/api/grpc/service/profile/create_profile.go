@@ -6,9 +6,9 @@ import (
 
 	"github.com/chains-lab/gatekit/roles"
 	svc "github.com/chains-lab/profiles-proto/gen/go/svc/profile"
-	"github.com/chains-lab/profiles-svc/internal/api/grpc/guard"
-	"github.com/chains-lab/profiles-svc/internal/api/grpc/problem"
-	responses "github.com/chains-lab/profiles-svc/internal/api/grpc/response"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/meta"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/problems"
+	"github.com/chains-lab/profiles-svc/internal/api/grpc/responses"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 
 	"github.com/chains-lab/profiles-svc/internal/app"
@@ -16,9 +16,12 @@ import (
 )
 
 func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileRequest) (*svc.Profile, error) {
-	initiatorID, err := guard.AllowedRoles(ctx, req.Initiator, "create profile", roles.User)
-	if err != nil {
-		return nil, err
+	user := meta.User(ctx)
+
+	if user.Role != roles.User {
+		logger.Log(ctx).Error("user does not have permission to create profile")
+
+		return nil, problems.UnauthenticatedError(ctx, "user does not have permission to create profile")
 	}
 
 	input := app.CreateProfileInput{
@@ -33,7 +36,7 @@ func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileReq
 		if err != nil {
 			logger.Log(ctx).WithError(err).Error("invalid birth date format")
 
-			return nil, problem.InvalidArgumentError(ctx, "birthdate is invalid format", &errdetails.BadRequest_FieldViolation{
+			return nil, problems.InvalidArgumentError(ctx, "birthdate is invalid format", &errdetails.BadRequest_FieldViolation{
 				Field:       "birth_date",
 				Description: "invalid date format, expected RFC3339",
 			})
@@ -41,14 +44,14 @@ func (s Service) CreateOwnProfile(ctx context.Context, req *svc.CreateProfileReq
 		input.BirthDate = &birthdate
 	}
 
-	profile, err := s.app.CreateProfile(ctx, initiatorID, input)
+	profile, err := s.app.CreateProfile(ctx, user.ID, input)
 	if err != nil {
 		logger.Log(ctx).WithError(err).Error("failed to create profile")
 
 		return nil, err
 	}
 
-	logger.Log(ctx).Infof("created profile for user %s", initiatorID)
+	logger.Log(ctx).Infof("created profile for user %s", user.ID)
 
 	return responses.Profile(profile), nil
 }

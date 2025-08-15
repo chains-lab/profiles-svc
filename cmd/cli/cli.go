@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kingpin"
+	"github.com/chains-lab/profiles-svc/internal/api"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/config"
 	"github.com/chains-lab/profiles-svc/internal/dbx"
@@ -52,7 +53,7 @@ func Run(args []string) bool {
 
 	switch cmd {
 	case serviceCmd.FullCommand():
-		err = Start(ctx, cfg, logger, &application)
+		err = api.Start(ctx, cfg, logger, &application)
 	case migrateUpCmd.FullCommand():
 		err = dbx.MigrateUp(cfg)
 	case migrateDownCmd.FullCommand():

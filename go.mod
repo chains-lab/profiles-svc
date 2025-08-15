@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/chains-lab/apperr v0.0.4
 	github.com/chains-lab/gatekit v0.2.0
-	github.com/chains-lab/profiles-proto v0.2.0
+	github.com/chains-lab/profiles-proto v0.2.1
 	github.com/chains-lab/svc-errors v0.2.2
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9

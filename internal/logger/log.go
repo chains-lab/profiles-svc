@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/chains-lab/apperr"
-	"github.com/chains-lab/profiles-svc/internal/api/grpc/interceptor"
 	"github.com/chains-lab/profiles-svc/internal/api/grpc/meta"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -22,7 +21,7 @@ func UnaryLogInterceptor(log Logger) grpc.UnaryServerInterceptor {
 		// чтобы не потерять таймауты и другую информацию.
 		ctxWithLog := context.WithValue(
 			ctx,
-			interceptor.LogCtxKey,
+			meta.LogCtxKey,
 			log, // ваш интерфейс Logger
 		)
 
@@ -32,7 +31,7 @@ func UnaryLogInterceptor(log Logger) grpc.UnaryServerInterceptor {
 }
 
 func Log(ctx context.Context) Logger {
-	entry, ok := ctx.Value(interceptor.LogCtxKey).(Logger)
+	entry, ok := ctx.Value(meta.LogCtxKey).(Logger)
 	if !ok {
 		logrus.Info("no logger in context")
 

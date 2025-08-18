@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"log"
 	"os"
 	"os/signal"
 	"sync"
@@ -13,16 +12,18 @@ import (
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/config"
 	"github.com/chains-lab/profiles-svc/internal/dbx"
+	"github.com/chains-lab/profiles-svc/internal/logger"
+	"github.com/sirupsen/logrus"
 )
 
 func Run(args []string) bool {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("failed to load config: %v", err)
+		logrus.Fatalf("failed to load config: %v", err)
 	}
 
-	logger := cfg.GetLogger()
-	logger.Info("Starting server...")
+	log := logger.NewLogger(cfg)
+	log.Info("Starting server...")
 
 	var (
 		service = kingpin.New("chains-auth", "")
@@ -39,7 +40,7 @@ func Run(args []string) bool {
 
 	application, err := app.NewApp(cfg)
 	if err != nil {
-		logger.Fatalf("failed to create server: %v", err)
+		log.Fatalf("failed to create server: %v", err)
 		return false
 	}
 
@@ -47,23 +48,23 @@ func Run(args []string) bool {
 
 	cmd, err := service.Parse(args[1:])
 	if err != nil {
-		logger.WithError(err).Error("failed to parse arguments")
+		log.WithError(err).Error("failed to parse arguments")
 		return false
 	}
 
 	switch cmd {
 	case serviceCmd.FullCommand():
-		err = api.Start(ctx, cfg, logger, &application)
+		err = api.Start(ctx, cfg, log, &application)
 	case migrateUpCmd.FullCommand():
 		err = dbx.MigrateUp(cfg)
 	case migrateDownCmd.FullCommand():
 		err = dbx.MigrateDown(cfg)
 	default:
-		logger.Errorf("unknown command %s", cmd)
+		log.Errorf("unknown command %s", cmd)
 		return false
 	}
 	if err != nil {
-		logger.WithError(err).Error("failed to exec cmd")
+		log.WithError(err).Error("failed to exec cmd")
 		return false
 	}
 

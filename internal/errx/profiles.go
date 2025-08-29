@@ -13,5 +13,3 @@ var ErrorOnlyUserCanHaveProfile = ape.DeclareError("ONLY_USER_CAN_HAVE_PROFILE")
 var ErrorUsernameAlreadyTaken = ape.DeclareError("USERNAME_ALREADY_TAKEN")
 
 var ErrorUsernameIsNotValid = ape.DeclareError("USERNAME_IS_NOT_VALID")
-
-var ErrorUsernameUpdateCooldown = ape.DeclareError("USERNAME_UPDATE_COOLDOWN")

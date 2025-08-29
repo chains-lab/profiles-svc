@@ -1,0 +1,192 @@
+openapi: 3.0.0
+info:
+  title: Chains lab profile service
+  description: profiles service docs
+  version: 0.0.1
+paths:
+  /test:
+    post:
+      tags:
+        - Test
+      description: Test
+      responses:
+        '201':
+          description: successfully
+components:
+  schemas:
+    UpdateProfile:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - type
+            - attributes
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: user id
+            type:
+              type: string
+              enum:
+                - create_profile
+            attributes:
+              type: object
+              properties:
+                pseudonym:
+                  type: string
+                  description: Pseudonym
+                description:
+                  type: string
+                  description: Description
+                avatar:
+                  type: string
+                  format: uri
+                  description: Avatar URL
+                sex:
+                  type: string
+                  description: sex prikin'
+                birthdate:
+                  type: string
+                  format: date-time
+                  description: Birthday
+    CreateProfile:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - type
+            - attributes
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: user id
+            type:
+              type: string
+              enum:
+                - create_profile
+            attributes:
+              type: object
+              required:
+                - username
+              properties:
+                username:
+                  type: string
+                  description: Username
+                pseudonym:
+                  type: string
+                  description: Pseudonym
+                description:
+                  type: string
+                  description: Description
+                avatar:
+                  type: string
+                  format: uri
+                  description: Avatar URL
+                sex:
+                  type: string
+                  description: sex prikin'
+                birthdate:
+                  type: string
+                  format: date-time
+                  description: Birthday
+    UpdateUsername:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - type
+            - attributes
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: user id
+            type:
+              type: string
+              enum:
+                - create_profile
+            attributes:
+              type: object
+              required:
+                - username
+              properties:
+                username:
+                  type: string
+                  description: Username
+    Profile:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/ProfileData'
+    ProfileData:
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: user id
+        type:
+          type: string
+          enum:
+            - profile
+        attributes:
+          $ref: '#/components/schemas/ProfileAttributes'
+    ProfileAttributes:
+      type: object
+      required:
+        - username
+        - official
+        - updated_at
+        - created_at
+      properties:
+        username:
+          type: string
+          description: Username
+        pseudonym:
+          type: string
+          description: Pseudonym
+        description:
+          type: string
+          description: Description
+        avatar:
+          type: string
+          format: uri
+          description: Avatar URL
+        official:
+          type: boolean
+          description: Is Official Account
+        sex:
+          type: string
+          description: sex prikin'
+        birthdate:
+          type: string
+          format: date-time
+          description: Birthday
+        updated_at:
+          type: string
+          format: date-time
+          description: Updated At
+        created_at:
+          type: string
+          format: date-time
+          description: Created At

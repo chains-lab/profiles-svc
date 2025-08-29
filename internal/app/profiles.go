@@ -124,7 +124,7 @@ type CreateProfileInput struct {
 	Description *string
 	Avatar      *string
 	Sex         *string
-	BirthDate   *time.Time
+	Birthdate   *time.Time
 }
 
 func (a App) CreateProfile(ctx context.Context, userID uuid.UUID, input CreateProfileInput) (models.Profile, error) {
@@ -134,7 +134,7 @@ func (a App) CreateProfile(ctx context.Context, userID uuid.UUID, input CreatePr
 		Description: input.Description,
 		Avatar:      input.Avatar,
 		Sex:         input.Sex,
-		BirthDate:   input.BirthDate,
+		BirthDate:   input.Birthdate,
 	})
 	if err != nil {
 		return models.Profile{}, err

@@ -237,7 +237,7 @@ func ProfileFromDb(input dbx.ProfileModel) models.Profile {
 		Avatar:            input.Avatar,
 		Official:          input.Official,
 		Sex:               input.Sex,
-		BirthDate:         input.BirthDate,
+		Birthdate:         input.BirthDate,
 		UsernameUpdatedAt: input.UsernameUpdatedAt,
 		UpdatedAt:         input.UpdatedAt,
 		CreatedAt:         input.CreatedAt,

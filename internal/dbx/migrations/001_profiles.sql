@@ -13,7 +13,6 @@ CREATE TABLE profiles (
     sex         VARCHAR(16),
     birth_date  TIMESTAMP,
 
-    username_updated_at TIMESTAMP NOT NULL DEFAULT now(),
     updated_at          TIMESTAMP NOT NULL DEFAULT now(),
     created_at          TIMESTAMP NOT NULL DEFAULT now()
 );

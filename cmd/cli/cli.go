@@ -8,11 +8,11 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kingpin"
+	"github.com/chains-lab/logium"
 	"github.com/chains-lab/profiles-svc/internal/api"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/config"
 	"github.com/chains-lab/profiles-svc/internal/dbx"
-	"github.com/chains-lab/profiles-svc/internal/logger"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,7 +22,7 @@ func Run(args []string) bool {
 		logrus.Fatalf("failed to load config: %v", err)
 	}
 
-	log := logger.NewLogger(cfg)
+	log := logium.NewLogger(cfg.Server.Log.Level, cfg.Server.Log.Format)
 	log.Info("Starting server...")
 
 	var (

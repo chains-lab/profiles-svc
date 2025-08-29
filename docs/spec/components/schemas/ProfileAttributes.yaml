@@ -1,0 +1,38 @@
+type: object
+required:
+  - username
+  - official
+  - updated_at
+  - created_at
+properties:
+  username:
+    type: string
+    description: "Username"
+  pseudonym:
+    type: string
+    description: "Pseudonym"
+  description:
+    type: string
+    description: "Description"
+  avatar:
+    type: string
+    format: uri
+    description: "Avatar URL"
+  official:
+    type: boolean
+    description: "Is Official Account"
+  sex:
+    type: string
+    description: "sex prikin'"
+  birthdate:
+    type: string
+    format: date-time
+    description: "Birthday"
+  updated_at:
+    type: string
+    format: date-time
+    description: "Updated At"
+  created_at:
+    type: string
+    format: date-time
+    description: "Created At"

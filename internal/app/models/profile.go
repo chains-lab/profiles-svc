@@ -15,7 +15,7 @@ type Profile struct {
 	Official    bool      `json:"official"`
 	//Private information
 	Sex       *string    `json:"sex"`
-	BirthDate *time.Time `json:"birth_date,omitempty"`
+	Birthdate *time.Time `json:"birthdate,omitempty"`
 
 	UsernameUpdatedAt time.Time `json:"username_updated_at"`
 	UpdatedAt         time.Time `json:"updated_at"`

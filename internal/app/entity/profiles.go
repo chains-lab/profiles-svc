@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chains-lab/profiles-svc/internal/app/domain"
 	"github.com/chains-lab/profiles-svc/internal/app/models"
+	"github.com/chains-lab/profiles-svc/internal/app/username"
 	"github.com/chains-lab/profiles-svc/internal/dbx"
 	"github.com/chains-lab/profiles-svc/internal/errx"
 	"github.com/google/uuid"
@@ -58,12 +58,16 @@ func (p Profiles) Create(ctx context.Context, userID uuid.UUID, input CreateProf
 	_, err = p.GetByUsername(ctx, input.Username)
 	if !errors.Is(err, errx.ErrorProfileForUserDoesNotExist) {
 		if err == nil {
-			return errx.RaiseUsernameAlreadyTaken(ctx, err, input.Username)
+			return errx.ErrorUsernameAlreadyTaken.Raise(
+				fmt.Errorf("username '%s' is already taken", input.Username),
+			)
 		}
 	}
 
-	if err = domain.ValidateUsername(input.Username); err != nil {
-		return errx.RaiseInternal(ctx, err)
+	if err = username.ValidateUsername(input.Username); err != nil {
+		return errx.ErrorInternal.Raise(
+			fmt.Errorf("validating username '%s': %w", input.Username, err),
+		)
 	}
 
 	createdAt := time.Now().UTC()
@@ -82,7 +86,9 @@ func (p Profiles) Create(ctx context.Context, userID uuid.UUID, input CreateProf
 		CreatedAt:         createdAt,
 	})
 	if err != nil {
-		return errx.RaiseInternal(ctx, err)
+		return errx.ErrorInternal.Raise(
+			fmt.Errorf("creating profile for user '%s': %w", userID, err),
+		)
 	}
 
 	return nil
@@ -117,17 +123,24 @@ func (p Profiles) Update(ctx context.Context, userID uuid.UUID, input UpdateProf
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return errx.RaiseProfileForUserNotFound(ctx, err, userID)
+			return errx.ErrorProfileForUserDoesNotExist.Raise(
+				fmt.Errorf("profile for user '%s' does not exist", userID),
+			)
+		default:
+			return errx.ErrorInternal.Raise(
+				fmt.Errorf("updating profile for user '%s': %w", userID, err),
+			)
 		}
-		return errx.RaiseInternal(ctx, err)
 	}
 
 	return nil
 }
 
 func (p Profiles) UpdateUsername(ctx context.Context, userID uuid.UUID, username string) error {
-	if err := domain.ValidateUsername(username); err != nil {
-		return errx.RaiseUsernameIsNotValid(ctx, err)
+	if err := username.ValidateUsername(username); err != nil {
+		return errx.ErrorUsernameIsNotValid.Raise(
+			fmt.Errorf("validating username '%s': %w", username, err),
+		)
 	}
 
 	now := time.Now().UTC()
@@ -139,10 +152,8 @@ func (p Profiles) UpdateUsername(ctx context.Context, userID uuid.UUID, username
 
 	elapsed := now.Sub(profile.UsernameUpdatedAt)
 	if elapsed < 14*24*time.Hour {
-		return errx.RaiseUsernameUpdateCooldown(
-			ctx,
+		return errx.ErrorUsernameUpdateCooldown.Raise(
 			fmt.Errorf("username was updated %.0f hours ago", elapsed.Hours()),
-			profile.UserID,
 		)
 	}
 
@@ -151,7 +162,9 @@ func (p Profiles) UpdateUsername(ctx context.Context, userID uuid.UUID, username
 		return err
 	}
 	if err == nil {
-		return errx.RaiseUsernameAlreadyTaken(ctx, err, username)
+		return errx.ErrorUsernameAlreadyTaken.Raise(
+			fmt.Errorf("username '%s' is already taken", username),
+		)
 	}
 
 	if profile.Username == username {
@@ -166,9 +179,13 @@ func (p Profiles) UpdateUsername(ctx context.Context, userID uuid.UUID, username
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return errx.RaiseProfileForUserNotFound(ctx, err, userID)
+			return errx.ErrorProfileForUserDoesNotExist.Raise(
+				fmt.Errorf("profile for user '%s' does not exist", userID),
+			)
 		default:
-			return errx.RaiseInternal(ctx, err)
+			return errx.ErrorInternal.Raise(
+				fmt.Errorf("updating username for user '%s': %w", userID, err),
+			)
 		}
 	}
 
@@ -180,9 +197,13 @@ func (p Profiles) GetByID(ctx context.Context, userID uuid.UUID) (models.Profile
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Profile{}, errx.RaiseProfileForUserNotFound(ctx, err, userID)
+			return models.Profile{}, errx.ErrorProfileForUserDoesNotExist.Raise(
+				fmt.Errorf("profile for user '%s' does not exist", userID),
+			)
 		default:
-			return models.Profile{}, errx.RaiseInternal(ctx, err)
+			return models.Profile{}, errx.ErrorInternal.Raise(
+				fmt.Errorf("getting profile for user '%s': %w", userID, err),
+			)
 		}
 	}
 
@@ -194,9 +215,13 @@ func (p Profiles) GetByUsername(ctx context.Context, username string) (models.Pr
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Profile{}, errx.RaiseProfileForUserNotFoundByUsername(ctx, err, username)
+			return models.Profile{}, errx.ErrorProfileForUserDoesNotExist.Raise(
+				fmt.Errorf("profile with username '%s' does not exist", username),
+			)
 		default:
-			return models.Profile{}, errx.RaiseInternal(ctx, err)
+			return models.Profile{}, errx.ErrorInternal.Raise(
+				fmt.Errorf("getting profile with username '%s': %w", username, err),
+			)
 		}
 	}
 

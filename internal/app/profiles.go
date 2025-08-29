@@ -2,12 +2,11 @@ package app
 
 import (
 	"context"
-	"crypto/rand"
-	"fmt"
 	"time"
 
 	"github.com/chains-lab/profiles-svc/internal/app/entity"
 	"github.com/chains-lab/profiles-svc/internal/app/models"
+	"github.com/chains-lab/profiles-svc/internal/app/username"
 	"github.com/google/uuid"
 )
 
@@ -75,22 +74,7 @@ func (a App) ResetUsername(ctx context.Context, userID uuid.UUID) (models.Profil
 		return models.Profile{}, err
 	}
 
-	generateUsername := func() (string, error) {
-		const (
-			prefix = "citizen"
-			digits = 8
-		)
-		buf := make([]byte, digits)
-		if _, err := rand.Read(buf); err != nil {
-			return "", fmt.Errorf("cannot generate random digits: %w", err)
-		}
-		for i := 0; i < digits; i++ {
-			buf[i] = '0' + (buf[i] % 10)
-		}
-		return prefix + string(buf), nil
-	}
-
-	username, err := generateUsername()
+	username, err := username.GenerateUsername()
 	if err != nil {
 		return models.Profile{}, err
 	}
@@ -127,7 +111,7 @@ func (a App) ResetUserProfile(ctx context.Context, userID uuid.UUID, input Reset
 		dmInput.Avatar = &empty
 	}
 
-	if err := a.profiles.Update(ctx, userID, dmInput); err != nil {
+	if err = a.profiles.Update(ctx, userID, dmInput); err != nil {
 		return models.Profile{}, err
 	}
 

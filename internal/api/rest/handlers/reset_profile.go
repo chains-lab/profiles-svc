@@ -1,10 +1,38 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
+
+	"github.com/chains-lab/ape"
+	"github.com/chains-lab/ape/problems"
+	"github.com/chains-lab/profiles-svc/internal/api/rest/responses"
+	"github.com/chains-lab/profiles-svc/internal/errx"
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 func (s Service) ResetProfile(w http.ResponseWriter, r *http.Request) {
-	//TODO: implement also think about use is wit username
-	// not set ot "" values for fields, set nil!!!
+	userID, err := uuid.Parse(chi.URLParam(r, "user_id"))
+	if err != nil {
+		s.Log(r).WithError(err).Errorf("invalid user id")
+		ape.RenderErr(w, problems.InvalidParameter("user_id", err))
+
+		return
+	}
+
+	req, err := s.app.ResetUserProfile(r.Context(), userID)
+	if err != nil {
+		s.Log(r).WithError(err).Errorf("failed to reset username")
+		switch {
+		case errors.Is(err, errx.ErrorProfileForUserDoesNotExist):
+			ape.RenderErr(w, problems.NotFound("profile for user does not exist"))
+		default:
+			ape.RenderErr(w, problems.InternalError())
+		}
+
+		return
+	}
+
+	ape.Render(w, http.StatusOK, responses.Profile(req))
 }

@@ -12,7 +12,6 @@ package resources
 
 import (
 	"encoding/json"
-	"time"
 	"bytes"
 	"fmt"
 )
@@ -24,16 +23,6 @@ var _ MappedNullable = &CreateProfileDataAttributes{}
 type CreateProfileDataAttributes struct {
 	// Username
 	Username string `json:"username"`
-	// Pseudonym
-	Pseudonym *string `json:"pseudonym,omitempty"`
-	// Description
-	Description *string `json:"description,omitempty"`
-	// Avatar URL
-	Avatar *string `json:"avatar,omitempty"`
-	// sex prikin'
-	Sex *string `json:"sex,omitempty"`
-	// Birthday
-	Birthdate *time.Time `json:"birthdate,omitempty"`
 }
 
 type _CreateProfileDataAttributes CreateProfileDataAttributes
@@ -80,166 +69,6 @@ func (o *CreateProfileDataAttributes) SetUsername(v string) {
 	o.Username = v
 }
 
-// GetPseudonym returns the Pseudonym field value if set, zero value otherwise.
-func (o *CreateProfileDataAttributes) GetPseudonym() string {
-	if o == nil || IsNil(o.Pseudonym) {
-		var ret string
-		return ret
-	}
-	return *o.Pseudonym
-}
-
-// GetPseudonymOk returns a tuple with the Pseudonym field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *CreateProfileDataAttributes) GetPseudonymOk() (*string, bool) {
-	if o == nil || IsNil(o.Pseudonym) {
-		return nil, false
-	}
-	return o.Pseudonym, true
-}
-
-// HasPseudonym returns a boolean if a field has been set.
-func (o *CreateProfileDataAttributes) HasPseudonym() bool {
-	if o != nil && !IsNil(o.Pseudonym) {
-		return true
-	}
-
-	return false
-}
-
-// SetPseudonym gets a reference to the given string and assigns it to the Pseudonym field.
-func (o *CreateProfileDataAttributes) SetPseudonym(v string) {
-	o.Pseudonym = &v
-}
-
-// GetDescription returns the Description field value if set, zero value otherwise.
-func (o *CreateProfileDataAttributes) GetDescription() string {
-	if o == nil || IsNil(o.Description) {
-		var ret string
-		return ret
-	}
-	return *o.Description
-}
-
-// GetDescriptionOk returns a tuple with the Description field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *CreateProfileDataAttributes) GetDescriptionOk() (*string, bool) {
-	if o == nil || IsNil(o.Description) {
-		return nil, false
-	}
-	return o.Description, true
-}
-
-// HasDescription returns a boolean if a field has been set.
-func (o *CreateProfileDataAttributes) HasDescription() bool {
-	if o != nil && !IsNil(o.Description) {
-		return true
-	}
-
-	return false
-}
-
-// SetDescription gets a reference to the given string and assigns it to the Description field.
-func (o *CreateProfileDataAttributes) SetDescription(v string) {
-	o.Description = &v
-}
-
-// GetAvatar returns the Avatar field value if set, zero value otherwise.
-func (o *CreateProfileDataAttributes) GetAvatar() string {
-	if o == nil || IsNil(o.Avatar) {
-		var ret string
-		return ret
-	}
-	return *o.Avatar
-}
-
-// GetAvatarOk returns a tuple with the Avatar field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *CreateProfileDataAttributes) GetAvatarOk() (*string, bool) {
-	if o == nil || IsNil(o.Avatar) {
-		return nil, false
-	}
-	return o.Avatar, true
-}
-
-// HasAvatar returns a boolean if a field has been set.
-func (o *CreateProfileDataAttributes) HasAvatar() bool {
-	if o != nil && !IsNil(o.Avatar) {
-		return true
-	}
-
-	return false
-}
-
-// SetAvatar gets a reference to the given string and assigns it to the Avatar field.
-func (o *CreateProfileDataAttributes) SetAvatar(v string) {
-	o.Avatar = &v
-}
-
-// GetSex returns the Sex field value if set, zero value otherwise.
-func (o *CreateProfileDataAttributes) GetSex() string {
-	if o == nil || IsNil(o.Sex) {
-		var ret string
-		return ret
-	}
-	return *o.Sex
-}
-
-// GetSexOk returns a tuple with the Sex field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *CreateProfileDataAttributes) GetSexOk() (*string, bool) {
-	if o == nil || IsNil(o.Sex) {
-		return nil, false
-	}
-	return o.Sex, true
-}
-
-// HasSex returns a boolean if a field has been set.
-func (o *CreateProfileDataAttributes) HasSex() bool {
-	if o != nil && !IsNil(o.Sex) {
-		return true
-	}
-
-	return false
-}
-
-// SetSex gets a reference to the given string and assigns it to the Sex field.
-func (o *CreateProfileDataAttributes) SetSex(v string) {
-	o.Sex = &v
-}
-
-// GetBirthdate returns the Birthdate field value if set, zero value otherwise.
-func (o *CreateProfileDataAttributes) GetBirthdate() time.Time {
-	if o == nil || IsNil(o.Birthdate) {
-		var ret time.Time
-		return ret
-	}
-	return *o.Birthdate
-}
-
-// GetBirthdateOk returns a tuple with the Birthdate field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *CreateProfileDataAttributes) GetBirthdateOk() (*time.Time, bool) {
-	if o == nil || IsNil(o.Birthdate) {
-		return nil, false
-	}
-	return o.Birthdate, true
-}
-
-// HasBirthdate returns a boolean if a field has been set.
-func (o *CreateProfileDataAttributes) HasBirthdate() bool {
-	if o != nil && !IsNil(o.Birthdate) {
-		return true
-	}
-
-	return false
-}
-
-// SetBirthdate gets a reference to the given time.Time and assigns it to the Birthdate field.
-func (o *CreateProfileDataAttributes) SetBirthdate(v time.Time) {
-	o.Birthdate = &v
-}
-
 func (o CreateProfileDataAttributes) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
@@ -251,21 +80,6 @@ func (o CreateProfileDataAttributes) MarshalJSON() ([]byte, error) {
 func (o CreateProfileDataAttributes) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["username"] = o.Username
-	if !IsNil(o.Pseudonym) {
-		toSerialize["pseudonym"] = o.Pseudonym
-	}
-	if !IsNil(o.Description) {
-		toSerialize["description"] = o.Description
-	}
-	if !IsNil(o.Avatar) {
-		toSerialize["avatar"] = o.Avatar
-	}
-	if !IsNil(o.Sex) {
-		toSerialize["sex"] = o.Sex
-	}
-	if !IsNil(o.Birthdate) {
-		toSerialize["birthdate"] = o.Birthdate
-	}
 	return toSerialize, nil
 }
 

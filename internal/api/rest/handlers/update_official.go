@@ -27,7 +27,7 @@ func (s Service) UpdateOfficial(w http.ResponseWriter, r *http.Request) {
 		official = true
 	}
 
-	res, err := s.app.AdminUpdateProfileOfficial(r.Context(), userID, official)
+	res, err := s.app.UpdateProfileOfficial(r.Context(), userID, official)
 	if err != nil {
 		s.Log(r).WithError(err).Errorf("failed to update official status")
 		switch {

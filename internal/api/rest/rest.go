@@ -48,9 +48,32 @@ func (a *Rest) Run(ctx context.Context) {
 	userAuth := mdlv.AuthMdl(meta.UserCtxKey, a.cfg.JWT.User.AccessToken.SecretKey)
 	adminGrant := mdlv.AccessGrant(meta.UserCtxKey, roles.Admin, roles.SuperUser)
 
-	a.router.Route("/profiles-svc/", func(r chi.Router) {
+	a.router.Route("/profiles-svc", func(r chi.Router) {
 		//r.Use(svcAuth)
+		r.Route("/v1", func(r chi.Router) {
+			r.Route("/profiles", func(r chi.Router) {
+				r.With(userAuth).Route("/own", func(r chi.Router) {
+					r.Get("/", a.handlers.GetOwnProfile)
+					r.Post("/", a.handlers.CreateOwnProfile)
+					r.Patch("/", a.handlers.UpdateOwnProfile)
+					r.Patch("/username", a.handlers.UpdateOwnProfile)
+				})
 
+				r.Get("/username/{username}", a.handlers.GetProfileByUsername)
+				r.Get("/user_id/{user_id}", a.handlers.GetProfileByID)
+
+				r.With(adminGrant).Route("/admin", func(r chi.Router) {
+					r.Route("/{user_id}", func(r chi.Router) {
+						r.Route("/reset", func(r chi.Router) {
+							r.Post("/username", a.handlers.ResetUsername)
+							r.Post("/profile", a.handlers.ResetProfile)
+						})
+
+						r.Patch("/official/{value}", a.handlers.UpdateOfficial)
+					})
+				})
+			})
+		})
 	})
 
 	a.Start(ctx)

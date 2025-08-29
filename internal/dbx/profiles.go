@@ -15,16 +15,15 @@ const profilesTable = "profiles"
 type ProfileModel struct {
 	UserID      uuid.UUID  `db:"user_id"`
 	Username    string     `db:"username"`
+	Official    bool       `db:"official"`
 	Pseudonym   *string    `db:"pseudonym,omitempty"`
 	Description *string    `db:"description,omitempty"`
 	Avatar      *string    `db:"avatar,omitempty"`
-	Official    bool       `db:"official"`
 	Sex         *string    `db:"sex"`
 	BirthDate   *time.Time `db:"birth_date,omitempty"`
 
-	UsernameUpdatedAt time.Time `db:"username_updated_at"`
-	UpdatedAt         time.Time `db:"updated_at"`
-	CreatedAt         time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
+	CreatedAt time.Time `db:"created_at"`
 }
 
 type ProfilesQ struct {
@@ -54,17 +53,16 @@ func (q ProfilesQ) New() ProfilesQ {
 
 func (q ProfilesQ) Insert(ctx context.Context, input ProfileModel) error {
 	values := map[string]interface{}{
-		"user_id":             input.UserID,
-		"username":            input.Username,
-		"pseudonym":           input.Pseudonym,
-		"description":         input.Description,
-		"avatar":              input.Avatar,
-		"official":            input.Official,
-		"sex":                 input.Sex,
-		"birth_date":          input.BirthDate,
-		"username_updated_at": input.UsernameUpdatedAt,
-		"updated_at":          input.UpdatedAt,
-		"created_at":          input.CreatedAt,
+		"user_id":     input.UserID,
+		"username":    input.Username,
+		"official":    input.Official,
+		"pseudonym":   input.Pseudonym,
+		"description": input.Description,
+		"avatar":      input.Avatar,
+		"sex":         input.Sex,
+		"birth_date":  input.BirthDate,
+		"updated_at":  input.UpdatedAt,
+		"created_at":  input.CreatedAt,
 	}
 
 	query, args, err := q.inserter.SetMap(values).ToSql()
@@ -81,59 +79,61 @@ func (q ProfilesQ) Insert(ctx context.Context, input ProfileModel) error {
 	return err
 }
 
-type UpdateProfileInput struct {
-	Username          *string
-	Pseudonym         *string
-	Description       *string
-	Avatar            *string
-	Official          *bool
-	Sex               *string
-	BirthDate         *time.Time
-	UsernameUpdatedAt *time.Time
-	UpdatedAt         time.Time
+var allowedForUpdate = map[string]struct{}{
+	"username":    {},
+	"pseudonym":   {},
+	"description": {},
+	"avatar":      {},
+	"official":    {},
+	"sex":         {},
+	"birth_date":  {},
+	"updated_at":  {},
 }
 
-func (q ProfilesQ) Update(ctx context.Context, input UpdateProfileInput) error {
-	updates := map[string]interface{}{
-		"updated_at": input.UpdatedAt,
+func (q ProfilesQ) Update(ctx context.Context, input map[string]any) error {
+	if len(input) == 0 {
+		return nil
 	}
-	if input.Username != nil {
-		updates["username"] = *input.Username
+
+	updates := make(map[string]any, len(input)+1)
+
+	for k, v := range input {
+		if _, ok := allowedForUpdate[k]; !ok {
+			return fmt.Errorf("unknown updatable column: %s", k)
+		}
+		switch k {
+		case "updated_at":
+			if v == nil {
+			} else if _, ok := v.(time.Time); !ok {
+				return fmt.Errorf("updated_at must be time.Time")
+			}
+		}
+		updates[k] = v
 	}
-	if input.UsernameUpdatedAt != nil {
-		updates["username_updated_at"] = *input.UsernameUpdatedAt
-	}
-	if input.Pseudonym != nil {
-		updates["pseudonym"] = *input.Pseudonym
-	}
-	if input.Description != nil {
-		updates["description"] = *input.Description
-	}
-	if input.Avatar != nil {
-		updates["avatar"] = *input.Avatar
-	}
-	if input.Sex != nil {
-		updates["sex"] = *input.Sex
-	}
-	if input.BirthDate != nil {
-		updates["birth_date"] = *input.BirthDate
-	}
-	if input.Official != nil {
-		updates["official"] = *input.Official
+
+	if _, ok := updates["updated_at"]; !ok || updates["updated_at"] == nil {
+		updates["updated_at"] = time.Now().UTC()
 	}
 
 	query, args, err := q.updater.SetMap(updates).ToSql()
 	if err != nil {
+		return fmt.Errorf("build profiles update: %w", err)
+	}
+
+	var res sql.Result
+	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
+		res, err = tx.ExecContext(ctx, query, args...)
+	} else {
+		res, err = q.db.ExecContext(ctx, query, args...)
+	}
+	if err != nil {
 		return err
 	}
 
-	if tx, ok := ctx.Value(TxKey).(*sql.Tx); ok {
-		_, err = tx.ExecContext(ctx, query, args...)
-	} else {
-		_, err = q.db.ExecContext(ctx, query, args...)
+	if n, _ := res.RowsAffected(); n == 0 {
+		return sql.ErrNoRows
 	}
-
-	return err
+	return nil
 }
 
 func (q ProfilesQ) Get(ctx context.Context) (ProfileModel, error) {
@@ -152,13 +152,12 @@ func (q ProfilesQ) Get(ctx context.Context) (ProfileModel, error) {
 	err = row.Scan(
 		&profile.UserID,
 		&profile.Username,
+		&profile.Official,
 		&profile.Pseudonym,
 		&profile.Description,
 		&profile.Avatar,
-		&profile.Official,
 		&profile.Sex,
 		&profile.BirthDate,
-		&profile.UsernameUpdatedAt,
 		&profile.UpdatedAt,
 		&profile.CreatedAt,
 	)
@@ -190,13 +189,12 @@ func (q ProfilesQ) Select(ctx context.Context) ([]ProfileModel, error) {
 		err := rows.Scan(
 			&profile.UserID,
 			&profile.Username,
+			&profile.Official,
 			&profile.Pseudonym,
 			&profile.Description,
 			&profile.Avatar,
-			&profile.Official,
 			&profile.Sex,
 			&profile.BirthDate,
-			&profile.UsernameUpdatedAt,
 			&profile.UpdatedAt,
 			&profile.CreatedAt,
 		)

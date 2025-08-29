@@ -13,3 +13,9 @@ var ErrorOnlyUserCanHaveProfile = ape.DeclareError("ONLY_USER_CAN_HAVE_PROFILE")
 var ErrorUsernameAlreadyTaken = ape.DeclareError("USERNAME_ALREADY_TAKEN")
 
 var ErrorUsernameIsNotValid = ape.DeclareError("USERNAME_IS_NOT_VALID")
+
+var ErrorSexIsNotValid = ape.DeclareError("SEX_IS_NOT_VALID")
+
+var ErrorBirthdateIsNotValid = ape.DeclareError("BIRTHDATE_IS_NOT_VALID")
+
+var ErrorUserTooYoung = ape.DeclareError("USER_TOO_YOUNG")

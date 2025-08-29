@@ -82,23 +82,6 @@ components:
                 username:
                   type: string
                   description: Username
-                pseudonym:
-                  type: string
-                  description: Pseudonym
-                description:
-                  type: string
-                  description: Description
-                avatar:
-                  type: string
-                  format: uri
-                  description: Avatar URL
-                sex:
-                  type: string
-                  description: sex prikin'
-                birthdate:
-                  type: string
-                  format: date-time
-                  description: Birthday
     UpdateUsername:
       type: object
       required:

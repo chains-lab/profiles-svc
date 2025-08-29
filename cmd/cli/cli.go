@@ -54,7 +54,7 @@ func Run(args []string) bool {
 
 	switch cmd {
 	case serviceCmd.FullCommand():
-		err = api.Start(ctx, cfg, log, &application)
+		api.Start(ctx, cfg, log, &wg, &application)
 	case migrateUpCmd.FullCommand():
 		err = dbx.MigrateUp(cfg)
 	case migrateDownCmd.FullCommand():

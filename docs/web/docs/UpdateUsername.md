@@ -4,13 +4,13 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Data** | [**UpdateUsernameData**](UpdateUsernameData.md) |  | 
+**Data** | [**CreateProfileData**](CreateProfileData.md) |  | 
 
 ## Methods
 
 ### NewUpdateUsername
 
-`func NewUpdateUsername(data UpdateUsernameData, ) *UpdateUsername`
+`func NewUpdateUsername(data CreateProfileData, ) *UpdateUsername`
 
 NewUpdateUsername instantiates a new UpdateUsername object
 This constructor will assign default values to properties that have it defined,
@@ -27,20 +27,20 @@ but it doesn't guarantee that properties required by API are set
 
 ### GetData
 
-`func (o *UpdateUsername) GetData() UpdateUsernameData`
+`func (o *UpdateUsername) GetData() CreateProfileData`
 
 GetData returns the Data field if non-nil, zero value otherwise.
 
 ### GetDataOk
 
-`func (o *UpdateUsername) GetDataOk() (*UpdateUsernameData, bool)`
+`func (o *UpdateUsername) GetDataOk() (*CreateProfileData, bool)`
 
 GetDataOk returns a tuple with the Data field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetData
 
-`func (o *UpdateUsername) SetData(v UpdateUsernameData)`
+`func (o *UpdateUsername) SetData(v CreateProfileData)`
 
 SetData sets Data field to given value.
 

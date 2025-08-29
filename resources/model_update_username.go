@@ -21,7 +21,7 @@ var _ MappedNullable = &UpdateUsername{}
 
 // UpdateUsername struct for UpdateUsername
 type UpdateUsername struct {
-	Data UpdateUsernameData `json:"data"`
+	Data CreateProfileData `json:"data"`
 }
 
 type _UpdateUsername UpdateUsername
@@ -30,7 +30,7 @@ type _UpdateUsername UpdateUsername
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewUpdateUsername(data UpdateUsernameData) *UpdateUsername {
+func NewUpdateUsername(data CreateProfileData) *UpdateUsername {
 	this := UpdateUsername{}
 	this.Data = data
 	return &this
@@ -45,9 +45,9 @@ func NewUpdateUsernameWithDefaults() *UpdateUsername {
 }
 
 // GetData returns the Data field value
-func (o *UpdateUsername) GetData() UpdateUsernameData {
+func (o *UpdateUsername) GetData() CreateProfileData {
 	if o == nil {
-		var ret UpdateUsernameData
+		var ret CreateProfileData
 		return ret
 	}
 
@@ -56,7 +56,7 @@ func (o *UpdateUsername) GetData() UpdateUsernameData {
 
 // GetDataOk returns a tuple with the Data field value
 // and a boolean to check if the value has been set.
-func (o *UpdateUsername) GetDataOk() (*UpdateUsernameData, bool) {
+func (o *UpdateUsername) GetDataOk() (*CreateProfileData, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -64,7 +64,7 @@ func (o *UpdateUsername) GetDataOk() (*UpdateUsernameData, bool) {
 }
 
 // SetData sets field value
-func (o *UpdateUsername) SetData(v UpdateUsernameData) {
+func (o *UpdateUsername) SetData(v CreateProfileData) {
 	o.Data = v
 }
 

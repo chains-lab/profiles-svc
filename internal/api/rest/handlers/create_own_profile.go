@@ -9,7 +9,6 @@ import (
 	"github.com/chains-lab/profiles-svc/internal/api/rest/meta"
 	"github.com/chains-lab/profiles-svc/internal/api/rest/requests"
 	"github.com/chains-lab/profiles-svc/internal/api/rest/responses"
-	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/errx"
 )
 
@@ -29,17 +28,8 @@ func (s Service) CreateOwnProfile(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
-	input := app.CreateProfileInput{
-		Username:    req.Data.Attributes.Username,
-		Pseudonym:   req.Data.Attributes.Pseudonym,
-		Description: req.Data.Attributes.Description,
-		Avatar:      req.Data.Attributes.Avatar,
-		Sex:         req.Data.Attributes.Sex,
-		Birthdate:   req.Data.Attributes.Birthdate,
-	}
-
-	res, err := s.app.CreateProfile(r.Context(), initiator.UserID, input)
+	
+	res, err := s.app.CreateProfile(r.Context(), initiator.UserID, req.Data.Attributes.Username)
 	if err != nil {
 		s.Log(r).WithError(err).Errorf("failed to create profile")
 		switch {

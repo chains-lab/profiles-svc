@@ -4,6 +4,8 @@ import (
 	"context"
 	"sync"
 
+	"github.com/chains-lab/logium"
+	"github.com/chains-lab/profiles-svc/internal/api/rest"
 	"github.com/chains-lab/profiles-svc/internal/app"
 	"github.com/chains-lab/profiles-svc/internal/config"
 )

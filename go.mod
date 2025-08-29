@@ -9,6 +9,7 @@ require (
 	github.com/chains-lab/gatekit v0.2.2
 	github.com/chains-lab/logium v0.1.1
 	github.com/go-chi/chi/v5 v5.2.3
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/pkg/errors v0.9.1
@@ -24,7 +25,6 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/fsnotify/fsnotify v1.8.0 // indirect
 	github.com/go-gorp/gorp/v3 v3.1.0 // indirect
-	github.com/go-ozzo/ozzo-validation/v4 v4.3.0 // indirect
 	github.com/go-viper/mapstructure/v2 v2.2.1 // indirect
 	github.com/golang-jwt/jwt/v5 v5.2.2 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect

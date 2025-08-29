@@ -19,28 +19,28 @@ components:
     UpdateProfile:
       properties:
         data:
-          $ref: "#/components/schemas/UpdateProfile_data"
+          $ref: '#/components/schemas/UpdateProfile_data'
       required:
       - data
       type: object
     CreateProfile:
       properties:
         data:
-          $ref: "#/components/schemas/CreateProfile_data"
+          $ref: '#/components/schemas/CreateProfile_data'
       required:
       - data
       type: object
     UpdateUsername:
       properties:
         data:
-          $ref: "#/components/schemas/UpdateUsername_data"
+          $ref: '#/components/schemas/CreateProfile_data'
       required:
       - data
       type: object
     Profile:
       properties:
         data:
-          $ref: "#/components/schemas/ProfileData"
+          $ref: '#/components/schemas/ProfileData'
       required:
       - data
       type: object
@@ -55,7 +55,7 @@ components:
           - profile
           type: string
         attributes:
-          $ref: "#/components/schemas/ProfileAttributes"
+          $ref: '#/components/schemas/ProfileAttributes'
       required:
       - attributes
       - id
@@ -131,7 +131,7 @@ components:
           - create_profile
           type: string
         attributes:
-          $ref: "#/components/schemas/UpdateProfile_data_attributes"
+          $ref: '#/components/schemas/UpdateProfile_data_attributes'
       required:
       - attributes
       - id
@@ -141,23 +141,6 @@ components:
       properties:
         username:
           description: Username
-          type: string
-        pseudonym:
-          description: Pseudonym
-          type: string
-        description:
-          description: Description
-          type: string
-        avatar:
-          description: Avatar URL
-          format: uri
-          type: string
-        sex:
-          description: sex prikin'
-          type: string
-        birthdate:
-          description: Birthday
-          format: date-time
           type: string
       required:
       - username
@@ -173,32 +156,7 @@ components:
           - create_profile
           type: string
         attributes:
-          $ref: "#/components/schemas/CreateProfile_data_attributes"
-      required:
-      - attributes
-      - id
-      - type
-      type: object
-    UpdateUsername_data_attributes:
-      properties:
-        username:
-          description: Username
-          type: string
-      required:
-      - username
-      type: object
-    UpdateUsername_data:
-      properties:
-        id:
-          description: user id
-          format: uuid
-          type: string
-        type:
-          enum:
-          - create_profile
-          type: string
-        attributes:
-          $ref: "#/components/schemas/UpdateUsername_data_attributes"
+          $ref: '#/components/schemas/CreateProfile_data_attributes'
       required:
       - attributes
       - id

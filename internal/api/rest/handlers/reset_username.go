@@ -12,10 +12,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s Service) ResetUsername(w http.ResponseWriter, r *http.Request) {
+func (s Handler) ResetUsername(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(chi.URLParam(r, "user_id"))
 	if err != nil {
-		s.Log(r).WithError(err).Errorf("invalid user id")
+		s.log.WithError(err).Errorf("invalid user id")
 		ape.RenderErr(w, problems.InvalidParameter("user_id", err))
 
 		return
@@ -23,7 +23,7 @@ func (s Service) ResetUsername(w http.ResponseWriter, r *http.Request) {
 
 	req, err := s.app.ResetUsername(r.Context(), userID)
 	if err != nil {
-		s.Log(r).WithError(err).Errorf("failed to reset username")
+		s.log.WithError(err).Errorf("failed to reset username")
 		switch {
 		case errors.Is(err, errx.ErrorProfileForUserDoesNotExist):
 			ape.RenderErr(w, problems.NotFound("profile for user does not exist"))

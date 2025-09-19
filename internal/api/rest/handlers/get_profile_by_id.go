@@ -12,10 +12,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s Service) GetProfileByID(w http.ResponseWriter, r *http.Request) {
+func (s Handler) GetProfileByID(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(chi.URLParam(r, "user_id"))
 	if err != nil {
-		s.Log(r).WithError(err).Errorf("invalid user id")
+		s.log.WithError(err).Errorf("invalid user id")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 
 		return
@@ -23,7 +23,7 @@ func (s Service) GetProfileByID(w http.ResponseWriter, r *http.Request) {
 
 	res, err := s.app.GetProfileByUserID(r.Context(), userID)
 	if err != nil {
-		s.Log(r).WithError(err).Errorf("failed to get profile by user id")
+		s.log.WithError(err).Errorf("failed to get profile by user id")
 		switch {
 		case errors.Is(err, errx.ErrorProfileForUserDoesNotExist):
 			ape.RenderErr(w, problems.NotFound("profile for user does not exist"))

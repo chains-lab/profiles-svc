@@ -12,10 +12,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s Service) UpdateOfficial(w http.ResponseWriter, r *http.Request) {
+func (s Handler) UpdateOfficial(w http.ResponseWriter, r *http.Request) {
 	userID, err := uuid.Parse(chi.URLParam(r, "user_id"))
 	if err != nil {
-		s.Log(r).WithError(err).Errorf("invalid user id")
+		s.log.WithError(err).Errorf("invalid user id")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 
 		return
@@ -29,7 +29,7 @@ func (s Service) UpdateOfficial(w http.ResponseWriter, r *http.Request) {
 
 	res, err := s.app.UpdateProfileOfficial(r.Context(), userID, official)
 	if err != nil {
-		s.Log(r).WithError(err).Errorf("failed to update official status")
+		s.log.WithError(err).Errorf("failed to update official status")
 		switch {
 		case errors.Is(err, errx.ErrorProfileForUserDoesNotExist):
 			ape.RenderErr(w, problems.NotFound("profile for user does not exist"))

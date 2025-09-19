@@ -12,10 +12,10 @@ import (
 	"github.com/chains-lab/profiles-svc/internal/errx"
 )
 
-func (s Service) UpdateOwnUsername(w http.ResponseWriter, r *http.Request) {
+func (s Handler) UpdateOwnUsername(w http.ResponseWriter, r *http.Request) {
 	initiator, err := meta.User(r.Context())
 	if err != nil {
-		s.Log(r).WithError(err).Error("failed to get user from context")
+		s.log.WithError(err).Error("failed to get user from context")
 		ape.RenderErr(w, problems.Unauthorized("failed to get user from context"))
 
 		return
@@ -23,7 +23,7 @@ func (s Service) UpdateOwnUsername(w http.ResponseWriter, r *http.Request) {
 
 	req, err := requests.UpdateUsername(r)
 	if err != nil {
-		s.Log(r).WithError(err).Errorf("invalid update username request")
+		s.log.WithError(err).Errorf("invalid update username request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 
 		return
@@ -31,7 +31,7 @@ func (s Service) UpdateOwnUsername(w http.ResponseWriter, r *http.Request) {
 
 	res, err := s.app.UpdateUsername(r.Context(), initiator.UserID, req.Data.Attributes.Username)
 	if err != nil {
-		s.Log(r).WithError(err).Errorf("failed to update username")
+		s.log.WithError(err).Errorf("failed to update username")
 		switch {
 		case errors.Is(err, errx.ErrorProfileForUserDoesNotExist):
 			ape.RenderErr(w, problems.NotFound("profile for user does not exist"))

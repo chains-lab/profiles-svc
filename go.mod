@@ -1,11 +1,14 @@
 module github.com/chains-lab/profiles-svc
 
-go 1.24.5
+go 1.24.6
+
+toolchain go1.24.7
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/chains-lab/ape v0.4.11
+	github.com/chains-lab/enum v0.1.7
 	github.com/chains-lab/gatekit v0.2.2
 	github.com/chains-lab/logium v0.1.1
 	github.com/go-chi/chi/v5 v5.2.3

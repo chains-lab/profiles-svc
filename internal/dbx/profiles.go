@@ -79,7 +79,7 @@ func (q ProfilesQ) Insert(ctx context.Context, input ProfileModel) error {
 	return err
 }
 
-var allowedForUpdate = map[string]struct{}{
+var allowedUpdateFields = map[string]struct{}{
 	"username":    {},
 	"pseudonym":   {},
 	"description": {},
@@ -98,12 +98,13 @@ func (q ProfilesQ) Update(ctx context.Context, input map[string]any) error {
 	updates := make(map[string]any, len(input)+1)
 
 	for k, v := range input {
-		if _, ok := allowedForUpdate[k]; !ok {
+		if _, ok := allowedUpdateFields[k]; !ok {
 			return fmt.Errorf("unknown updatable column: %s", k)
 		}
 		switch k {
 		case "updated_at":
 			if v == nil {
+				v = time.Now().UTC()
 			} else if _, ok := v.(time.Time); !ok {
 				return fmt.Errorf("updated_at must be time.Time")
 			}
@@ -113,6 +114,10 @@ func (q ProfilesQ) Update(ctx context.Context, input map[string]any) error {
 
 	if _, ok := updates["updated_at"]; !ok || updates["updated_at"] == nil {
 		updates["updated_at"] = time.Now().UTC()
+	}
+
+	if len(updates) == 0 {
+		return nil
 	}
 
 	query, args, err := q.updater.SetMap(updates).ToSql()

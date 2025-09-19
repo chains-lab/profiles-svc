@@ -9,10 +9,10 @@ import (
 	"github.com/chains-lab/profiles-svc/internal/api/rest/responses"
 )
 
-func (s Service) GetOwnProfile(w http.ResponseWriter, r *http.Request) {
+func (s Handler) GetOwnProfile(w http.ResponseWriter, r *http.Request) {
 	initiator, err := meta.User(r.Context())
 	if err != nil {
-		s.Log(r).WithError(err).Error("failed to get user from context")
+		s.log.WithError(err).Error("failed to get user from context")
 		ape.RenderErr(w, problems.Unauthorized("failed to get user from context"))
 
 		return
@@ -20,7 +20,7 @@ func (s Service) GetOwnProfile(w http.ResponseWriter, r *http.Request) {
 
 	res, err := s.app.GetProfileByUserID(r.Context(), initiator.UserID)
 	if err != nil {
-		s.Log(r).WithError(err).Errorf("failed to get profile by user id")
+		s.log.WithError(err).Errorf("failed to get profile by user id")
 		switch {
 		case err.Error() == "PROFILE_FOR_USER_DOES_NOT_EXIST":
 			ape.RenderErr(w, problems.NotFound("profile for user does not exist"))

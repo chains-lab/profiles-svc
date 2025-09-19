@@ -11,12 +11,12 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (s Service) GetProfileByUsername(w http.ResponseWriter, r *http.Request) {
+func (s Handler) GetProfileByUsername(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
 
 	res, err := s.app.GetProfileByUsername(r.Context(), username)
 	if err != nil {
-		s.Log(r).WithError(err).Errorf("failed to get profile by username")
+		s.log.WithError(err).Errorf("failed to get profile by username")
 		switch {
 		case errors.Is(err, errx.ErrorProfileForUserDoesNotExist):
 			ape.RenderErr(w, problems.NotFound("profile for user does not exist"))

@@ -2,18 +2,37 @@ package app
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
 	"fmt"
 
-	"github.com/chains-lab/profiles-svc/internal/app/entity"
+	"github.com/chains-lab/profiles-svc/internal/app/domain/profiles"
 	"github.com/chains-lab/profiles-svc/internal/config"
 	"github.com/chains-lab/profiles-svc/internal/dbx"
+	"github.com/chains-lab/profiles-svc/internal/errx"
 )
 
 type App struct {
-	profiles entity.Profiles
+	profiles profiles.Profiles
 
 	db *sql.DB
+}
+
+func (a App) generateUsername() (string, error) {
+	const (
+		prefix = "citizen"
+		digits = 8
+	)
+	buf := make([]byte, digits)
+	if _, err := rand.Read(buf); err != nil {
+		return "", errx.ErrorInternal.Raise(
+			fmt.Errorf("cannot generate random digits: %w", err),
+		)
+	}
+	for i := 0; i < digits; i++ {
+		buf[i] = '0' + (buf[i] % 10)
+	}
+	return prefix + string(buf), nil
 }
 
 func NewApp(cfg config.Config) (App, error) {
@@ -22,7 +41,7 @@ func NewApp(cfg config.Config) (App, error) {
 		return App{}, err
 	}
 
-	profiles, err := entity.NewProfile(pg)
+	profiles, err := profiles.NewProfile(pg)
 	if err != nil {
 		return App{}, err
 	}

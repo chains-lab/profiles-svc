@@ -8,8 +8,6 @@ var ErrorProfileForUserDoesNotExist = ape.DeclareError("PROFILE_FOR_USER_DOES_NO
 
 var ErrorProfileForUserAlreadyExists = ape.DeclareError("PROFILE_FOR_USER_ALREADY_EXISTS")
 
-var ErrorOnlyUserCanHaveProfile = ape.DeclareError("ONLY_USER_CAN_HAVE_PROFILE")
-
 var ErrorUsernameAlreadyTaken = ape.DeclareError("USERNAME_ALREADY_TAKEN")
 
 var ErrorUsernameIsNotValid = ape.DeclareError("USERNAME_IS_NOT_VALID")

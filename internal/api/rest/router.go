@@ -26,12 +26,15 @@ type Handlers interface {
 	UpdateOfficial(w http.ResponseWriter, r *http.Request)
 }
 
-func (a *Service) Run(ctx context.Context, h Handlers) {
-	svcAuth := mdlv.ServiceAuthMdl(enum.ProfilesSVC, a.cfg.JWT.Service.SecretKey)
-	userAuth := mdlv.AuthMdl(meta.UserCtxKey, a.cfg.JWT.User.AccessToken.SecretKey)
-	adminGrant := mdlv.AccessGrant(meta.UserCtxKey, roles.Admin, roles.SuperUser)
+func (s *Service) Run(ctx context.Context, h Handlers) {
+	svcAuth := mdlv.ServiceGrant(enum.SsoSVC, s.cfg.JWT.Service.SecretKey)
+	userAuth := mdlv.Auth(meta.UserCtxKey, s.cfg.JWT.User.AccessToken.SecretKey)
+	sysadmin := mdlv.RoleGrant(meta.UserCtxKey, map[string]bool{
+		roles.Admin:     true,
+		roles.SuperUser: true,
+	})
 
-	a.router.Route("/profiles-svc", func(r chi.Router) {
+	s.router.Route("/profiles-svc", func(r chi.Router) {
 		r.Use(svcAuth)
 		r.Route("/v1", func(r chi.Router) {
 			r.Route("/profiles", func(r chi.Router) {
@@ -45,7 +48,7 @@ func (a *Service) Run(ctx context.Context, h Handlers) {
 				r.Get("/username/{username}", h.GetProfileByUsername)
 				r.Get("/user_id/{user_id}", h.GetProfileByID)
 
-				r.With(adminGrant).Route("/admin", func(r chi.Router) {
+				r.With(sysadmin).Route("/admin", func(r chi.Router) {
 					r.Route("/{user_id}", func(r chi.Router) {
 						r.Route("/reset", func(r chi.Router) {
 							r.Post("/username", h.ResetUsername)
@@ -59,8 +62,8 @@ func (a *Service) Run(ctx context.Context, h Handlers) {
 		})
 	})
 
-	a.Start(ctx)
+	s.Start(ctx)
 
 	<-ctx.Done()
-	a.Stop(ctx)
+	s.Stop(ctx)
 }

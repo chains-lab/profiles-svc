@@ -16,6 +16,8 @@ github.com/chains-lab/enum v0.1.7 h1:tHoHRmHAAq4r3YHUV4aG76QKoOBFOSEfTAbbrNCCXPY
 github.com/chains-lab/enum v0.1.7/go.mod h1:SoV+p/9AlKSfYbq+wxBwA8fEQNwrAwBXIz+YjtDqQ/U=
 github.com/chains-lab/gatekit v0.2.2 h1:66/FWy6QRm99ITRste4wVycv8Sks50BTcFJCnm4g5m4=
 github.com/chains-lab/gatekit v0.2.2/go.mod h1:VG2r14E8Y4AP3KBX85MwtZ3+XJorVm5P9kJqdfDoevQ=
+github.com/chains-lab/gatekit v0.2.3 h1:1kCRESBVO1rT/iHpf3ynKKh2WAL4yceydFxSrG+6SgU=
+github.com/chains-lab/gatekit v0.2.3/go.mod h1:VG2r14E8Y4AP3KBX85MwtZ3+XJorVm5P9kJqdfDoevQ=
 github.com/chains-lab/logium v0.1.1 h1:C5ZroPavjzmqFxW6ajga++NhgpduudSd7uvgWiYZcxw=
 github.com/chains-lab/logium v0.1.1/go.mod h1:6FqyL1KnUmThTZpZt5UzvTSukH3vgz+bgWkODxa3hxw=
 github.com/chains-lab/svc-errors v0.3.1 h1:qf/zxg0cSOYe+uaJTnGQikJIWsOBb/uKnngYctbR4B4=

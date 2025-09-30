@@ -1,0 +1,28 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - id
+      - type
+      - attributes
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: "user id"
+      type:
+        type: string
+        enum: [ profile ]
+      attributes:
+        type: object
+        required:
+          - birth_date
+        properties:
+          birth_date:
+            type: string
+            format: date-time
+            description: "birth date user"
+            pattern: "DD-MM-YYYY"

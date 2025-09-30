@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Chains lab profile service
-  description: profiles service docs
+  description: profile service docs
   version: 0.0.1
 paths:
   /test:
@@ -14,6 +14,34 @@ paths:
           description: successfully
 components:
   schemas:
+    CreateProfile:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - type
+            - attributes
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: user id
+            type:
+              type: string
+              enum:
+                - profile
+            attributes:
+              type: object
+              required:
+                - username
+              properties:
+                username:
+                  type: string
+                  description: Username
     UpdateProfile:
       type: object
       required:
@@ -33,7 +61,7 @@ components:
             type:
               type: string
               enum:
-                - create_profile
+                - profile
             attributes:
               type: object
               properties:
@@ -54,34 +82,6 @@ components:
                   type: string
                   format: date-time
                   description: Birthday
-    CreateProfile:
-      type: object
-      required:
-        - data
-      properties:
-        data:
-          type: object
-          required:
-            - id
-            - type
-            - attributes
-          properties:
-            id:
-              type: string
-              format: uuid
-              description: user id
-            type:
-              type: string
-              enum:
-                - create_profile
-            attributes:
-              type: object
-              required:
-                - username
-              properties:
-                username:
-                  type: string
-                  description: Username
     UpdateUsername:
       type: object
       required:
@@ -101,7 +101,7 @@ components:
             type:
               type: string
               enum:
-                - create_profile
+                - profile
             attributes:
               type: object
               required:
@@ -110,6 +110,92 @@ components:
                 username:
                   type: string
                   description: Username
+    UpdateBirthDate:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - type
+            - attributes
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: user id
+            type:
+              type: string
+              enum:
+                - profile
+            attributes:
+              type: object
+              required:
+                - birth_date
+              properties:
+                birth_date:
+                  type: string
+                  format: date-time
+                  description: birth date user
+                  pattern: DD-MM-YYYY
+    UpdateSex:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - type
+            - attributes
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: user id
+            type:
+              type: string
+              enum:
+                - profile
+            attributes:
+              type: object
+              required:
+                - sex
+              properties:
+                sex:
+                  type: string
+                  description: sex
+    UpdateOfficial:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - id
+            - type
+            - attributes
+          properties:
+            id:
+              type: string
+              format: uuid
+              description: user id
+            type:
+              type: string
+              enum:
+                - profile
+            attributes:
+              type: object
+              required:
+                - official
+              properties:
+                official:
+                  type: boolean
+                  description: official
     Profile:
       type: object
       required:

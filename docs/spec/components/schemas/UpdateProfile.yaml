@@ -15,7 +15,7 @@ properties:
         description: "user id"
       type:
         type: string
-        enum: [ create_profile ]
+        enum: [ profile ]
       attributes:
         type: object
         properties:

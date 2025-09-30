@@ -9,19 +9,20 @@ import (
 
 	"github.com/alecthomas/kingpin"
 	"github.com/chains-lab/logium"
-	"github.com/chains-lab/profiles-svc/internal/app"
-	"github.com/chains-lab/profiles-svc/internal/config"
-	"github.com/chains-lab/profiles-svc/internal/dbx"
+	cmd2 "github.com/chains-lab/profiles-svc/cmd"
+	"github.com/chains-lab/profiles-svc/cmd/migrations"
+	"github.com/chains-lab/profiles-svc/internal"
+
 	"github.com/sirupsen/logrus"
 )
 
 func Run(args []string) bool {
-	cfg, err := config.LoadConfig()
+	cfg, err := internal.LoadConfig()
 	if err != nil {
 		logrus.Fatalf("failed to load config: %v", err)
 	}
 
-	log := logium.NewLogger(cfg.Server.Log.Level, cfg.Server.Log.Format)
+	log := logium.NewLogger(cfg.Log.Level, cfg.Log.Format)
 	log.Info("Starting server...")
 
 	var (
@@ -37,12 +38,6 @@ func Run(args []string) bool {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	application, err := app.NewApp(cfg)
-	if err != nil {
-		log.Fatalf("failed to create server: %v", err)
-		return false
-	}
-
 	var wg sync.WaitGroup
 
 	cmd, err := service.Parse(args[1:])
@@ -53,11 +48,11 @@ func Run(args []string) bool {
 
 	switch cmd {
 	case serviceCmd.FullCommand():
-		StartServices(ctx, cfg, log, &wg, &application)
+		cmd2.StartServices(ctx, cfg, log, &wg)
 	case migrateUpCmd.FullCommand():
-		err = dbx.MigrateUp(cfg.Database.SQL.URL)
+		err = migrations.MigrateUp(cfg.Database.SQL.URL)
 	case migrateDownCmd.FullCommand():
-		err = dbx.MigrateDown(cfg.Database.SQL.URL)
+		err = migrations.MigrateDown(cfg.Database.SQL.URL)
 	default:
 		log.Errorf("unknown command %s", cmd)
 		return false

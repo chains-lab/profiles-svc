@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  description: profiles service docs
+  description: profile service docs
   title: Chains lab profile service
   version: 0.0.1
 servers:
@@ -16,13 +16,6 @@ paths:
       - Test
 components:
   schemas:
-    UpdateProfile:
-      properties:
-        data:
-          $ref: '#/components/schemas/UpdateProfile_data'
-      required:
-      - data
-      type: object
     CreateProfile:
       properties:
         data:
@@ -30,10 +23,38 @@ components:
       required:
       - data
       type: object
+    UpdateProfile:
+      properties:
+        data:
+          $ref: '#/components/schemas/UpdateProfile_data'
+      required:
+      - data
+      type: object
     UpdateUsername:
       properties:
         data:
           $ref: '#/components/schemas/CreateProfile_data'
+      required:
+      - data
+      type: object
+    UpdateBirthDate:
+      properties:
+        data:
+          $ref: '#/components/schemas/UpdateBirthDate_data'
+      required:
+      - data
+      type: object
+    UpdateSex:
+      properties:
+        data:
+          $ref: '#/components/schemas/UpdateSex_data'
+      required:
+      - data
+      type: object
+    UpdateOfficial:
+      properties:
+        data:
+          $ref: '#/components/schemas/UpdateOfficial_data'
       required:
       - data
       type: object
@@ -100,6 +121,31 @@ components:
       - updated_at
       - username
       type: object
+    CreateProfile_data_attributes:
+      properties:
+        username:
+          description: Username
+          type: string
+      required:
+      - username
+      type: object
+    CreateProfile_data:
+      properties:
+        id:
+          description: user id
+          format: uuid
+          type: string
+        type:
+          enum:
+          - profile
+          type: string
+        attributes:
+          $ref: '#/components/schemas/CreateProfile_data_attributes'
+      required:
+      - attributes
+      - id
+      - type
+      type: object
     UpdateProfile_data_attributes:
       properties:
         pseudonym:
@@ -128,7 +174,7 @@ components:
           type: string
         type:
           enum:
-          - create_profile
+          - profile
           type: string
         attributes:
           $ref: '#/components/schemas/UpdateProfile_data_attributes'
@@ -137,15 +183,17 @@ components:
       - id
       - type
       type: object
-    CreateProfile_data_attributes:
+    UpdateBirthDate_data_attributes:
       properties:
-        username:
-          description: Username
+        birth_date:
+          description: birth date user
+          format: date-time
+          pattern: DD-MM-YYYY
           type: string
       required:
-      - username
+      - birth_date
       type: object
-    CreateProfile_data:
+    UpdateBirthDate_data:
       properties:
         id:
           description: user id
@@ -153,10 +201,60 @@ components:
           type: string
         type:
           enum:
-          - create_profile
+          - profile
           type: string
         attributes:
-          $ref: '#/components/schemas/CreateProfile_data_attributes'
+          $ref: '#/components/schemas/UpdateBirthDate_data_attributes'
+      required:
+      - attributes
+      - id
+      - type
+      type: object
+    UpdateSex_data_attributes:
+      properties:
+        sex:
+          description: sex
+          type: string
+      required:
+      - sex
+      type: object
+    UpdateSex_data:
+      properties:
+        id:
+          description: user id
+          format: uuid
+          type: string
+        type:
+          enum:
+          - profile
+          type: string
+        attributes:
+          $ref: '#/components/schemas/UpdateSex_data_attributes'
+      required:
+      - attributes
+      - id
+      - type
+      type: object
+    UpdateOfficial_data_attributes:
+      properties:
+        official:
+          description: official
+          type: boolean
+      required:
+      - official
+      type: object
+    UpdateOfficial_data:
+      properties:
+        id:
+          description: user id
+          format: uuid
+          type: string
+        type:
+          enum:
+          - profile
+          type: string
+        attributes:
+          $ref: '#/components/schemas/UpdateOfficial_data_attributes'
       required:
       - attributes
       - id

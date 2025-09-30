@@ -1,7 +1,7 @@
 /*
 Chains lab profile service
 
-profiles service docs
+profile service docs
 
 API version: 0.0.1
 */
@@ -12,6 +12,7 @@ package resources
 
 import (
 	"encoding/json"
+	"github.com/google/uuid"
 	"bytes"
 	"fmt"
 )
@@ -22,7 +23,7 @@ var _ MappedNullable = &UpdateProfileData{}
 // UpdateProfileData struct for UpdateProfileData
 type UpdateProfileData struct {
 	// user id
-	Id string `json:"id"`
+	Id uuid.UUID `json:"id"`
 	Type string `json:"type"`
 	Attributes UpdateProfileDataAttributes `json:"attributes"`
 }
@@ -33,7 +34,7 @@ type _UpdateProfileData UpdateProfileData
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewUpdateProfileData(id string, type_ string, attributes UpdateProfileDataAttributes) *UpdateProfileData {
+func NewUpdateProfileData(id uuid.UUID, type_ string, attributes UpdateProfileDataAttributes) *UpdateProfileData {
 	this := UpdateProfileData{}
 	this.Id = id
 	this.Type = type_
@@ -50,9 +51,9 @@ func NewUpdateProfileDataWithDefaults() *UpdateProfileData {
 }
 
 // GetId returns the Id field value
-func (o *UpdateProfileData) GetId() string {
+func (o *UpdateProfileData) GetId() uuid.UUID {
 	if o == nil {
-		var ret string
+		var ret uuid.UUID
 		return ret
 	}
 
@@ -61,7 +62,7 @@ func (o *UpdateProfileData) GetId() string {
 
 // GetIdOk returns a tuple with the Id field value
 // and a boolean to check if the value has been set.
-func (o *UpdateProfileData) GetIdOk() (*string, bool) {
+func (o *UpdateProfileData) GetIdOk() (*uuid.UUID, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -69,7 +70,7 @@ func (o *UpdateProfileData) GetIdOk() (*string, bool) {
 }
 
 // SetId sets field value
-func (o *UpdateProfileData) SetId(v string) {
+func (o *UpdateProfileData) SetId(v uuid.UUID) {
 	o.Id = v
 }
 

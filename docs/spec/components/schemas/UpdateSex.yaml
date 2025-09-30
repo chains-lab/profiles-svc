@@ -1,0 +1,26 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - id
+      - type
+      - attributes
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: "user id"
+      type:
+        type: string
+        enum: [ profile ]
+      attributes:
+        type: object
+        required:
+          - sex
+        properties:
+          sex:
+            type: string
+            description: "sex"

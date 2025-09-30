@@ -1,7 +1,7 @@
 /*
 Chains lab profile service
 
-profiles service docs
+profile service docs
 
 API version: 0.0.1
 */

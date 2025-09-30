@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**Id** | **string** | user id | 
+**Id** | [**uuid.UUID**](uuid.UUID.md) | user id | 
 **Type** | **string** |  | 
 **Attributes** | [**ProfileAttributes**](ProfileAttributes.md) |  | 
 
@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 
 ### NewProfileData
 
-`func NewProfileData(id string, type_ string, attributes ProfileAttributes, ) *ProfileData`
+`func NewProfileData(id uuid.UUID, type_ string, attributes ProfileAttributes, ) *ProfileData`
 
 NewProfileData instantiates a new ProfileData object
 This constructor will assign default values to properties that have it defined,
@@ -29,20 +29,20 @@ but it doesn't guarantee that properties required by API are set
 
 ### GetId
 
-`func (o *ProfileData) GetId() string`
+`func (o *ProfileData) GetId() uuid.UUID`
 
 GetId returns the Id field if non-nil, zero value otherwise.
 
 ### GetIdOk
 
-`func (o *ProfileData) GetIdOk() (*string, bool)`
+`func (o *ProfileData) GetIdOk() (*uuid.UUID, bool)`
 
 GetIdOk returns a tuple with the Id field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
 ### SetId
 
-`func (o *ProfileData) SetId(v string)`
+`func (o *ProfileData) SetId(v uuid.UUID)`
 
 SetId sets Id field to given value.
 

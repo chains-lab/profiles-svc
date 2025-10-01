@@ -21,11 +21,10 @@ func (d *Database) CreateProfile(ctx context.Context, profile models.Profile) er
 
 func (d *Database) GetProfileByUserID(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
 	row, err := d.sql.profiles.New().FilterUserID(userID).Get(ctx)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return models.Profile{}, nil
-		}
-
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return models.Profile{}, nil
+	case err != nil:
 		return models.Profile{}, err
 	}
 
@@ -34,10 +33,10 @@ func (d *Database) GetProfileByUserID(ctx context.Context, userID uuid.UUID) (mo
 
 func (d *Database) GetProfileByUsername(ctx context.Context, username string) (models.Profile, error) {
 	row, err := d.sql.profiles.New().FilterUsername(username).Get(ctx)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return models.Profile{}, nil
-		}
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return models.Profile{}, nil
+	case err != nil:
 		return models.Profile{}, err
 	}
 
@@ -74,9 +73,9 @@ func (d *Database) FilterProfiles(
 		return models.ProfileCollection{}, err
 	}
 
-	result := make([]models.Profile, len(rows))
-	for i, profile := range rows {
-		result[i] = profileSchemaToModel(profile)
+	result := make([]models.Profile, 0, len(rows))
+	for _, p := range rows {
+		result = append(result, profileSchemaToModel(p))
 	}
 
 	return models.ProfileCollection{

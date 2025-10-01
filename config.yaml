@@ -15,12 +15,7 @@ log:
 
 database:
   sql:
-    url: "postgresql://postgres:postgres@db:XXXX/postgres?sslmode=disable"
-  redis:
-    addr: "localhost:7200"
-    password: "example"
-    db: 0
-    lifetime: 15 #minutes
+    url: "postgresql://postgres:postgres@localhost:7777/postgres?sslmode=disable"
 
 oauth:
   google:

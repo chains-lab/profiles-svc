@@ -89,6 +89,8 @@ Class | Method | HTTP request | Description
  - [Profile](docs/Profile.md)
  - [ProfileAttributes](docs/ProfileAttributes.md)
  - [ProfileData](docs/ProfileData.md)
+ - [ProfilesCollection](docs/ProfilesCollection.md)
+ - [ProfilesCollectionLinks](docs/ProfilesCollectionLinks.md)
  - [UpdateBirthDate](docs/UpdateBirthDate.md)
  - [UpdateBirthDateData](docs/UpdateBirthDateData.md)
  - [UpdateBirthDateDataAttributes](docs/UpdateBirthDateDataAttributes.md)

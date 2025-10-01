@@ -37,3 +37,17 @@ func Profile(m models.Profile) resources.Profile {
 
 	return resp
 }
+
+func ProfileCollection(m models.ProfileCollection) resources.ProfilesCollection {
+	resp := resources.ProfilesCollection{
+		Data: make([]resources.ProfileData, 0, len(m.Data)),
+	}
+
+	for _, el := range m.Data {
+		p := Profile(el).Data
+
+		resp.Data = append(resp.Data, p)
+	}
+
+	return resp
+}

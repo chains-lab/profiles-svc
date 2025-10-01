@@ -20,6 +20,8 @@ type Controllers interface {
 	GetProfileByUsername(w http.ResponseWriter, r *http.Request)
 	GetProfileByID(w http.ResponseWriter, r *http.Request)
 
+	FilterProfiles(w http.ResponseWriter, r *http.Request)
+
 	UpdateOwnProfile(w http.ResponseWriter, r *http.Request)
 	UpdateOwnUsername(w http.ResponseWriter, r *http.Request)
 	UpdateOwnSex(w http.ResponseWriter, r *http.Request)
@@ -44,6 +46,11 @@ func Run(ctx context.Context, cfg internal.Config, log logium.Logger, c Controll
 		r.Use(svcAuth)
 		r.Route("/v1", func(r chi.Router) {
 			r.Route("/profile", func(r chi.Router) {
+				r.Get("/", c.FilterProfiles)
+
+				r.Get("/username/{username}", c.GetProfileByUsername)
+				r.Get("/user_id/{user_id}", c.GetProfileByID)
+
 				r.With(userAuth).Route("/own", func(r chi.Router) {
 					r.Get("/", c.GetOwnProfile)
 					r.Post("/", c.CreateOwnProfile)
@@ -53,9 +60,6 @@ func Run(ctx context.Context, cfg internal.Config, log logium.Logger, c Controll
 					r.Patch("/username", c.UpdateOwnUsername)
 					r.Patch("/birth_date", c.UpdateOwnBirthDate)
 				})
-
-				r.Get("/username/{username}", c.GetProfileByUsername)
-				r.Get("/user_id/{user_id}", c.GetProfileByID)
 
 				r.With(sysadmin).Route("/admin", func(r chi.Router) {
 					r.Route("/{user_id}", func(r chi.Router) {

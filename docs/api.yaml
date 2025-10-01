@@ -37,4 +37,6 @@ components:
       $ref: './spec/components/schemas/ProfileData.yaml'
     ProfileAttributes:
       $ref: './spec/components/schemas/ProfileAttributes.yaml'
+    ProfilesCollection:
+      $ref: './spec/components/schemas/ProfilesCollection.yaml'
 

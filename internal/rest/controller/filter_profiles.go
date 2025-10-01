@@ -4,8 +4,11 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/chains-lab/ape"
+	"github.com/chains-lab/ape/problems"
 	"github.com/chains-lab/pagi"
 	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
+	"github.com/chains-lab/profiles-svc/internal/rest/responses"
 )
 
 func (s Service) FilterProfiles(w http.ResponseWriter, r *http.Request) {
@@ -32,5 +35,16 @@ func (s Service) FilterProfiles(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	res, err := s.domain.Profile.Filter(ctx)
+	res, err := s.domain.Profile.Filter(r.Context(), filters, pag, size)
+	if err != nil {
+		s.log.WithError(err).Error("failed to filter profiles")
+		switch {
+		default:
+			ape.RenderErr(w, problems.InternalError())
+		}
+
+		return
+	}
+
+	ape.Render(w, http.StatusOK, responses.ProfileCollection(res))
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	errx2 "github.com/chains-lab/profiles-svc/internal/domain/errx"
+	"github.com/chains-lab/profiles-svc/internal/domain/errx"
 	"github.com/chains-lab/profiles-svc/internal/domain/models"
 	"github.com/google/uuid"
 )
@@ -12,13 +12,13 @@ import (
 func (s Service) GetByID(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
 	profile, err := s.db.GetProfileByUserID(ctx, userID)
 	if err != nil {
-		return models.Profile{}, errx2.ErrorInternal.Raise(
+		return models.Profile{}, errx.ErrorInternal.Raise(
 			fmt.Errorf("getting profile for user '%s': %w", userID, err),
 		)
 	}
 
-	if profile == (models.Profile{}) {
-		return models.Profile{}, errx2.ErrorProfileNotFound.Raise(
+	if profile.IsNil() {
+		return models.Profile{}, errx.ErrorProfileNotFound.Raise(
 			fmt.Errorf("profile for user '%s' does not exist", userID),
 		)
 	}
@@ -29,13 +29,13 @@ func (s Service) GetByID(ctx context.Context, userID uuid.UUID) (models.Profile,
 func (s Service) GetByUsername(ctx context.Context, username string) (models.Profile, error) {
 	profile, err := s.db.GetProfileByUsername(ctx, username)
 	if err != nil {
-		return models.Profile{}, errx2.ErrorInternal.Raise(
+		return models.Profile{}, errx.ErrorInternal.Raise(
 			fmt.Errorf("getting profile with username '%s': %w", username, err),
 		)
 	}
 
-	if profile == (models.Profile{}) {
-		return models.Profile{}, errx2.ErrorProfileNotFound.Raise(
+	if profile.IsNil() {
+		return models.Profile{}, errx.ErrorProfileNotFound.Raise(
 			fmt.Errorf("profile with username '%s' does not exist", username),
 		)
 	}

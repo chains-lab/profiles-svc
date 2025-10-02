@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/chains-lab/enum"
-	errx2 "github.com/chains-lab/profiles-svc/internal/domain/errx"
+	"github.com/chains-lab/profiles-svc/internal/domain/errx"
 	"github.com/chains-lab/profiles-svc/internal/domain/models"
 	"github.com/google/uuid"
 )
@@ -56,7 +56,7 @@ func (s Service) Update(ctx context.Context, userID uuid.UUID, input Update) (mo
 
 	err = s.db.UpdateProfile(ctx, userID, input, now)
 	if err != nil {
-		return models.Profile{}, errx2.ErrorInternal.Raise(
+		return models.Profile{}, errx.ErrorInternal.Raise(
 			fmt.Errorf("updating profile for user '%s': %w", userID, err),
 		)
 	}
@@ -74,7 +74,7 @@ func (s Service) UpdateOfficial(ctx context.Context, userID uuid.UUID, official 
 
 	err = s.db.UpdateProfileOfficial(ctx, userID, official, now)
 	if err != nil {
-		return models.Profile{}, errx2.ErrorInternal.Raise(
+		return models.Profile{}, errx.ErrorInternal.Raise(
 			fmt.Errorf("updating official profile for user '%s': %w", userID, err),
 		)
 	}
@@ -99,7 +99,7 @@ func (s Service) UpdateBirthDate(ctx context.Context, userID uuid.UUID, birthDat
 
 	err = s.db.UpdateProfileBirthDate(ctx, userID, birthDate, now)
 	if err != nil {
-		return models.Profile{}, errx2.ErrorInternal.Raise(
+		return models.Profile{}, errx.ErrorInternal.Raise(
 			fmt.Errorf("updating profile birthdate for user '%s': %w", userID, err),
 		)
 	}
@@ -118,14 +118,14 @@ func (s Service) UpdateSex(ctx context.Context, userID uuid.UUID, sex string) (m
 
 	err = enum.CheckUserSexes(sex)
 	if err != nil {
-		return models.Profile{}, errx2.ErrorSexIsNotValid.Raise(err)
+		return models.Profile{}, errx.ErrorSexIsNotValid.Raise(err)
 	}
 
 	now := time.Now().UTC()
 
 	err = s.db.UpdateProfileSex(ctx, userID, sex, now)
 	if err != nil {
-		return models.Profile{}, errx2.ErrorInternal.Raise(
+		return models.Profile{}, errx.ErrorInternal.Raise(
 			fmt.Errorf("updating profile sex for user '%s': %w", userID, err),
 		)
 	}
@@ -143,7 +143,7 @@ func (s Service) UpdateUsername(ctx context.Context, userID uuid.UUID, username 
 	}
 
 	if err = validateUsername(username); err != nil {
-		return models.Profile{}, errx2.ErrorUsernameIsNotValid.Raise(
+		return models.Profile{}, errx.ErrorUsernameIsNotValid.Raise(
 			fmt.Errorf("validating username '%s': %w", username, err),
 		)
 	}
@@ -151,11 +151,11 @@ func (s Service) UpdateUsername(ctx context.Context, userID uuid.UUID, username 
 	now := time.Now().UTC()
 
 	_, err = s.GetByUsername(ctx, username)
-	if !errors.Is(err, errx2.ErrorProfileNotFound) {
+	if !errors.Is(err, errx.ErrorProfileNotFound) {
 		return models.Profile{}, err
 	}
 	if err == nil {
-		return models.Profile{}, errx2.ErrorUsernameAlreadyTaken.Raise(
+		return models.Profile{}, errx.ErrorUsernameAlreadyTaken.Raise(
 			fmt.Errorf("username '%s' is already taken", username),
 		)
 	}
@@ -168,11 +168,11 @@ func (s Service) UpdateUsername(ctx context.Context, userID uuid.UUID, username 
 	if err != nil {
 		switch {
 		case errors.Is(err, sql.ErrNoRows):
-			return models.Profile{}, errx2.ErrorProfileNotFound.Raise(
+			return models.Profile{}, errx.ErrorProfileNotFound.Raise(
 				fmt.Errorf("profile for user '%s' does not exist", userID),
 			)
 		default:
-			return models.Profile{}, errx2.ErrorInternal.Raise(
+			return models.Profile{}, errx.ErrorInternal.Raise(
 				fmt.Errorf("updating username for user '%s': %w", userID, err),
 			)
 		}

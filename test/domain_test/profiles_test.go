@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
+	"github.com/chains-lab/profiles-svc/test"
 	"github.com/google/uuid"
 )
 
@@ -14,7 +15,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("newSetup: %v", err)
 	}
 
-	cleanDb(t)
+	test.CleanDb(t)
 
 	ctx := context.Background()
 

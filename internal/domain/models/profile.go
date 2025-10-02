@@ -20,6 +20,10 @@ type Profile struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+func (p Profile) IsNil() bool {
+	return p == Profile{}
+}
+
 type ProfileCollection struct {
 	Data  []Profile `json:"data"`
 	Page  uint64    `json:"page"`

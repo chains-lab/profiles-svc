@@ -5,7 +5,6 @@ import (
 	"log"
 	"testing"
 
-	"github.com/chains-lab/profiles-svc/cmd/migrations"
 	"github.com/chains-lab/profiles-svc/internal"
 	"github.com/chains-lab/profiles-svc/internal/data"
 	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
@@ -28,18 +27,6 @@ type Setup struct {
 
 type domain struct {
 	profile profile.Service
-}
-
-func cleanDb(t *testing.T) {
-	err := migrations.MigrateDown(testDatabaseURL)
-	if err != nil {
-		t.Fatalf("migrate down: %v", err)
-	}
-
-	err = migrations.MigrateUp(testDatabaseURL)
-	if err != nil {
-		t.Fatalf("migrate up: %v", err)
-	}
 }
 
 func newSetup(t *testing.T) (Setup, error) {

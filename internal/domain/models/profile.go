@@ -21,7 +21,7 @@ type Profile struct {
 }
 
 func (p Profile) IsNil() bool {
-	return p == Profile{}
+	return p.UserID == uuid.Nil
 }
 
 type ProfileCollection struct {

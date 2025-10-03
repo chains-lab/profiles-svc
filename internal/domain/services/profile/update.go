@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chains-lab/enum"
+	"github.com/chains-lab/profiles-svc/internal/domain/enum"
 	"github.com/chains-lab/profiles-svc/internal/domain/errx"
 	"github.com/chains-lab/profiles-svc/internal/domain/models"
 	"github.com/google/uuid"

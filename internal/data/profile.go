@@ -53,8 +53,13 @@ func (d *Database) FilterProfiles(
 
 	query := d.sql.profiles.New()
 
-	if filters.Username != nil {
-		query.FilterUsernameLike(*filters.Username)
+	if filters.UserID != nil {
+		query.FilterUserID(filters.UserID...)
+	}
+	if filters.UsernameLike != nil {
+		query.FilterUsernameLike(*filters.UsernameLike)
+	} else if len(filters.Username) > 0 {
+		query.FilterUsername(filters.Username...)
 	}
 	if filters.Pseudonym != nil {
 		query.FilterPseudonymLike(*filters.Pseudonym)

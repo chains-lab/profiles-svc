@@ -221,7 +221,7 @@ func (q ProfilesQ) Delete(ctx context.Context) error {
 	return err
 }
 
-func (q ProfilesQ) FilterUserID(userID uuid.UUID) ProfilesQ {
+func (q ProfilesQ) FilterUserID(userID ...uuid.UUID) ProfilesQ {
 	q.selector = q.selector.Where(sq.Eq{"user_id": userID})
 	q.counter = q.counter.Where(sq.Eq{"user_id": userID})
 	q.deleter = q.deleter.Where(sq.Eq{"user_id": userID})
@@ -230,7 +230,7 @@ func (q ProfilesQ) FilterUserID(userID uuid.UUID) ProfilesQ {
 	return q
 }
 
-func (q ProfilesQ) FilterUsername(username string) ProfilesQ {
+func (q ProfilesQ) FilterUsername(username ...string) ProfilesQ {
 	q.selector = q.selector.Where(sq.Eq{"username": username})
 	q.counter = q.counter.Where(sq.Eq{"username": username})
 	q.deleter = q.deleter.Where(sq.Eq{"username": username})

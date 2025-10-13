@@ -6,12 +6,15 @@ import (
 
 	"github.com/chains-lab/profiles-svc/internal/domain/errx"
 	"github.com/chains-lab/profiles-svc/internal/domain/models"
+	"github.com/google/uuid"
 )
 
 type FilterParams struct {
-	Username  *string
-	Pseudonym *string
-	Official  *bool
+	UserID       []uuid.UUID
+	Username     []string
+	UsernameLike *string
+	Pseudonym    *string
+	Official     *bool
 }
 
 func (s Service) Filter(ctx context.Context, filters FilterParams, page uint64, size uint64) (models.ProfileCollection, error) {

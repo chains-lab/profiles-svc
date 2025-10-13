@@ -120,4 +120,14 @@ func TestProfiles(t *testing.T) {
 	if !first.Official {
 		t.Fatalf("UpdateProfileOfficial first to true: expected official true, got false")
 	}
+
+	list, err := s.domain.profile.Filter(ctx, profile.FilterParams{
+		UserID: []uuid.UUID{firstID, secondID},
+	}, 0, 10)
+	if err != nil {
+		t.Fatalf("FilterProfiles by IDs: %v", err)
+	}
+	if len(list.Data) != 2 {
+		t.Fatalf("FilterProfiles by IDs: expected 2 profiles, got %d", len(list.Data))
+	}
 }

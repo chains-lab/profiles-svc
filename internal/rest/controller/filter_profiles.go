@@ -9,23 +9,48 @@ import (
 	"github.com/chains-lab/pagi"
 	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
 	"github.com/chains-lab/profiles-svc/internal/rest/responses"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/google/uuid"
 )
 
 func (s Service) FilterProfiles(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
-
 	pag, size := pagi.GetPagination(r)
 
 	filters := profile.FilterParams{}
 
-	if username := strings.TrimSpace(q.Get("username")); username != "" {
-		filters.Username = &[]string{username}[0]
+	if userIDs := q["user_id"]; len(userIDs) > 0 {
+		for _, raw := range userIDs {
+			id, err := uuid.Parse(strings.TrimSpace(raw))
+			if err != nil {
+				ape.RenderErr(w, problems.BadRequest(validation.Errors{
+					"user_id": err,
+				})...)
+				return
+			}
+			filters.UserID = append(filters.UserID, id)
+		}
 	}
+
+	if usernames := q["username"]; len(usernames) > 0 {
+		for _, name := range usernames {
+			name = strings.TrimSpace(name)
+			if name != "" {
+				filters.Username = append(filters.Username, name)
+			}
+		}
+	}
+
+	if usernameLike := strings.TrimSpace(q.Get("username_like")); usernameLike != "" {
+		filters.UsernameLike = &usernameLike
+	}
+
 	if pseudonym := strings.TrimSpace(q.Get("pseudonym")); pseudonym != "" {
-		filters.Pseudonym = &[]string{pseudonym}[0]
+		filters.Pseudonym = &pseudonym
 	}
+
 	if official := strings.TrimSpace(q.Get("official")); official != "" {
-		switch official {
+		switch strings.ToLower(official) {
 		case "true":
 			t := true
 			filters.Official = &t
@@ -34,15 +59,11 @@ func (s Service) FilterProfiles(w http.ResponseWriter, r *http.Request) {
 			filters.Official = &f
 		}
 	}
-
+	
 	res, err := s.domain.Profile.Filter(r.Context(), filters, pag, size)
 	if err != nil {
 		s.log.WithError(err).Error("failed to filter profiles")
-		switch {
-		default:
-			ape.RenderErr(w, problems.InternalError())
-		}
-
+		ape.RenderErr(w, problems.InternalError())
 		return
 	}
 

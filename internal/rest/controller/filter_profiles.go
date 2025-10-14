@@ -6,9 +6,9 @@ import (
 
 	"github.com/chains-lab/ape"
 	"github.com/chains-lab/ape/problems"
-	"github.com/chains-lab/pagi"
 	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
 	"github.com/chains-lab/profiles-svc/internal/rest/responses"
+	"github.com/chains-lab/restkit/pagi"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/google/uuid"
 )
@@ -59,7 +59,7 @@ func (s Service) FilterProfiles(w http.ResponseWriter, r *http.Request) {
 			filters.Official = &f
 		}
 	}
-	
+
 	res, err := s.domain.Profile.Filter(r.Context(), filters, pag, size)
 	if err != nil {
 		s.log.WithError(err).Error("failed to filter profiles")

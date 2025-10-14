@@ -14,7 +14,7 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
-func (s Service) UpdateOwnSex(w http.ResponseWriter, r *http.Request) {
+func (s Service) UpdateMyUsername(w http.ResponseWriter, r *http.Request) {
 	initiator, err := meta.User(r.Context())
 	if err != nil {
 		s.log.WithError(err).Error("failed to get user from context")
@@ -23,34 +23,36 @@ func (s Service) UpdateOwnSex(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req, err := requests.UpdateSex(r)
+	req, err := requests.UpdateUsername(r)
 	if err != nil {
-		s.log.WithError(err).Errorf("invalid update sex request")
+		s.log.WithError(err).Errorf("invalid update username request")
 		ape.RenderErr(w, problems.BadRequest(err)...)
 
 		return
 	}
 
 	if req.Data.Id != initiator.ID {
-		s.log.WithError(err).Errorf("id in body and initiastor id mismacht fir update own profile request")
+		s.log.WithError(err).Errorf("id in body and initiastor id mismacht fir update My profile request")
 		ape.RenderErr(w, problems.BadRequest(validation.Errors{
 			"id": fmt.Errorf(
-				"id in body: %s and initiastor id: %s mismacht fir update own profile request",
+				"id in body: %s and initiastor id: %s mismacht fir update My profile request",
 				req.Data.Id,
 				initiator.ID,
 			),
 		})...)
 	}
 
-	res, err := s.domain.Profile.UpdateSex(r.Context(), initiator.ID, req.Data.Attributes.Sex)
+	res, err := s.domain.Profile.UpdateUsername(r.Context(), initiator.ID, req.Data.Attributes.Username)
 	if err != nil {
 		s.log.WithError(err).Errorf("failed to update username")
 		switch {
 		case errors.Is(err, errx.ErrorProfileNotFound):
-			ape.RenderErr(w, problems.NotFound("profile for user does not exist"))
-		case errors.Is(err, errx.ErrorSexIsNotValid):
+			ape.RenderErr(w, problems.Unauthorized("profile for user does not exist"))
+		case errors.Is(err, errx.ErrorUsernameAlreadyTaken):
+			ape.RenderErr(w, problems.Conflict("username is already taken"))
+		case errors.Is(err, errx.ErrorUsernameIsNotValid):
 			ape.RenderErr(w, problems.BadRequest(validation.Errors{
-				"sex": fmt.Errorf("sex is not supported %s", err),
+				"username": fmt.Errorf("username is not supported %s", err),
 			})...)
 		default:
 			ape.RenderErr(w, problems.InternalError())

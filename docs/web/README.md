@@ -91,18 +91,12 @@ Class | Method | HTTP request | Description
  - [ProfileData](docs/ProfileData.md)
  - [ProfilesCollection](docs/ProfilesCollection.md)
  - [ProfilesCollectionLinks](docs/ProfilesCollectionLinks.md)
- - [UpdateBirthDate](docs/UpdateBirthDate.md)
- - [UpdateBirthDateData](docs/UpdateBirthDateData.md)
- - [UpdateBirthDateDataAttributes](docs/UpdateBirthDateDataAttributes.md)
  - [UpdateOfficial](docs/UpdateOfficial.md)
  - [UpdateOfficialData](docs/UpdateOfficialData.md)
  - [UpdateOfficialDataAttributes](docs/UpdateOfficialDataAttributes.md)
  - [UpdateProfile](docs/UpdateProfile.md)
  - [UpdateProfileData](docs/UpdateProfileData.md)
  - [UpdateProfileDataAttributes](docs/UpdateProfileDataAttributes.md)
- - [UpdateSex](docs/UpdateSex.md)
- - [UpdateSexData](docs/UpdateSexData.md)
- - [UpdateSexDataAttributes](docs/UpdateSexDataAttributes.md)
  - [UpdateUsername](docs/UpdateUsername.md)
 
 

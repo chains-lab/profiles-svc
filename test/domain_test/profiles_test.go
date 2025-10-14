@@ -77,7 +77,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("UpdateProfile first: expected description %s, got %s", description, *first.Description)
 	}
 
-	second, err = s.domain.profile.ResetUserProfile(ctx, secondID)
+	second, err = s.domain.profile.ResetProfile(ctx, secondID)
 	if err != nil {
 		t.Fatalf("ResetUserProfile second: %v", err)
 	}
@@ -91,11 +91,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("ResetUserProfile second: expected description nil, got %v", *second.Description)
 	}
 
-	if second.Username != "second" {
-		t.Fatalf("ResetUserProfile second: expected username %s, got %s", "second", second.Username)
-	}
-
-	first, err = s.domain.profile.ResetUsername(ctx, firstID)
+	first, err = s.domain.profile.ResetProfile(ctx, firstID)
 	if err != nil {
 		t.Fatalf("ResetUsername first: %v", err)
 	}

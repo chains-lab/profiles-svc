@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"time"
 
 	"github.com/chains-lab/profiles-svc/internal/domain/errx"
 	"github.com/chains-lab/profiles-svc/internal/domain/models"
@@ -27,31 +28,29 @@ func generateUsername() (string, error) {
 	return prefix + string(buf), nil
 }
 
-func (s Service) ResetUsername(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
+func (s Service) ResetProfile(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
+	p, err := s.GetByID(ctx, userID)
+	if err != nil {
+		return models.Profile{}, err
+	}
+
 	usrnm, err := generateUsername()
 	if err != nil {
 		return models.Profile{}, err
 	}
 
-	u, err := s.UpdateUsername(ctx, userID, usrnm)
+	now := time.Now().UTC()
+
+	err = s.db.ResetProfile(ctx, userID, usrnm, now)
 	if err != nil {
 		return models.Profile{}, err
 	}
 
-	return u, nil
-}
+	p.Username = usrnm
+	p.Avatar = nil
+	p.Pseudonym = nil
+	p.Description = nil
+	p.UpdatedAt = now
 
-func (s Service) ResetUserProfile(ctx context.Context, userID uuid.UUID) (models.Profile, error) {
-	empty := ""
-	dmInput := Update{}
-	dmInput.Pseudonym = &empty
-	dmInput.Description = &empty
-	dmInput.Avatar = &empty
-
-	res, err := s.Update(ctx, userID, dmInput)
-	if err != nil {
-		return models.Profile{}, err
-	}
-
-	return res, nil
+	return p, nil
 }

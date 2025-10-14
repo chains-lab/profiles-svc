@@ -24,7 +24,7 @@ properties:
   sex:
     type: string
     description: "sex prikin'"
-  birthdate:
+  birth_date:
     type: string
     format: date-time
     description: "Birthday"

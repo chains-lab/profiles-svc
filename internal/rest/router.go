@@ -4,37 +4,39 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/chains-lab/gatekit/mdlv"
-	"github.com/chains-lab/gatekit/roles"
 	"github.com/chains-lab/logium"
 	"github.com/chains-lab/profiles-svc/internal"
 	"github.com/chains-lab/profiles-svc/internal/rest/meta"
+	"github.com/chains-lab/restkit/roles"
 	"github.com/go-chi/chi/v5"
 )
 
-type Controllers interface {
-	GetOwnProfile(w http.ResponseWriter, r *http.Request)
+type Handlers interface {
+	GetMyProfile(w http.ResponseWriter, r *http.Request)
 
-	CreateOwnProfile(w http.ResponseWriter, r *http.Request)
+	CreateMyProfile(w http.ResponseWriter, r *http.Request)
 	GetProfileByUsername(w http.ResponseWriter, r *http.Request)
 	GetProfileByID(w http.ResponseWriter, r *http.Request)
 
 	FilterProfiles(w http.ResponseWriter, r *http.Request)
 
-	UpdateOwnProfile(w http.ResponseWriter, r *http.Request)
-	UpdateOwnUsername(w http.ResponseWriter, r *http.Request)
-	UpdateOwnSex(w http.ResponseWriter, r *http.Request)
-	UpdateOwnBirthDate(w http.ResponseWriter, r *http.Request)
+	UpdateMyProfile(w http.ResponseWriter, r *http.Request)
+	UpdateMyUsername(w http.ResponseWriter, r *http.Request)
 	UpdateOfficial(w http.ResponseWriter, r *http.Request)
 
-	ResetUsername(w http.ResponseWriter, r *http.Request)
 	ResetProfile(w http.ResponseWriter, r *http.Request)
 }
 
-func Run(ctx context.Context, cfg internal.Config, log logium.Logger, c Controllers) {
-	svcAuth := mdlv.ServiceGrant(cfg.Service.Name, cfg.JWT.Service.SecretKey)
-	userAuth := mdlv.Auth(meta.UserCtxKey, cfg.JWT.User.AccessToken.SecretKey)
-	sysadmin := mdlv.RoleGrant(meta.UserCtxKey, map[string]bool{
+type Middleware interface {
+	ServiceGrant(serviceName, skService string) func(http.Handler) http.Handler
+	Auth(userCtxKey interface{}, skUser string) func(http.Handler) http.Handler
+	RoleGrant(userCtxKey interface{}, allowedRoles map[string]bool) func(http.Handler) http.Handler
+}
+
+func Run(ctx context.Context, cfg internal.Config, log logium.Logger, m Middleware, h Handlers) {
+	svcAuth := m.ServiceGrant(cfg.Service.Name, cfg.JWT.Service.SecretKey)
+	userAuth := m.Auth(meta.UserCtxKey, cfg.JWT.User.AccessToken.SecretKey)
+	sysmoder := m.RoleGrant(meta.UserCtxKey, map[string]bool{
 		roles.Moder: true,
 		roles.Admin: true,
 	})
@@ -45,30 +47,24 @@ func Run(ctx context.Context, cfg internal.Config, log logium.Logger, c Controll
 		r.Use(svcAuth)
 		r.Route("/v1", func(r chi.Router) {
 			r.Route("/profile", func(r chi.Router) {
-				r.Get("/", c.FilterProfiles)
+				r.Get("/", h.FilterProfiles)
 
-				r.Get("/username/{username}", c.GetProfileByUsername)
-				r.Get("/user_id/{user_id}", c.GetProfileByID)
+				r.Get("/u/{username}", h.GetProfileByUsername)
 
-				r.With(userAuth).Route("/own", func(r chi.Router) {
-					r.Get("/", c.GetOwnProfile)
-					r.Post("/", c.CreateOwnProfile)
+				r.With(userAuth).Route("/me", func(r chi.Router) {
+					r.Post("/", h.CreateMyProfile)
 
-					r.Put("/", c.UpdateOwnProfile)
-					r.Patch("/sex", c.UpdateOwnSex)
-					r.Patch("/username", c.UpdateOwnUsername)
-					r.Patch("/birth_date", c.UpdateOwnBirthDate)
+					r.Get("/", h.GetMyProfile)
+					r.Put("/", h.UpdateMyProfile)
+
+					r.Patch("/username", h.UpdateMyUsername)
 				})
 
-				r.With(sysadmin).Route("/admin", func(r chi.Router) {
-					r.Route("/{user_id}", func(r chi.Router) {
-						r.Route("/reset", func(r chi.Router) {
-							r.Post("/username", c.ResetUsername)
-							r.Post("/profile", c.ResetProfile)
-						})
+				r.Route("/{user_id}", func(r chi.Router) {
+					r.Get("/", h.GetProfileByID)
 
-						r.Patch("/official/{value}", c.UpdateOfficial)
-					})
+					r.With(sysmoder).Patch("/official", h.UpdateOfficial)
+					r.With(sysmoder).Put("/reset", h.ResetProfile)
 				})
 			})
 		})
@@ -78,5 +74,5 @@ func Run(ctx context.Context, cfg internal.Config, log logium.Logger, c Controll
 
 	<-ctx.Done()
 
-	log.Info("shutting down REST service")
+	log.Info("shutting dMy REST service")
 }

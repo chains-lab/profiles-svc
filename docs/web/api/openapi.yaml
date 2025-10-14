@@ -37,20 +37,6 @@ components:
       required:
       - data
       type: object
-    UpdateBirthDate:
-      properties:
-        data:
-          $ref: '#/components/schemas/UpdateBirthDate_data'
-      required:
-      - data
-      type: object
-    UpdateSex:
-      properties:
-        data:
-          $ref: '#/components/schemas/UpdateSex_data'
-      required:
-      - data
-      type: object
     UpdateOfficial:
       properties:
         data:
@@ -103,7 +89,7 @@ components:
         sex:
           description: sex prikin'
           type: string
-        birthdate:
+        birth_date:
           description: Birthday
           format: date-time
           type: string
@@ -173,7 +159,7 @@ components:
         sex:
           description: sex prikin'
           type: string
-        birthdate:
+        birth_date:
           description: Birthday
           format: date-time
           type: string
@@ -190,58 +176,6 @@ components:
           type: string
         attributes:
           $ref: '#/components/schemas/UpdateProfile_data_attributes'
-      required:
-      - attributes
-      - id
-      - type
-      type: object
-    UpdateBirthDate_data_attributes:
-      properties:
-        birth_date:
-          description: birth date user
-          format: date-time
-          pattern: DD-MM-YYYY
-          type: string
-      required:
-      - birth_date
-      type: object
-    UpdateBirthDate_data:
-      properties:
-        id:
-          description: user id
-          format: uuid
-          type: string
-        type:
-          enum:
-          - profile
-          type: string
-        attributes:
-          $ref: '#/components/schemas/UpdateBirthDate_data_attributes'
-      required:
-      - attributes
-      - id
-      - type
-      type: object
-    UpdateSex_data_attributes:
-      properties:
-        sex:
-          description: sex
-          type: string
-      required:
-      - sex
-      type: object
-    UpdateSex_data:
-      properties:
-        id:
-          description: user id
-          format: uuid
-          type: string
-        type:
-          enum:
-          - profile
-          type: string
-        attributes:
-          $ref: '#/components/schemas/UpdateSex_data_attributes'
       required:
       - attributes
       - id

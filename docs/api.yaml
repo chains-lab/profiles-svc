@@ -23,10 +23,6 @@ components:
       $ref: './spec/components/schemas/UpdateProfile.yaml'
     UpdateUsername:
       $ref: './spec/components/schemas/UpdateUsername.yaml'
-    UpdateBirthDate:
-      $ref: './spec/components/schemas/UpdateBirthDate.yaml'
-    UpdateSex:
-      $ref: './spec/components/schemas/UpdateSex.yaml'
     UpdateOfficial:
       $ref: './spec/components/schemas/UpdateOfficial.yaml'
 

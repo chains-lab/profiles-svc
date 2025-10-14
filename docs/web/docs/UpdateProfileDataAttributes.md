@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **Description** | Pointer to **string** | Description | [optional] 
 **Avatar** | Pointer to **string** | Avatar URL | [optional] 
 **Sex** | Pointer to **string** | sex prikin&#39; | [optional] 
-**Birthdate** | Pointer to **time.Time** | Birthday | [optional] 
+**BirthDate** | Pointer to **time.Time** | Birthday | [optional] 
 
 ## Methods
 
@@ -129,30 +129,30 @@ SetSex sets Sex field to given value.
 
 HasSex returns a boolean if a field has been set.
 
-### GetBirthdate
+### GetBirthDate
 
-`func (o *UpdateProfileDataAttributes) GetBirthdate() time.Time`
+`func (o *UpdateProfileDataAttributes) GetBirthDate() time.Time`
 
-GetBirthdate returns the Birthdate field if non-nil, zero value otherwise.
+GetBirthDate returns the BirthDate field if non-nil, zero value otherwise.
 
-### GetBirthdateOk
+### GetBirthDateOk
 
-`func (o *UpdateProfileDataAttributes) GetBirthdateOk() (*time.Time, bool)`
+`func (o *UpdateProfileDataAttributes) GetBirthDateOk() (*time.Time, bool)`
 
-GetBirthdateOk returns a tuple with the Birthdate field if it's non-nil, zero value otherwise
+GetBirthDateOk returns a tuple with the BirthDate field if it's non-nil, zero value otherwise
 and a boolean to check if the value has been set.
 
-### SetBirthdate
+### SetBirthDate
 
-`func (o *UpdateProfileDataAttributes) SetBirthdate(v time.Time)`
+`func (o *UpdateProfileDataAttributes) SetBirthDate(v time.Time)`
 
-SetBirthdate sets Birthdate field to given value.
+SetBirthDate sets BirthDate field to given value.
 
-### HasBirthdate
+### HasBirthDate
 
-`func (o *UpdateProfileDataAttributes) HasBirthdate() bool`
+`func (o *UpdateProfileDataAttributes) HasBirthDate() bool`
 
-HasBirthdate returns a boolean if a field has been set.
+HasBirthDate returns a boolean if a field has been set.
 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

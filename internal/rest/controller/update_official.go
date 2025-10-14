@@ -9,19 +9,9 @@ import (
 	"github.com/chains-lab/profiles-svc/internal/domain/errx"
 	"github.com/chains-lab/profiles-svc/internal/rest/requests"
 	"github.com/chains-lab/profiles-svc/internal/rest/responses"
-	"github.com/go-chi/chi/v5"
-	"github.com/google/uuid"
 )
 
 func (s Service) UpdateOfficial(w http.ResponseWriter, r *http.Request) {
-	userID, err := uuid.Parse(chi.URLParam(r, "user_id"))
-	if err != nil {
-		s.log.WithError(err).Errorf("invalid user id")
-		ape.RenderErr(w, problems.BadRequest(err)...)
-
-		return
-	}
-
 	req, err := requests.UpdateOfficial(r)
 	if err != nil {
 		s.log.WithError(err).Errorf("invalid update official request")
@@ -30,7 +20,7 @@ func (s Service) UpdateOfficial(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := s.domain.Profile.UpdateOfficial(r.Context(), userID, req.Data.Attributes.Official)
+	res, err := s.domain.Profile.UpdateOfficial(r.Context(), req.Data.Id, req.Data.Attributes.Official)
 	if err != nil {
 		s.log.WithError(err).Errorf("failed to update official status")
 		switch {

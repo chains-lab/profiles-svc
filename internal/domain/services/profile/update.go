@@ -17,6 +17,8 @@ type Update struct {
 	Pseudonym   *string
 	Description *string
 	Avatar      *string
+	Sex         *string
+	BirthDate   *time.Time
 }
 
 func (s Service) Update(ctx context.Context, userID uuid.UUID, input Update) (models.Profile, error) {
@@ -52,6 +54,19 @@ func (s Service) Update(ctx context.Context, userID uuid.UUID, input Update) (mo
 			p.Avatar = input.Avatar
 		}
 	}
+	if input.Sex != nil {
+		if err = enum.CheckUserSexes(*input.Sex); err != nil {
+			return models.Profile{}, errx.ErrorSexIsNotValid.Raise(err)
+		}
+		p.Sex = input.Sex
+	}
+	if input.BirthDate != nil {
+		if err = validateBirthDate(*input.BirthDate); err != nil {
+			return models.Profile{}, err
+		}
+		p.BirthDate = input.BirthDate
+	}
+
 	p.UpdatedAt = now
 
 	err = s.db.UpdateProfile(ctx, userID, input, now)
@@ -80,57 +95,6 @@ func (s Service) UpdateOfficial(ctx context.Context, userID uuid.UUID, official 
 	}
 
 	p.Official = official
-	p.UpdatedAt = now
-
-	return p, nil
-}
-
-func (s Service) UpdateBirthDate(ctx context.Context, userID uuid.UUID, birthDate time.Time) (models.Profile, error) {
-	p, err := s.GetByID(ctx, userID)
-	if err != nil {
-		return models.Profile{}, err
-	}
-
-	if err = validateBirthDate(birthDate); err != nil {
-		return models.Profile{}, err
-	}
-
-	now := time.Now().UTC()
-
-	err = s.db.UpdateProfileBirthDate(ctx, userID, birthDate, now)
-	if err != nil {
-		return models.Profile{}, errx.ErrorInternal.Raise(
-			fmt.Errorf("updating profile birthdate for user '%s': %w", userID, err),
-		)
-	}
-
-	p.UpdatedAt = now
-	p.BirthDate = &birthDate
-
-	return p, nil
-}
-
-func (s Service) UpdateSex(ctx context.Context, userID uuid.UUID, sex string) (models.Profile, error) {
-	p, err := s.GetByID(ctx, userID)
-	if err != nil {
-		return models.Profile{}, err
-	}
-
-	err = enum.CheckUserSexes(sex)
-	if err != nil {
-		return models.Profile{}, errx.ErrorSexIsNotValid.Raise(err)
-	}
-
-	now := time.Now().UTC()
-
-	err = s.db.UpdateProfileSex(ctx, userID, sex, now)
-	if err != nil {
-		return models.Profile{}, errx.ErrorInternal.Raise(
-			fmt.Errorf("updating profile sex for user '%s': %w", userID, err),
-		)
-	}
-
-	p.Sex = &sex
 	p.UpdatedAt = now
 
 	return p, nil

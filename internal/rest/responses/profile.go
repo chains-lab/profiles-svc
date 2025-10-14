@@ -32,7 +32,7 @@ func Profile(m models.Profile) resources.Profile {
 		resp.Data.Attributes.Sex = m.Sex
 	}
 	if m.BirthDate != nil {
-		resp.Data.Attributes.Birthdate = m.BirthDate
+		resp.Data.Attributes.BirthDate = m.BirthDate
 	}
 
 	return resp

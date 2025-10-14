@@ -78,7 +78,7 @@ components:
                 sex:
                   type: string
                   description: sex prikin'
-                birthdate:
+                birth_date:
                   type: string
                   format: date-time
                   description: Birthday
@@ -110,64 +110,6 @@ components:
                 username:
                   type: string
                   description: Username
-    UpdateBirthDate:
-      type: object
-      required:
-        - data
-      properties:
-        data:
-          type: object
-          required:
-            - id
-            - type
-            - attributes
-          properties:
-            id:
-              type: string
-              format: uuid
-              description: user id
-            type:
-              type: string
-              enum:
-                - profile
-            attributes:
-              type: object
-              required:
-                - birth_date
-              properties:
-                birth_date:
-                  type: string
-                  format: date-time
-                  description: birth date user
-                  pattern: DD-MM-YYYY
-    UpdateSex:
-      type: object
-      required:
-        - data
-      properties:
-        data:
-          type: object
-          required:
-            - id
-            - type
-            - attributes
-          properties:
-            id:
-              type: string
-              format: uuid
-              description: user id
-            type:
-              type: string
-              enum:
-                - profile
-            attributes:
-              type: object
-              required:
-                - sex
-              properties:
-                sex:
-                  type: string
-                  description: sex
     UpdateOfficial:
       type: object
       required:
@@ -247,7 +189,7 @@ components:
         sex:
           type: string
           description: sex prikin'
-        birthdate:
+        birth_date:
           type: string
           format: date-time
           description: Birthday

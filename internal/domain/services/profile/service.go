@@ -72,7 +72,6 @@ type database interface {
 
 	UpdateProfile(ctx context.Context, userID uuid.UUID, input Update, updatedAt time.Time) error
 	UpdateProfileUsername(ctx context.Context, userID uuid.UUID, username string, updatedAt time.Time) error
-	UpdateProfileBirthDate(ctx context.Context, userID uuid.UUID, birthDate time.Time, updatedAt time.Time) error
-	UpdateProfileSex(ctx context.Context, userID uuid.UUID, sex string, updatedAt time.Time) error
 	UpdateProfileOfficial(ctx context.Context, userID uuid.UUID, official bool, updatedAt time.Time) error
+	ResetProfile(ctx context.Context, userID uuid.UUID, username string, resetAt time.Time) error
 }

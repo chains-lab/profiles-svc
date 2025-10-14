@@ -25,7 +25,7 @@ func (s Service) ResetProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req, err := s.domain.Profile.ResetUserProfile(r.Context(), userID)
+	req, err := s.domain.Profile.ResetProfile(r.Context(), userID)
 	if err != nil {
 		s.log.WithError(err).Errorf("failed to reset username")
 		switch {

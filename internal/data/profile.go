@@ -6,10 +6,10 @@ import (
 	"errors"
 	"time"
 
-	"github.com/chains-lab/pagi"
 	"github.com/chains-lab/profiles-svc/internal/data/pgdb"
 	"github.com/chains-lab/profiles-svc/internal/domain/models"
 	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
+	"github.com/chains-lab/restkit/pagi"
 	"github.com/google/uuid"
 )
 
@@ -120,6 +120,12 @@ func (d *Database) UpdateProfile(
 			q.UpdateAvatar(input.Avatar)
 		}
 	}
+	if input.Sex != nil {
+		q.UpdateSex(*input.Sex)
+	}
+	if input.BirthDate != nil {
+		q.UpdateBirthDate(*input.BirthDate)
+	}
 
 	return q.Update(ctx, updatedAt)
 }
@@ -133,22 +139,18 @@ func (d *Database) UpdateProfileUsername(
 	return d.sql.profiles.New().FilterUserID(userID).UpdateUsername(username).Update(ctx, updatedAt)
 }
 
-func (d *Database) UpdateProfileBirthDate(
-	ctx context.Context,
-	userID uuid.UUID,
-	birthDate time.Time,
-	updatedAt time.Time,
-) error {
-	return d.sql.profiles.New().FilterUserID(userID).UpdateBirthDate(birthDate).Update(ctx, updatedAt)
-}
+func (d *Database) ResetProfile(ctx context.Context, userID uuid.UUID, username string, resetAt time.Time) error {
+	err := d.sql.profiles.New().FilterUserID(userID).
+		UpdateUsername(username).
+		UpdatePseudonym(nil).
+		UpdateDescription(nil).
+		UpdateAvatar(nil).
+		Update(ctx, resetAt)
+	if err != nil {
+		return err
+	}
 
-func (d *Database) UpdateProfileSex(
-	ctx context.Context,
-	userID uuid.UUID,
-	sex string,
-	updatedAt time.Time,
-) error {
-	return d.sql.profiles.New().FilterUserID(userID).UpdateSex(sex).Update(ctx, updatedAt)
+	return nil
 }
 
 func (d *Database) UpdateProfileOfficial(

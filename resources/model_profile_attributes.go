@@ -35,7 +35,7 @@ type ProfileAttributes struct {
 	// sex prikin'
 	Sex *string `json:"sex,omitempty"`
 	// Birthday
-	Birthdate *time.Time `json:"birthdate,omitempty"`
+	BirthDate *time.Time `json:"birth_date,omitempty"`
 	// Updated At
 	UpdatedAt time.Time `json:"updated_at"`
 	// Created At
@@ -241,36 +241,36 @@ func (o *ProfileAttributes) SetSex(v string) {
 	o.Sex = &v
 }
 
-// GetBirthdate returns the Birthdate field value if set, zero value otherwise.
-func (o *ProfileAttributes) GetBirthdate() time.Time {
-	if o == nil || IsNil(o.Birthdate) {
+// GetBirthDate returns the BirthDate field value if set, zero value otherwise.
+func (o *ProfileAttributes) GetBirthDate() time.Time {
+	if o == nil || IsNil(o.BirthDate) {
 		var ret time.Time
 		return ret
 	}
-	return *o.Birthdate
+	return *o.BirthDate
 }
 
-// GetBirthdateOk returns a tuple with the Birthdate field value if set, nil otherwise
+// GetBirthDateOk returns a tuple with the BirthDate field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *ProfileAttributes) GetBirthdateOk() (*time.Time, bool) {
-	if o == nil || IsNil(o.Birthdate) {
+func (o *ProfileAttributes) GetBirthDateOk() (*time.Time, bool) {
+	if o == nil || IsNil(o.BirthDate) {
 		return nil, false
 	}
-	return o.Birthdate, true
+	return o.BirthDate, true
 }
 
-// HasBirthdate returns a boolean if a field has been set.
-func (o *ProfileAttributes) HasBirthdate() bool {
-	if o != nil && !IsNil(o.Birthdate) {
+// HasBirthDate returns a boolean if a field has been set.
+func (o *ProfileAttributes) HasBirthDate() bool {
+	if o != nil && !IsNil(o.BirthDate) {
 		return true
 	}
 
 	return false
 }
 
-// SetBirthdate gets a reference to the given time.Time and assigns it to the Birthdate field.
-func (o *ProfileAttributes) SetBirthdate(v time.Time) {
-	o.Birthdate = &v
+// SetBirthDate gets a reference to the given time.Time and assigns it to the BirthDate field.
+func (o *ProfileAttributes) SetBirthDate(v time.Time) {
+	o.BirthDate = &v
 }
 
 // GetUpdatedAt returns the UpdatedAt field value
@@ -345,8 +345,8 @@ func (o ProfileAttributes) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.Sex) {
 		toSerialize["sex"] = o.Sex
 	}
-	if !IsNil(o.Birthdate) {
-		toSerialize["birthdate"] = o.Birthdate
+	if !IsNil(o.BirthDate) {
+		toSerialize["birth_date"] = o.BirthDate
 	}
 	toSerialize["updated_at"] = o.UpdatedAt
 	toSerialize["created_at"] = o.CreatedAt

@@ -2,7 +2,6 @@ package controller
 
 import (
 	"context"
-	"time"
 
 	"github.com/chains-lab/logium"
 	"github.com/chains-lab/profiles-svc/internal/domain/models"
@@ -21,11 +20,8 @@ type ProfileSvc interface {
 	Update(ctx context.Context, userID uuid.UUID, input profile.Update) (models.Profile, error)
 	UpdateUsername(ctx context.Context, userID uuid.UUID, username string) (models.Profile, error)
 	UpdateOfficial(ctx context.Context, userID uuid.UUID, official bool) (models.Profile, error)
-	UpdateBirthDate(ctx context.Context, userID uuid.UUID, birthDate time.Time) (models.Profile, error)
-	UpdateSex(ctx context.Context, userID uuid.UUID, sex string) (models.Profile, error)
 
-	ResetUsername(ctx context.Context, userID uuid.UUID) (models.Profile, error)
-	ResetUserProfile(ctx context.Context, userID uuid.UUID) (models.Profile, error)
+	ResetProfile(ctx context.Context, userID uuid.UUID) (models.Profile, error)
 }
 
 type Service struct {

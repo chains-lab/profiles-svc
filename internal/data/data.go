@@ -25,5 +25,5 @@ func (d *Database) Transaction(ctx context.Context, fn func(ctx context.Context)
 }
 
 type SqlDB struct {
-	profiles pgdb.ProfilesQ
+	profiles *pgdb.ProfilesQ
 }

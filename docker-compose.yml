@@ -1,5 +1,5 @@
 services:
-  citizen-cab-svc:
+  profile-svc:
     build: .
     container_name: profile-svc
     environment:
@@ -9,9 +9,9 @@ services:
     networks:
       - chains-net
 
-  citizen-cab-postgres:
+  profile-svc-postgres:
     image: postgres:15
-    container_name:  citizen-cab-postgres
+    container_name: profiles-cab-postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres

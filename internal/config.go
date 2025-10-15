@@ -1,15 +1,15 @@
 package internal
 
 import (
+	"fmt"
 	"os"
 	"time"
 
 	_ "github.com/lib/pq" // postgres driver don`t delete
-	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
-type ServerConfig struct {
+type ServiceConfig struct {
 	Name string `mapstructure:"name"`
 }
 
@@ -33,6 +33,7 @@ type DatabaseConfig struct {
 		URL string `mapstructure:"url"`
 	} `mapstructure:"sql"`
 }
+
 type KafkaConfig struct {
 	Brokers []string `mapstructure:"brokers"`
 }
@@ -44,9 +45,6 @@ type JWTConfig struct {
 			TokenLifetime time.Duration `mapstructure:"token_lifetime"`
 		} `mapstructure:"access_token"`
 	} `mapstructure:"user"`
-	Service struct {
-		SecretKey string `mapstructure:"secret_key"`
-	} `mapstructure:"service"`
 }
 
 type SwaggerConfig struct {
@@ -56,7 +54,7 @@ type SwaggerConfig struct {
 }
 
 type Config struct {
-	Service  ServerConfig   `mapstructure:"service"`
+	Service  ServiceConfig  `mapstructure:"service"`
 	Log      LogConfig      `mapstructure:"log"`
 	Rest     RestConfig     `mapstructure:"rest"`
 	JWT      JWTConfig      `mapstructure:"jwt"`
@@ -68,17 +66,18 @@ type Config struct {
 func LoadConfig() (Config, error) {
 	configPath := os.Getenv("KV_VIPER_FILE")
 	if configPath == "" {
-		return Config{}, errors.New("KV_VIPER_FILE env var is not set")
+		return Config{}, fmt.Errorf("KV_VIPER_FILE env var is not set")
 	}
+
 	viper.SetConfigFile(configPath)
 
 	if err := viper.ReadInConfig(); err != nil {
-		return Config{}, errors.Errorf("error reading config file: %s", err)
+		return Config{}, fmt.Errorf("error reading config file: %s", err)
 	}
 
 	var config Config
 	if err := viper.Unmarshal(&config); err != nil {
-		return Config{}, errors.Errorf("error unmarshalling config: %s", err)
+		return Config{}, fmt.Errorf("error unmarshalling config: %s", err)
 	}
 
 	return config, nil

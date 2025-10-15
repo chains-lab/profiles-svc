@@ -2,7 +2,9 @@ package rest
 
 import (
 	"context"
+	"errors"
 	"net/http"
+	"time"
 
 	"github.com/chains-lab/logium"
 	"github.com/chains-lab/profiles-svc/internal"
@@ -28,14 +30,12 @@ type Handlers interface {
 }
 
 type Middleware interface {
-	ServiceGrant(serviceName, skService string) func(http.Handler) http.Handler
 	Auth(userCtxKey interface{}, skUser string) func(http.Handler) http.Handler
 	RoleGrant(userCtxKey interface{}, allowedRoles map[string]bool) func(http.Handler) http.Handler
 }
 
 func Run(ctx context.Context, cfg internal.Config, log logium.Logger, m Middleware, h Handlers) {
-	svcAuth := m.ServiceGrant(cfg.Service.Name, cfg.JWT.Service.SecretKey)
-	userAuth := m.Auth(meta.UserCtxKey, cfg.JWT.User.AccessToken.SecretKey)
+	auth := m.Auth(meta.UserCtxKey, cfg.JWT.User.AccessToken.SecretKey)
 	sysmoder := m.RoleGrant(meta.UserCtxKey, map[string]bool{
 		roles.Moder: true,
 		roles.Admin: true,
@@ -43,36 +43,63 @@ func Run(ctx context.Context, cfg internal.Config, log logium.Logger, m Middlewa
 
 	r := chi.NewRouter()
 
-	r.Route("/profile-svc", func(r chi.Router) {
-		r.Use(svcAuth)
+	r.Route("/profiles-svc", func(r chi.Router) {
 		r.Route("/v1", func(r chi.Router) {
-			r.Route("/profile", func(r chi.Router) {
+			r.Route("/profiles", func(r chi.Router) {
 				r.Get("/", h.FilterProfiles)
-
 				r.Get("/u/{username}", h.GetProfileByUsername)
 
-				r.With(userAuth).Route("/me", func(r chi.Router) {
+				r.With(auth).Route("/me", func(r chi.Router) {
 					r.Post("/", h.CreateMyProfile)
-
 					r.Get("/", h.GetMyProfile)
 					r.Put("/", h.UpdateMyProfile)
-
 					r.Patch("/username", h.UpdateMyUsername)
 				})
 
 				r.Route("/{user_id}", func(r chi.Router) {
 					r.Get("/", h.GetProfileByID)
 
-					r.With(sysmoder).Patch("/official", h.UpdateOfficial)
-					r.With(sysmoder).Put("/reset", h.ResetProfile)
+					r.With(auth, sysmoder).Patch("/official", h.UpdateOfficial)
+					r.With(auth, sysmoder).Put("/reset", h.ResetProfile)
 				})
 			})
 		})
 	})
 
+	srv := &http.Server{
+		Addr:              cfg.Rest.Port,
+		Handler:           r,
+		ReadTimeout:       cfg.Rest.Timeouts.Read,
+		ReadHeaderTimeout: cfg.Rest.Timeouts.ReadHeader,
+		WriteTimeout:      cfg.Rest.Timeouts.Write,
+		IdleTimeout:       cfg.Rest.Timeouts.Idle,
+	}
+
 	log.Infof("starting REST service on %s", cfg.Rest.Port)
 
-	<-ctx.Done()
+	errCh := make(chan error, 1)
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			errCh <- err
+		} else {
+			errCh <- nil
+		}
+	}()
 
-	log.Info("shutting dMy REST service")
+	select {
+	case <-ctx.Done():
+		log.Info("shutting down REST service...")
+	case err := <-errCh:
+		if err != nil {
+			log.Errorf("REST server error: %v", err)
+		}
+	}
+
+	shCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(shCtx); err != nil {
+		log.Errorf("REST shutdown error: %v", err)
+	} else {
+		log.Info("REST server stopped")
+	}
 }

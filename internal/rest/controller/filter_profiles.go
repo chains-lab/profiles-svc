@@ -32,6 +32,8 @@ func (s Service) FilterProfiles(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	s.log.Debugf("FilterProfiles: parsed user IDs: %v", filters.UserID)
+
 	if usernames := q["username"]; len(usernames) > 0 {
 		for _, name := range usernames {
 			name = strings.TrimSpace(name)

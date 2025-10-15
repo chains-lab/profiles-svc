@@ -36,9 +36,9 @@ type ProfilesQ struct {
 	counter  sq.SelectBuilder
 }
 
-func NewProfiles(db *sql.DB) ProfilesQ {
+func NewProfiles(db *sql.DB) *ProfilesQ {
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-	return ProfilesQ{
+	return &ProfilesQ{
 		db:       db,
 		selector: builder.Select("*").From(profilesTable),
 		inserter: builder.Insert(profilesTable),
@@ -48,11 +48,11 @@ func NewProfiles(db *sql.DB) ProfilesQ {
 	}
 }
 
-func (q ProfilesQ) New() ProfilesQ {
+func (q *ProfilesQ) New() *ProfilesQ {
 	return NewProfiles(q.db)
 }
 
-func (q ProfilesQ) Insert(ctx context.Context, input Profile) error {
+func (q *ProfilesQ) Insert(ctx context.Context, input Profile) error {
 	values := map[string]interface{}{
 		"user_id":     input.UserID,
 		"username":    input.Username,
@@ -80,7 +80,7 @@ func (q ProfilesQ) Insert(ctx context.Context, input Profile) error {
 	return err
 }
 
-func (q ProfilesQ) Update(ctx context.Context, updatedAt time.Time) error {
+func (q *ProfilesQ) Update(ctx context.Context, updatedAt time.Time) error {
 	q.updater = q.updater.Set("updated_at", updatedAt)
 
 	query, args, err := q.updater.ToSql()
@@ -96,42 +96,42 @@ func (q ProfilesQ) Update(ctx context.Context, updatedAt time.Time) error {
 	return err
 }
 
-func (q ProfilesQ) UpdateUsername(username string) ProfilesQ {
+func (q *ProfilesQ) UpdateUsername(username string) *ProfilesQ {
 	q.updater = q.updater.Set("username", username)
 	return q
 }
 
-func (q ProfilesQ) UpdatePseudonym(pseudonym *string) ProfilesQ {
+func (q *ProfilesQ) UpdatePseudonym(pseudonym *string) *ProfilesQ {
 	q.updater = q.updater.Set("pseudonym", pseudonym)
 	return q
 }
 
-func (q ProfilesQ) UpdateDescription(description *string) ProfilesQ {
+func (q *ProfilesQ) UpdateDescription(description *string) *ProfilesQ {
 	q.updater = q.updater.Set("description", description)
 	return q
 }
 
-func (q ProfilesQ) UpdateAvatar(avatar *string) ProfilesQ {
+func (q *ProfilesQ) UpdateAvatar(avatar *string) *ProfilesQ {
 	q.updater = q.updater.Set("avatar", avatar)
 	return q
 }
 
-func (q ProfilesQ) UpdateOfficial(official bool) ProfilesQ {
+func (q *ProfilesQ) UpdateOfficial(official bool) *ProfilesQ {
 	q.updater = q.updater.Set("official", official)
 	return q
 }
 
-func (q ProfilesQ) UpdateSex(sex string) ProfilesQ {
+func (q *ProfilesQ) UpdateSex(sex string) *ProfilesQ {
 	q.updater = q.updater.Set("sex", sex)
 	return q
 }
 
-func (q ProfilesQ) UpdateBirthDate(birthDate time.Time) ProfilesQ {
+func (q *ProfilesQ) UpdateBirthDate(birthDate time.Time) *ProfilesQ {
 	q.updater = q.updater.Set("birth_date", birthDate)
 	return q
 }
 
-func (q ProfilesQ) Get(ctx context.Context) (Profile, error) {
+func (q *ProfilesQ) Get(ctx context.Context) (Profile, error) {
 	query, args, err := q.selector.Limit(1).ToSql()
 	if err != nil {
 		return Profile{}, err
@@ -160,7 +160,7 @@ func (q ProfilesQ) Get(ctx context.Context) (Profile, error) {
 	return profile, err
 }
 
-func (q ProfilesQ) Select(ctx context.Context) ([]Profile, error) {
+func (q *ProfilesQ) Select(ctx context.Context) ([]Profile, error) {
 	query, args, err := q.selector.ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("building select query for profile: %w", err)
@@ -206,7 +206,7 @@ func (q ProfilesQ) Select(ctx context.Context) ([]Profile, error) {
 	return profiles, nil
 }
 
-func (q ProfilesQ) Delete(ctx context.Context) error {
+func (q *ProfilesQ) Delete(ctx context.Context) error {
 	query, args, err := q.deleter.ToSql()
 	if err != nil {
 		return fmt.Errorf("building delete query for profile: %w", err)
@@ -221,7 +221,7 @@ func (q ProfilesQ) Delete(ctx context.Context) error {
 	return err
 }
 
-func (q ProfilesQ) FilterUserID(userID ...uuid.UUID) ProfilesQ {
+func (q *ProfilesQ) FilterUserID(userID ...uuid.UUID) *ProfilesQ {
 	q.selector = q.selector.Where(sq.Eq{"user_id": userID})
 	q.counter = q.counter.Where(sq.Eq{"user_id": userID})
 	q.deleter = q.deleter.Where(sq.Eq{"user_id": userID})
@@ -230,7 +230,7 @@ func (q ProfilesQ) FilterUserID(userID ...uuid.UUID) ProfilesQ {
 	return q
 }
 
-func (q ProfilesQ) FilterUsername(username ...string) ProfilesQ {
+func (q *ProfilesQ) FilterUsername(username ...string) *ProfilesQ {
 	q.selector = q.selector.Where(sq.Eq{"username": username})
 	q.counter = q.counter.Where(sq.Eq{"username": username})
 	q.deleter = q.deleter.Where(sq.Eq{"username": username})
@@ -239,27 +239,27 @@ func (q ProfilesQ) FilterUsername(username ...string) ProfilesQ {
 	return q
 }
 
-func (q ProfilesQ) FilterUsernameLike(username string) ProfilesQ {
+func (q *ProfilesQ) FilterUsernameLike(username string) *ProfilesQ {
 	like := fmt.Sprintf("%%%s%%", username)
 	q.selector = q.selector.Where(sq.Like{"username": like})
 	q.counter = q.counter.Where(sq.Like{"username": like})
 	return q
 }
 
-func (q ProfilesQ) FilterPseudonymLike(pseudonym string) ProfilesQ {
+func (q *ProfilesQ) FilterPseudonymLike(pseudonym string) *ProfilesQ {
 	like := fmt.Sprintf("%%%s%%", pseudonym)
 	q.selector = q.selector.Where(sq.Like{"pseudonym": like})
 	q.counter = q.counter.Where(sq.Like{"pseudonym": like})
 	return q
 }
 
-func (q ProfilesQ) FilterOfficial(official bool) ProfilesQ {
+func (q *ProfilesQ) FilterOfficial(official bool) *ProfilesQ {
 	q.selector = q.selector.Where(sq.Eq{"official": official})
 	q.counter = q.counter.Where(sq.Eq{"official": official})
 	return q
 }
 
-func (q ProfilesQ) Count(ctx context.Context) (uint64, error) {
+func (q *ProfilesQ) Count(ctx context.Context) (uint64, error) {
 	query, args, err := q.counter.ToSql()
 	if err != nil {
 		return 0, fmt.Errorf("building count query for profile: %w", err)
@@ -278,13 +278,13 @@ func (q ProfilesQ) Count(ctx context.Context) (uint64, error) {
 	return count, nil
 }
 
-func (q ProfilesQ) Page(limit, offset uint64) ProfilesQ {
+func (q *ProfilesQ) Page(limit, offset uint64) *ProfilesQ {
 	q.counter = q.counter.Limit(limit).Offset(offset)
 	q.selector = q.selector.Limit(limit).Offset(offset)
 	return q
 }
 
-func (q ProfilesQ) Transaction(ctx context.Context, fn func(ctx context.Context) error) error {
+func (q *ProfilesQ) Transaction(ctx context.Context, fn func(ctx context.Context) error) error {
 	_, ok := TxFromCtx(ctx)
 	if ok {
 		return fn(ctx)

@@ -4,39 +4,24 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/chains-lab/restkit/auth"
+	"github.com/chains-lab/restkit/token"
 )
 
 type ctxKey int
 
 const (
 	UserCtxKey ctxKey = iota
-	IpCtxKey
-	UserAgentCtxKey
-	ClientTxKey
 )
 
-func User(ctx context.Context) (auth.UserData, error) {
+func User(ctx context.Context) (token.UserData, error) {
 	if ctx == nil {
-		return auth.UserData{}, fmt.Errorf("mising context")
+		return token.UserData{}, fmt.Errorf("mising context")
 	}
 
-	userData, ok := ctx.Value(UserCtxKey).(auth.UserData)
+	userData, ok := ctx.Value(UserCtxKey).(token.UserData)
 	if !ok {
-		return auth.UserData{}, fmt.Errorf("mising context")
+		return token.UserData{}, fmt.Errorf("mising context")
 	}
 
 	return userData, nil
 }
-
-//func Ip(r *http.Request) string {
-//	return r.Context().Value(IpCtxKey).(string)
-//}
-//
-//func UserAgent(r *http.Request) string {
-//	return r.Context().Value(UserAgentCtxKey).(string)
-//}
-//
-//func Client(r *http.Request) string {
-//	return r.Context().Value(ClientTxKey).(string)
-//}

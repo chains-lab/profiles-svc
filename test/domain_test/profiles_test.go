@@ -126,4 +126,45 @@ func TestProfiles(t *testing.T) {
 	if len(list.Data) != 2 {
 		t.Fatalf("FilterProfiles by IDs: expected 2 profiles, got %d", len(list.Data))
 	}
+
+	first, err = s.domain.profile.UpdateUsername(ctx, firstID, "first")
+	if err != nil {
+		t.Fatalf("UpdateUsername first: %v", err)
+	}
+	first, err = s.domain.profile.Update(ctx, firstID, profile.Update{
+		Avatar:      func() *string { s := "avatar"; return &s }(),
+		Pseudonym:   func() *string { s := "new_first"; return &s }(),
+		Description: func() *string { s := "first description"; return &s }(),
+	})
+
+	second, err = s.domain.profile.UpdateUsername(ctx, secondID, "second")
+	if err != nil {
+		t.Fatalf("UpdateUsername second: %v", err)
+	}
+	second, err = s.domain.profile.Update(ctx, secondID, profile.Update{
+		Avatar:      func() *string { s := "avatar2"; return &s }(),
+		Pseudonym:   func() *string { s := "new_second"; return &s }(),
+		Description: func() *string { s := "second description"; return &s }(),
+	})
+
+	third, err := s.domain.profile.Create(ctx, uuid.New(), "third")
+	if err != nil {
+		t.Fatalf("CreateProfile third: %v", err)
+	}
+	third, err = s.domain.profile.Update(ctx, third.UserID, profile.Update{
+		Avatar:      func() *string { s := "avatar3"; return &s }(),
+		Pseudonym:   func() *string { s := "new_third"; return &s }(),
+		Description: func() *string { s := "third description"; return &s }(),
+	})
+	if err != nil {
+		t.Fatalf("UpdateProfile third: %v", err)
+	}
+
+	list, err = s.domain.profile.Filter(ctx, profile.FilterParams{}, 0, 10)
+	if err != nil {
+		t.Fatalf("FilterProfiles all: %v", err)
+	}
+	if len(list.Data) != 3 {
+		t.Fatalf("FilterProfiles all: expected 3 profiles, got %d", len(list.Data))
+	}
 }

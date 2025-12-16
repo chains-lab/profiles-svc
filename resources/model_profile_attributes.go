@@ -32,10 +32,6 @@ type ProfileAttributes struct {
 	Avatar *string `json:"avatar,omitempty"`
 	// Is Official Account
 	Official bool `json:"official"`
-	// sex prikin'
-	Sex *string `json:"sex,omitempty"`
-	// Birthday
-	BirthDate *time.Time `json:"birth_date,omitempty"`
 	// Updated At
 	UpdatedAt time.Time `json:"updated_at"`
 	// Created At
@@ -209,70 +205,6 @@ func (o *ProfileAttributes) SetOfficial(v bool) {
 	o.Official = v
 }
 
-// GetSex returns the Sex field value if set, zero value otherwise.
-func (o *ProfileAttributes) GetSex() string {
-	if o == nil || IsNil(o.Sex) {
-		var ret string
-		return ret
-	}
-	return *o.Sex
-}
-
-// GetSexOk returns a tuple with the Sex field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *ProfileAttributes) GetSexOk() (*string, bool) {
-	if o == nil || IsNil(o.Sex) {
-		return nil, false
-	}
-	return o.Sex, true
-}
-
-// HasSex returns a boolean if a field has been set.
-func (o *ProfileAttributes) HasSex() bool {
-	if o != nil && !IsNil(o.Sex) {
-		return true
-	}
-
-	return false
-}
-
-// SetSex gets a reference to the given string and assigns it to the Sex field.
-func (o *ProfileAttributes) SetSex(v string) {
-	o.Sex = &v
-}
-
-// GetBirthDate returns the BirthDate field value if set, zero value otherwise.
-func (o *ProfileAttributes) GetBirthDate() time.Time {
-	if o == nil || IsNil(o.BirthDate) {
-		var ret time.Time
-		return ret
-	}
-	return *o.BirthDate
-}
-
-// GetBirthDateOk returns a tuple with the BirthDate field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *ProfileAttributes) GetBirthDateOk() (*time.Time, bool) {
-	if o == nil || IsNil(o.BirthDate) {
-		return nil, false
-	}
-	return o.BirthDate, true
-}
-
-// HasBirthDate returns a boolean if a field has been set.
-func (o *ProfileAttributes) HasBirthDate() bool {
-	if o != nil && !IsNil(o.BirthDate) {
-		return true
-	}
-
-	return false
-}
-
-// SetBirthDate gets a reference to the given time.Time and assigns it to the BirthDate field.
-func (o *ProfileAttributes) SetBirthDate(v time.Time) {
-	o.BirthDate = &v
-}
-
 // GetUpdatedAt returns the UpdatedAt field value
 func (o *ProfileAttributes) GetUpdatedAt() time.Time {
 	if o == nil {
@@ -342,12 +274,6 @@ func (o ProfileAttributes) ToMap() (map[string]interface{}, error) {
 		toSerialize["avatar"] = o.Avatar
 	}
 	toSerialize["official"] = o.Official
-	if !IsNil(o.Sex) {
-		toSerialize["sex"] = o.Sex
-	}
-	if !IsNil(o.BirthDate) {
-		toSerialize["birth_date"] = o.BirthDate
-	}
 	toSerialize["updated_at"] = o.UpdatedAt
 	toSerialize["created_at"] = o.CreatedAt
 	return toSerialize, nil

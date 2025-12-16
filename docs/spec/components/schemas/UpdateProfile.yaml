@@ -29,10 +29,3 @@ properties:
             type: string
             format: uri
             description: "Avatar URL"
-          sex:
-            type: string
-            description: "sex prikin'"
-          birth_date:
-            type: string
-            format: date-time
-            description: "Birthday"

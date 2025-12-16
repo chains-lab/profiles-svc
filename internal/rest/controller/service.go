@@ -4,40 +4,32 @@ import (
 	"context"
 
 	"github.com/chains-lab/logium"
-	"github.com/chains-lab/profiles-svc/internal/domain/models"
-	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
+	"github.com/chains-lab/profiles-svc/internal/domain"
+	"github.com/chains-lab/profiles-svc/internal/domain/entity"
 	"github.com/google/uuid"
 )
 
-type ProfileSvc interface {
-	Create(ctx context.Context, userID uuid.UUID, username string) (models.Profile, error)
+type Domain interface {
+	CreateProfile(ctx context.Context, userID uuid.UUID, username string) (entity.Profile, error)
 
-	GetByID(ctx context.Context, userID uuid.UUID) (models.Profile, error)
-	GetByUsername(ctx context.Context, username string) (models.Profile, error)
+	FilterProfile(ctx context.Context, params domain.FilterParams, offset, limit int32) (entity.ProfileCollection, error)
 
-	Filter(ctx context.Context, filters profile.FilterParams, page uint64, size uint64) (models.ProfileCollection, error)
+	GetProfileByID(ctx context.Context, userID uuid.UUID) (entity.Profile, error)
+	GetProfileByUsername(ctx context.Context, username string) (entity.Profile, error)
 
-	Update(ctx context.Context, userID uuid.UUID, input profile.Update) (models.Profile, error)
-	UpdateUsername(ctx context.Context, userID uuid.UUID, username string) (models.Profile, error)
-	UpdateOfficial(ctx context.Context, userID uuid.UUID, official bool) (models.Profile, error)
-
-	ResetProfile(ctx context.Context, userID uuid.UUID) (models.Profile, error)
+	UpdateProfile(ctx context.Context, accountID uuid.UUID, input domain.UpdateProfileParams) (entity.Profile, error)
+	UpdateProfileOfficial(ctx context.Context, accountID uuid.UUID, official bool) (entity.Profile, error)
+	UpdateProfileUsername(ctx context.Context, accountID uuid.UUID, username string) (entity.Profile, error)
 }
 
 type Service struct {
-	domain domain
+	domain Domain
 	log    logium.Logger
 }
 
-type domain struct {
-	Profile ProfileSvc
-}
-
-func New(log logium.Logger, profile ProfileSvc) Service {
+func New(log logium.Logger, profile Domain) Service {
 	return Service{
-		domain: domain{
-			Profile: profile,
-		},
-		log: log,
+		domain: profile,
+		log:    log,
 	}
 }

@@ -5,9 +5,6 @@ api/openapi.yaml
 api_test_.go
 client.go
 configuration.go
-docs/CreateProfile.md
-docs/CreateProfileData.md
-docs/CreateProfileDataAttributes.md
 docs/Profile.md
 docs/ProfileAttributes.md
 docs/ProfileData.md
@@ -20,13 +17,9 @@ docs/UpdateOfficialDataAttributes.md
 docs/UpdateProfile.md
 docs/UpdateProfileData.md
 docs/UpdateProfileDataAttributes.md
-docs/UpdateUsername.md
 git_push.sh
 go.mod
 go.sum
-model_create_profile.go
-model_create_profile_data.go
-model_create_profile_data_attributes.go
 model_profile.go
 model_profile_attributes.go
 model_profile_data.go
@@ -38,7 +31,6 @@ model_update_official_data_attributes.go
 model_update_profile.go
 model_update_profile_data.go
 model_update_profile_data_attributes.go
-model_update_username.go
 response.go
 test/api_test__test.go
 utils.go

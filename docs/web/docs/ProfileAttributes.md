@@ -9,8 +9,6 @@ Name | Type | Description | Notes
 **Description** | Pointer to **string** | Description | [optional] 
 **Avatar** | Pointer to **string** | Avatar URL | [optional] 
 **Official** | **bool** | Is Official Account | 
-**Sex** | Pointer to **string** | sex prikin&#39; | [optional] 
-**BirthDate** | Pointer to **time.Time** | Birthday | [optional] 
 **UpdatedAt** | **time.Time** | Updated At | 
 **CreatedAt** | **time.Time** | Created At | 
 
@@ -147,56 +145,6 @@ and a boolean to check if the value has been set.
 
 SetOfficial sets Official field to given value.
 
-
-### GetSex
-
-`func (o *ProfileAttributes) GetSex() string`
-
-GetSex returns the Sex field if non-nil, zero value otherwise.
-
-### GetSexOk
-
-`func (o *ProfileAttributes) GetSexOk() (*string, bool)`
-
-GetSexOk returns a tuple with the Sex field if it's non-nil, zero value otherwise
-and a boolean to check if the value has been set.
-
-### SetSex
-
-`func (o *ProfileAttributes) SetSex(v string)`
-
-SetSex sets Sex field to given value.
-
-### HasSex
-
-`func (o *ProfileAttributes) HasSex() bool`
-
-HasSex returns a boolean if a field has been set.
-
-### GetBirthDate
-
-`func (o *ProfileAttributes) GetBirthDate() time.Time`
-
-GetBirthDate returns the BirthDate field if non-nil, zero value otherwise.
-
-### GetBirthDateOk
-
-`func (o *ProfileAttributes) GetBirthDateOk() (*time.Time, bool)`
-
-GetBirthDateOk returns a tuple with the BirthDate field if it's non-nil, zero value otherwise
-and a boolean to check if the value has been set.
-
-### SetBirthDate
-
-`func (o *ProfileAttributes) SetBirthDate(v time.Time)`
-
-SetBirthDate sets BirthDate field to given value.
-
-### HasBirthDate
-
-`func (o *ProfileAttributes) HasBirthDate() bool`
-
-HasBirthDate returns a boolean if a field has been set.
 
 ### GetUpdatedAt
 

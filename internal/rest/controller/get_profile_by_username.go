@@ -14,7 +14,7 @@ import (
 func (s Service) GetProfileByUsername(w http.ResponseWriter, r *http.Request) {
 	username := chi.URLParam(r, "username")
 
-	res, err := s.domain.Profile.GetByUsername(r.Context(), username)
+	res, err := s.domain.GetProfileByUsername(r.Context(), username)
 	if err != nil {
 		s.log.WithError(err).Errorf("failed to get profile by username")
 		switch {

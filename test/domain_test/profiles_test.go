@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
+	domain2 "github.com/chains-lab/profiles-svc/internal/domain"
 	"github.com/chains-lab/profiles-svc/test"
 	"github.com/google/uuid"
 )
@@ -36,7 +36,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("expected different IDs, got same: %v", first.UserID)
 	}
 
-	first, err = s.domain.profile.GetByID(ctx, firstID)
+	first, err = s.domain.profile.GetProfileByID(ctx, firstID)
 	if err != nil {
 		t.Fatalf("GetProfileByUserID first: %v", err)
 	}
@@ -45,7 +45,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("GetProfileByUserID first: expected ID %v, got %v", firstID, first.UserID)
 	}
 
-	second, err = s.domain.profile.GetByID(ctx, secondID)
+	second, err = s.domain.profile.GetProfileByID(ctx, secondID)
 	if err != nil {
 		t.Fatalf("GetProfileByUserID second: %v", err)
 	}
@@ -58,7 +58,7 @@ func TestProfiles(t *testing.T) {
 	newFirst := "new_first"
 	description := "description"
 
-	first, err = s.domain.profile.Update(ctx, firstID, profile.Update{
+	first, err = s.domain.profile.UpdateProfile(ctx, firstID, domain2.Update{
 		Avatar:      &avatar,
 		Pseudonym:   &newFirst,
 		Description: &description,
@@ -99,7 +99,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("ResetUsername first: expected username not %s, got %s", "first", first.Username)
 	}
 
-	first, err = s.domain.profile.UpdateOfficial(ctx, firstID, false)
+	first, err = s.domain.profile.UpdateProfileOfficial(ctx, firstID, false)
 	if err != nil {
 		t.Fatalf("UpdateProfileOfficial first to false: %v", err)
 	}
@@ -108,7 +108,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("UpdateProfileOfficial first to false: expected official false, got true")
 	}
 
-	first, err = s.domain.profile.UpdateOfficial(ctx, firstID, true)
+	first, err = s.domain.profile.UpdateProfileOfficial(ctx, firstID, true)
 	if err != nil {
 		t.Fatalf("UpdateProfileOfficial first to true: %v", err)
 	}
@@ -117,7 +117,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("UpdateProfileOfficial first to true: expected official true, got false")
 	}
 
-	list, err := s.domain.profile.Filter(ctx, profile.FilterParams{
+	list, err := s.domain.profile.Filter(ctx, domain2.FilterParams{
 		UserID: []uuid.UUID{firstID, secondID},
 	}, 0, 10)
 	if err != nil {
@@ -127,21 +127,21 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("FilterProfiles by IDs: expected 2 profiles, got %d", len(list.Data))
 	}
 
-	first, err = s.domain.profile.UpdateUsername(ctx, firstID, "first")
+	first, err = s.domain.profile.UpdateProfileUsername(ctx, firstID, "first")
 	if err != nil {
-		t.Fatalf("UpdateUsername first: %v", err)
+		t.Fatalf("UpdateProfileUsername first: %v", err)
 	}
-	first, err = s.domain.profile.Update(ctx, firstID, profile.Update{
+	first, err = s.domain.profile.UpdateProfile(ctx, firstID, domain2.Update{
 		Avatar:      func() *string { s := "avatar"; return &s }(),
 		Pseudonym:   func() *string { s := "new_first"; return &s }(),
 		Description: func() *string { s := "first description"; return &s }(),
 	})
 
-	second, err = s.domain.profile.UpdateUsername(ctx, secondID, "second")
+	second, err = s.domain.profile.UpdateProfileUsername(ctx, secondID, "second")
 	if err != nil {
-		t.Fatalf("UpdateUsername second: %v", err)
+		t.Fatalf("UpdateProfileUsername second: %v", err)
 	}
-	second, err = s.domain.profile.Update(ctx, secondID, profile.Update{
+	second, err = s.domain.profile.UpdateProfile(ctx, secondID, domain2.Update{
 		Avatar:      func() *string { s := "avatar2"; return &s }(),
 		Pseudonym:   func() *string { s := "new_second"; return &s }(),
 		Description: func() *string { s := "second description"; return &s }(),
@@ -151,7 +151,7 @@ func TestProfiles(t *testing.T) {
 	if err != nil {
 		t.Fatalf("CreateProfile third: %v", err)
 	}
-	third, err = s.domain.profile.Update(ctx, third.UserID, profile.Update{
+	third, err = s.domain.profile.UpdateProfile(ctx, third.UserID, domain2.Update{
 		Avatar:      func() *string { s := "avatar3"; return &s }(),
 		Pseudonym:   func() *string { s := "new_third"; return &s }(),
 		Description: func() *string { s := "third description"; return &s }(),
@@ -160,7 +160,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("UpdateProfile third: %v", err)
 	}
 
-	list, err = s.domain.profile.Filter(ctx, profile.FilterParams{}, 0, 10)
+	list, err = s.domain.profile.Filter(ctx, domain2.FilterParams{}, 0, 10)
 	if err != nil {
 		t.Fatalf("FilterProfiles all: %v", err)
 	}

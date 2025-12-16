@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/chains-lab/profiles-svc/internal"
-	"github.com/chains-lab/profiles-svc/internal/data"
-	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
+	domain2 "github.com/chains-lab/profiles-svc/internal/domain"
+	"github.com/chains-lab/profiles-svc/internal/repo"
 )
 
 // TEST DATABASE CONNECTION
@@ -26,7 +26,7 @@ type Setup struct {
 }
 
 type domain struct {
-	profile profile.Service
+	profile domain2.Service
 }
 
 func newSetup(t *testing.T) (Setup, error) {
@@ -45,9 +45,9 @@ func newSetup(t *testing.T) (Setup, error) {
 		log.Fatal("failed to connect to database", "error", err)
 	}
 
-	database := data.NewDatabase(pg)
+	database := repo.NewDatabase(pg)
 
-	profileSvc := profile.New(database)
+	profileSvc := domain2.New(database)
 
 	return Setup{
 		domain: domain{

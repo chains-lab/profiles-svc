@@ -12,15 +12,15 @@ import (
 )
 
 func (s Service) GetMyProfile(w http.ResponseWriter, r *http.Request) {
-	initiator, err := meta.User(r.Context())
+	initiator, err := meta.AccountData(r.Context())
 	if err != nil {
-		s.log.WithError(err).Error("failed to get user from context")
-		ape.RenderErr(w, problems.Unauthorized("failed to get user from context"))
+		s.log.WithError(err).Error("failed to get account from context")
+		ape.RenderErr(w, problems.Unauthorized("failed to get account from context"))
 
 		return
 	}
 
-	res, err := s.domain.Profile.GetByID(r.Context(), initiator.ID)
+	res, err := s.domain.GetProfileByID(r.Context(), initiator.ID)
 	if err != nil {
 		s.log.WithError(err).Errorf("failed to get profile by user id")
 		switch {

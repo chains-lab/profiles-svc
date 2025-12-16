@@ -7,7 +7,7 @@ properties:
   id:
     type: string
     format: uuid
-    description: "user id"
+    description: "account id"
   type:
     type: string
     enum: [ profile ]

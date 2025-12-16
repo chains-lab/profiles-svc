@@ -16,45 +16,31 @@ paths:
       - Test
 components:
   schemas:
-    CreateProfile:
-      properties:
-        data:
-          $ref: '#/components/schemas/CreateProfile_data'
-      required:
-      - data
-      type: object
     UpdateProfile:
       properties:
         data:
-          $ref: '#/components/schemas/UpdateProfile_data'
-      required:
-      - data
-      type: object
-    UpdateUsername:
-      properties:
-        data:
-          $ref: '#/components/schemas/CreateProfile_data'
+          $ref: "#/components/schemas/UpdateProfile_data"
       required:
       - data
       type: object
     UpdateOfficial:
       properties:
         data:
-          $ref: '#/components/schemas/UpdateOfficial_data'
+          $ref: "#/components/schemas/UpdateOfficial_data"
       required:
       - data
       type: object
     Profile:
       properties:
         data:
-          $ref: '#/components/schemas/ProfileData'
+          $ref: "#/components/schemas/ProfileData"
       required:
       - data
       type: object
     ProfileData:
       properties:
         id:
-          description: user id
+          description: account id
           format: uuid
           type: string
         type:
@@ -62,7 +48,7 @@ components:
           - profile
           type: string
         attributes:
-          $ref: '#/components/schemas/ProfileAttributes'
+          $ref: "#/components/schemas/ProfileAttributes"
       required:
       - attributes
       - id
@@ -86,13 +72,6 @@ components:
         official:
           description: Is Official Account
           type: boolean
-        sex:
-          description: sex prikin'
-          type: string
-        birth_date:
-          description: Birthday
-          format: date-time
-          type: string
         updated_at:
           description: Updated At
           format: date-time
@@ -111,38 +90,13 @@ components:
       properties:
         data:
           items:
-            $ref: '#/components/schemas/ProfileData'
+            $ref: "#/components/schemas/ProfileData"
           type: array
         links:
-          $ref: '#/components/schemas/ProfilesCollection_links'
+          $ref: "#/components/schemas/ProfilesCollection_links"
       required:
       - data
       - links
-      type: object
-    CreateProfile_data_attributes:
-      properties:
-        username:
-          description: Username
-          type: string
-      required:
-      - username
-      type: object
-    CreateProfile_data:
-      properties:
-        id:
-          description: user id
-          format: uuid
-          type: string
-        type:
-          enum:
-          - profile
-          type: string
-        attributes:
-          $ref: '#/components/schemas/CreateProfile_data_attributes'
-      required:
-      - attributes
-      - id
-      - type
       type: object
     UpdateProfile_data_attributes:
       properties:
@@ -156,13 +110,6 @@ components:
           description: Avatar URL
           format: uri
           type: string
-        sex:
-          description: sex prikin'
-          type: string
-        birth_date:
-          description: Birthday
-          format: date-time
-          type: string
       type: object
     UpdateProfile_data:
       properties:
@@ -175,7 +122,7 @@ components:
           - profile
           type: string
         attributes:
-          $ref: '#/components/schemas/UpdateProfile_data_attributes'
+          $ref: "#/components/schemas/UpdateProfile_data_attributes"
       required:
       - attributes
       - id
@@ -200,7 +147,7 @@ components:
           - profile
           type: string
         attributes:
-          $ref: '#/components/schemas/UpdateOfficial_data_attributes'
+          $ref: "#/components/schemas/UpdateOfficial_data_attributes"
       required:
       - attributes
       - id

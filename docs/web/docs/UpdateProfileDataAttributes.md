@@ -7,8 +7,6 @@ Name | Type | Description | Notes
 **Pseudonym** | Pointer to **string** | Pseudonym | [optional] 
 **Description** | Pointer to **string** | Description | [optional] 
 **Avatar** | Pointer to **string** | Avatar URL | [optional] 
-**Sex** | Pointer to **string** | sex prikin&#39; | [optional] 
-**BirthDate** | Pointer to **time.Time** | Birthday | [optional] 
 
 ## Methods
 
@@ -103,56 +101,6 @@ SetAvatar sets Avatar field to given value.
 `func (o *UpdateProfileDataAttributes) HasAvatar() bool`
 
 HasAvatar returns a boolean if a field has been set.
-
-### GetSex
-
-`func (o *UpdateProfileDataAttributes) GetSex() string`
-
-GetSex returns the Sex field if non-nil, zero value otherwise.
-
-### GetSexOk
-
-`func (o *UpdateProfileDataAttributes) GetSexOk() (*string, bool)`
-
-GetSexOk returns a tuple with the Sex field if it's non-nil, zero value otherwise
-and a boolean to check if the value has been set.
-
-### SetSex
-
-`func (o *UpdateProfileDataAttributes) SetSex(v string)`
-
-SetSex sets Sex field to given value.
-
-### HasSex
-
-`func (o *UpdateProfileDataAttributes) HasSex() bool`
-
-HasSex returns a boolean if a field has been set.
-
-### GetBirthDate
-
-`func (o *UpdateProfileDataAttributes) GetBirthDate() time.Time`
-
-GetBirthDate returns the BirthDate field if non-nil, zero value otherwise.
-
-### GetBirthDateOk
-
-`func (o *UpdateProfileDataAttributes) GetBirthDateOk() (*time.Time, bool)`
-
-GetBirthDateOk returns a tuple with the BirthDate field if it's non-nil, zero value otherwise
-and a boolean to check if the value has been set.
-
-### SetBirthDate
-
-`func (o *UpdateProfileDataAttributes) SetBirthDate(v time.Time)`
-
-SetBirthDate sets BirthDate field to given value.
-
-### HasBirthDate
-
-`func (o *UpdateProfileDataAttributes) HasBirthDate() bool`
-
-HasBirthDate returns a boolean if a field has been set.
 
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)

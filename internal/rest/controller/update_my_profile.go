@@ -7,8 +7,8 @@ import (
 
 	"github.com/chains-lab/ape"
 	"github.com/chains-lab/ape/problems"
+	"github.com/chains-lab/profiles-svc/internal/domain"
 	"github.com/chains-lab/profiles-svc/internal/domain/errx"
-	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	"github.com/chains-lab/profiles-svc/internal/rest/meta"
@@ -17,7 +17,7 @@ import (
 )
 
 func (s Service) UpdateMyProfile(w http.ResponseWriter, r *http.Request) {
-	initiator, err := meta.User(r.Context())
+	initiator, err := meta.AccountData(r.Context())
 	if err != nil {
 		s.log.WithError(err).Error("failed to get user from context")
 		ape.RenderErr(w, problems.Unauthorized("failed to get user from context"))
@@ -44,12 +44,10 @@ func (s Service) UpdateMyProfile(w http.ResponseWriter, r *http.Request) {
 		})...)
 	}
 
-	res, err := s.domain.Profile.Update(r.Context(), initiator.ID, profile.Update{
+	res, err := s.domain.UpdateProfile(r.Context(), initiator.ID, domain.UpdateProfileParams{
 		Pseudonym:   req.Data.Attributes.Pseudonym,
 		Description: req.Data.Attributes.Description,
 		Avatar:      req.Data.Attributes.Avatar,
-		Sex:         req.Data.Attributes.Sex,
-		BirthDate:   req.Data.Attributes.BirthDate,
 	})
 	if err != nil {
 		s.log.WithError(err).Errorf("failed to update profile")

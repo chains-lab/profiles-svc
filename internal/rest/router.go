@@ -16,17 +16,17 @@ import (
 type Handlers interface {
 	GetMyProfile(w http.ResponseWriter, r *http.Request)
 
-	CreateMyProfile(w http.ResponseWriter, r *http.Request)
+	//CreateMyProfile(w http.ResponseWriter, r *http.Request)
 	GetProfileByUsername(w http.ResponseWriter, r *http.Request)
 	GetProfileByID(w http.ResponseWriter, r *http.Request)
 
 	FilterProfiles(w http.ResponseWriter, r *http.Request)
 
 	UpdateMyProfile(w http.ResponseWriter, r *http.Request)
-	UpdateMyUsername(w http.ResponseWriter, r *http.Request)
+	//UpdateMyUsername(w http.ResponseWriter, r *http.Request)
 	UpdateOfficial(w http.ResponseWriter, r *http.Request)
 
-	ResetProfile(w http.ResponseWriter, r *http.Request)
+	//ResetProfile(w http.ResponseWriter, r *http.Request)
 }
 
 type Middleware interface {
@@ -35,10 +35,10 @@ type Middleware interface {
 }
 
 func Run(ctx context.Context, cfg internal.Config, log logium.Logger, m Middleware, h Handlers) {
-	auth := m.Auth(meta.UserCtxKey, cfg.JWT.User.AccessToken.SecretKey)
-	sysmoder := m.RoleGrant(meta.UserCtxKey, map[string]bool{
-		roles.Moder: true,
-		roles.Admin: true,
+	auth := m.Auth(meta.AccountDataCtxKey, cfg.JWT.User.AccessToken.SecretKey)
+	sysmoder := m.RoleGrant(meta.AccountDataCtxKey, map[string]bool{
+		roles.SystemModer: true,
+		roles.SystemAdmin: true,
 	})
 
 	r := chi.NewRouter()
@@ -50,17 +50,15 @@ func Run(ctx context.Context, cfg internal.Config, log logium.Logger, m Middlewa
 				r.Get("/u/{username}", h.GetProfileByUsername)
 
 				r.With(auth).Route("/me", func(r chi.Router) {
-					r.Post("/", h.CreateMyProfile)
 					r.Get("/", h.GetMyProfile)
 					r.Put("/", h.UpdateMyProfile)
-					r.Patch("/username", h.UpdateMyUsername)
 				})
 
 				r.Route("/{user_id}", func(r chi.Router) {
 					r.Get("/", h.GetProfileByID)
 
 					r.With(auth, sysmoder).Patch("/official", h.UpdateOfficial)
-					r.With(auth, sysmoder).Put("/reset", h.ResetProfile)
+					//r.With(auth, sysmoder).Put("/reset", h.ResetProfile)
 				})
 			})
 		})

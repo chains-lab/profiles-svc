@@ -22,7 +22,7 @@ var _ MappedNullable = &ProfileData{}
 
 // ProfileData struct for ProfileData
 type ProfileData struct {
-	// user id
+	// account id
 	Id uuid.UUID `json:"id"`
 	Type string `json:"type"`
 	Attributes ProfileAttributes `json:"attributes"`

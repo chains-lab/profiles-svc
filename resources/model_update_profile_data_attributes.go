@@ -12,7 +12,6 @@ package resources
 
 import (
 	"encoding/json"
-	"time"
 )
 
 // checks if the UpdateProfileDataAttributes type satisfies the MappedNullable interface at compile time
@@ -26,10 +25,6 @@ type UpdateProfileDataAttributes struct {
 	Description *string `json:"description,omitempty"`
 	// Avatar URL
 	Avatar *string `json:"avatar,omitempty"`
-	// sex prikin'
-	Sex *string `json:"sex,omitempty"`
-	// Birthday
-	BirthDate *time.Time `json:"birth_date,omitempty"`
 }
 
 // NewUpdateProfileDataAttributes instantiates a new UpdateProfileDataAttributes object
@@ -145,70 +140,6 @@ func (o *UpdateProfileDataAttributes) SetAvatar(v string) {
 	o.Avatar = &v
 }
 
-// GetSex returns the Sex field value if set, zero value otherwise.
-func (o *UpdateProfileDataAttributes) GetSex() string {
-	if o == nil || IsNil(o.Sex) {
-		var ret string
-		return ret
-	}
-	return *o.Sex
-}
-
-// GetSexOk returns a tuple with the Sex field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *UpdateProfileDataAttributes) GetSexOk() (*string, bool) {
-	if o == nil || IsNil(o.Sex) {
-		return nil, false
-	}
-	return o.Sex, true
-}
-
-// HasSex returns a boolean if a field has been set.
-func (o *UpdateProfileDataAttributes) HasSex() bool {
-	if o != nil && !IsNil(o.Sex) {
-		return true
-	}
-
-	return false
-}
-
-// SetSex gets a reference to the given string and assigns it to the Sex field.
-func (o *UpdateProfileDataAttributes) SetSex(v string) {
-	o.Sex = &v
-}
-
-// GetBirthDate returns the BirthDate field value if set, zero value otherwise.
-func (o *UpdateProfileDataAttributes) GetBirthDate() time.Time {
-	if o == nil || IsNil(o.BirthDate) {
-		var ret time.Time
-		return ret
-	}
-	return *o.BirthDate
-}
-
-// GetBirthDateOk returns a tuple with the BirthDate field value if set, nil otherwise
-// and a boolean to check if the value has been set.
-func (o *UpdateProfileDataAttributes) GetBirthDateOk() (*time.Time, bool) {
-	if o == nil || IsNil(o.BirthDate) {
-		return nil, false
-	}
-	return o.BirthDate, true
-}
-
-// HasBirthDate returns a boolean if a field has been set.
-func (o *UpdateProfileDataAttributes) HasBirthDate() bool {
-	if o != nil && !IsNil(o.BirthDate) {
-		return true
-	}
-
-	return false
-}
-
-// SetBirthDate gets a reference to the given time.Time and assigns it to the BirthDate field.
-func (o *UpdateProfileDataAttributes) SetBirthDate(v time.Time) {
-	o.BirthDate = &v
-}
-
 func (o UpdateProfileDataAttributes) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
@@ -227,12 +158,6 @@ func (o UpdateProfileDataAttributes) ToMap() (map[string]interface{}, error) {
 	}
 	if !IsNil(o.Avatar) {
 		toSerialize["avatar"] = o.Avatar
-	}
-	if !IsNil(o.Sex) {
-		toSerialize["sex"] = o.Sex
-	}
-	if !IsNil(o.BirthDate) {
-		toSerialize["birth_date"] = o.BirthDate
 	}
 	return toSerialize, nil
 }

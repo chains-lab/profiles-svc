@@ -20,7 +20,7 @@ func (s Service) UpdateOfficial(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res, err := s.domain.Profile.UpdateOfficial(r.Context(), req.Data.Id, req.Data.Attributes.Official)
+	res, err := s.domain.UpdateProfileOfficial(r.Context(), req.Data.Id, req.Data.Attributes.Official)
 	if err != nil {
 		s.log.WithError(err).Errorf("failed to update official status")
 		switch {

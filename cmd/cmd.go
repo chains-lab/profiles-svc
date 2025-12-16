@@ -7,8 +7,8 @@ import (
 
 	"github.com/chains-lab/logium"
 	"github.com/chains-lab/profiles-svc/internal"
-	"github.com/chains-lab/profiles-svc/internal/data"
-	"github.com/chains-lab/profiles-svc/internal/domain/services/profile"
+	"github.com/chains-lab/profiles-svc/internal/domain"
+	"github.com/chains-lab/profiles-svc/internal/repo"
 	"github.com/chains-lab/profiles-svc/internal/rest/middlewares"
 
 	"github.com/chains-lab/profiles-svc/internal/rest"
@@ -29,9 +29,9 @@ func StartServices(ctx context.Context, cfg internal.Config, log logium.Logger, 
 		log.Fatal("failed to connect to database", "error", err)
 	}
 
-	database := data.NewDatabase(pg)
+	database := repo.New(pg)
 
-	profileSvc := profile.New(database)
+	profileSvc := domain.New(database)
 
 	ctrl := controller.New(log, profileSvc)
 	mdlv := middlewares.New(log)

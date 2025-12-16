@@ -7,8 +7,8 @@ import (
 
 	"github.com/chains-lab/ape"
 	"github.com/chains-lab/ape/problems"
-	"github.com/chains-lab/profiles-svc/internal/domain"
 	"github.com/chains-lab/profiles-svc/internal/domain/errx"
+	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	"github.com/chains-lab/profiles-svc/internal/rest/meta"
@@ -44,7 +44,7 @@ func (s Service) UpdateMyProfile(w http.ResponseWriter, r *http.Request) {
 		})...)
 	}
 
-	res, err := s.domain.UpdateProfile(r.Context(), initiator.ID, domain.UpdateProfileParams{
+	res, err := s.domain.UpdateProfile(r.Context(), initiator.ID, profile.UpdateParams{
 		Pseudonym:   req.Data.Attributes.Pseudonym,
 		Description: req.Data.Attributes.Description,
 		Avatar:      req.Data.Attributes.Avatar,

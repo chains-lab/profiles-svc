@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/chains-lab/profiles-svc/internal/domain"
 	"github.com/chains-lab/profiles-svc/internal/domain/entity"
+	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
 	"github.com/chains-lab/profiles-svc/internal/repo/pgdb"
 	"github.com/google/uuid"
 )
@@ -50,7 +50,7 @@ func (r *Repository) GetProfileByUsername(ctx context.Context, username string) 
 func (r *Repository) UpdateProfile(
 	ctx context.Context,
 	accountID uuid.UUID,
-	input domain.UpdateProfileParams,
+	input profile.UpdateParams,
 ) (entity.Profile, error) {
 	row, err := r.sql.UpdateProfile(ctx, pgdb.UpdateProfileParams{
 		AccountID: accountID,

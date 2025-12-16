@@ -6,7 +6,7 @@ import (
 
 	"github.com/chains-lab/ape"
 	"github.com/chains-lab/ape/problems"
-	"github.com/chains-lab/profiles-svc/internal/domain"
+	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
 	"github.com/chains-lab/profiles-svc/internal/rest/responses"
 	"github.com/chains-lab/restkit/pagi"
 )
@@ -15,7 +15,7 @@ func (s Service) FilterProfiles(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 	pag, size := pagi.GetPagination(r)
 
-	filters := domain.FilterParams{}
+	filters := profile.FilterParams{}
 
 	if usernameLike := strings.TrimSpace(q.Get("username_like")); usernameLike != "" {
 		filters.UsernamePrefix = &usernameLike

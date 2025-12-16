@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/chains-lab/profiles-svc/internal"
-	domain2 "github.com/chains-lab/profiles-svc/internal/domain"
+	domain2 "github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
 	"github.com/chains-lab/profiles-svc/internal/repo"
 )
 

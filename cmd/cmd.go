@@ -7,7 +7,7 @@ import (
 
 	"github.com/chains-lab/logium"
 	"github.com/chains-lab/profiles-svc/internal"
-	"github.com/chains-lab/profiles-svc/internal/domain"
+	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
 	"github.com/chains-lab/profiles-svc/internal/repo"
 	"github.com/chains-lab/profiles-svc/internal/rest/middlewares"
 
@@ -31,7 +31,7 @@ func StartServices(ctx context.Context, cfg internal.Config, log logium.Logger, 
 
 	database := repo.New(pg)
 
-	profileSvc := domain.New(database)
+	profileSvc := profile.New(database)
 
 	ctrl := controller.New(log, profileSvc)
 	mdlv := middlewares.New(log)

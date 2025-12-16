@@ -2,11 +2,14 @@ package consumer
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/chains-lab/logium"
+	"github.com/chains-lab/profiles-svc/internal/events/consumer/subscriber"
 	"github.com/chains-lab/profiles-svc/internal/events/contracts"
 	"github.com/google/uuid"
+	"github.com/segmentio/kafka-go"
 )
 
 type Service struct {
@@ -77,4 +80,28 @@ func (s *Service) Run(ctx context.Context) error {
 			}
 		}
 	}
+}
+
+// U need to remake callbacks, they must don't use domain, only save to inbox (they can use domain but not in our case)
+// and make 2 separate function to run - inbox reading and processing and kafka subscribing for topics
+
+type Callbacks interface {
+	UpdateEmployee(ctx context.Context, event kafka.Message) error
+	UpdateCityAdmin(ctx context.Context, event kafka.Message) error
+}
+
+func Run(ctx context.Context, log logium.Logger, addr string, cb Callbacks) {
+	var wg sync.WaitGroup
+
+	accountSub := subscriber.New(addr, contracts.AccountsTopicV1, contracts.GroupProfilesSvc)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := accountSub.Subscribe(ctx, "employee.update", cb.UpdateEmployee); err != nil {
+			log.Printf("employee listener stopped: %v", err)
+		}
+	}()
+
+	<-ctx.Done()
+	wg.Wait()
 }

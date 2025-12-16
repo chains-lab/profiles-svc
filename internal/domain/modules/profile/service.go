@@ -1,4 +1,4 @@
-package domain
+package profile
 
 import (
 	"context"
@@ -23,7 +23,7 @@ type database interface {
 	GetProfileByUserID(ctx context.Context, userID uuid.UUID) (entity.Profile, error)
 	GetProfileByUsername(ctx context.Context, username string) (entity.Profile, error)
 
-	UpdateProfile(ctx context.Context, userID uuid.UUID, params UpdateProfileParams) (entity.Profile, error)
+	UpdateProfile(ctx context.Context, userID uuid.UUID, params UpdateParams) (entity.Profile, error)
 
 	UpdateProfileUsername(ctx context.Context, userID uuid.UUID, username string) (entity.Profile, error)
 	UpdateProfileOfficial(ctx context.Context, userID uuid.UUID, official bool) (entity.Profile, error)

@@ -1,4 +1,4 @@
-package domain
+package profile
 
 import (
 	"context"
@@ -11,19 +11,19 @@ import (
 	"github.com/google/uuid"
 )
 
-type UpdateProfileParams struct {
+type UpdateParams struct {
 	Pseudonym   *string
 	Description *string
 	Avatar      *string
 }
 
-func (s Service) UpdateProfile(ctx context.Context, accountID uuid.UUID, input UpdateProfileParams) (entity.Profile, error) {
+func (s Service) UpdateProfile(ctx context.Context, accountID uuid.UUID, input UpdateParams) (entity.Profile, error) {
 	p, err := s.GetProfileByID(ctx, accountID)
 	if err != nil {
 		return entity.Profile{}, err
 	}
 
-	if input == (UpdateProfileParams{}) {
+	if input == (UpdateParams{}) {
 		return p, nil
 	}
 

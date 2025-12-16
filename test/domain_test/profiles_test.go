@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	domain2 "github.com/chains-lab/profiles-svc/internal/domain"
+	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
 	"github.com/chains-lab/profiles-svc/test"
 	"github.com/google/uuid"
 )
@@ -117,7 +118,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("UpdateProfileOfficial first to true: expected official true, got false")
 	}
 
-	list, err := s.domain.profile.Filter(ctx, domain2.FilterParams{
+	list, err := s.domain.profile.Filter(ctx, profile.FilterParams{
 		UserID: []uuid.UUID{firstID, secondID},
 	}, 0, 10)
 	if err != nil {
@@ -160,7 +161,7 @@ func TestProfiles(t *testing.T) {
 		t.Fatalf("UpdateProfile third: %v", err)
 	}
 
-	list, err = s.domain.profile.Filter(ctx, domain2.FilterParams{}, 0, 10)
+	list, err = s.domain.profile.Filter(ctx, profile.FilterParams{}, 0, 10)
 	if err != nil {
 		t.Fatalf("FilterProfiles all: %v", err)
 	}

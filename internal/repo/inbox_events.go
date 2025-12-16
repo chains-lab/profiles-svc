@@ -21,7 +21,7 @@ type CreateInboxEventParams struct {
 
 func (r *Repository) CreateInboxEvent(
 	ctx context.Context,
-	event contracts.InboxEvent,
+	event contracts.Message,
 ) error {
 	payloadBytes, err := json.Marshal(event.Payload)
 	if err != nil {

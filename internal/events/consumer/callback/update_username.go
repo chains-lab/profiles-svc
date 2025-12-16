@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/chains-lab/profiles-svc/internal/events/contracts"
 	"github.com/google/uuid"
 	"github.com/segmentio/kafka-go"
 )
@@ -24,7 +25,9 @@ type AccountUsernameChangePayload struct {
 	Email string `json:"email,omitempty"`
 }
 
-func (s Service) UpdateUsernameAccount(ctx context.Context, event kafka.Message) error {
+const AccountUsernameChangeEvent = "account.username.change"
+
+func (s Service) UpdateUsername(ctx context.Context, event kafka.Message) error {
 	var p AccountCreatedPayload
 
 	if len(event.Value) == 0 {
@@ -34,11 +37,16 @@ func (s Service) UpdateUsernameAccount(ctx context.Context, event kafka.Message)
 		return fmt.Errorf("unmarshal AccountCreatedPayload: %w", err)
 	}
 
-	profile, err := s.domain.UpdateProfileUsername(ctx, p.Account.ID, p.Account.Username)
+	err := s.inbox.CreateInboxEvent(ctx, contracts.Message{
+		Topic:        event.Topic,
+		EventType:    AccountUsernameChangeEvent,
+		EventVersion: 1,
+		Key:          p.Account.ID.String(),
+		Payload:      p,
+	})
 	if err != nil {
 		return err
 	}
 
-	s.log.Infof("Profile created successfully: %v", profile)
 	return nil
 }

@@ -16,11 +16,6 @@ type Service struct {
 }
 
 type inbox interface {
-	CreateInboxEvent(
-		ctx context.Context,
-		event contracts.InboxEvent,
-	) error
-
 	GetPendingInboxEvents(
 		ctx context.Context,
 		limit int32,

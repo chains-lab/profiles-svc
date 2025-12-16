@@ -17,23 +17,20 @@ type Domain interface {
 type Inbox interface {
 	CreateInboxEvent(
 		ctx context.Context,
-		event contracts.InboxEvent,
+		event contracts.Message,
 	) error
 }
 
 type Service struct {
 	domain Domain
+	inbox  Inbox
 	log    logium.Logger
 }
 
-func NewService(domain Domain) *Service {
+func NewService(log logium.Logger, inbox Inbox, domain Domain) *Service {
 	return &Service{
 		domain: domain,
+		inbox:  inbox,
+		log:    log,
 	}
 }
-
-//func decodeEnvelope[T any](b []byte) (events.Envelope[T], error) {
-//	var env events.Envelope[T]
-//	err := json.Unmarshal(b, &env)
-//	return env, err
-//}

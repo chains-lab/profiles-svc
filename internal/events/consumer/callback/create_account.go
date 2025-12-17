@@ -43,12 +43,6 @@ func (s Service) CreateAccount(ctx context.Context, event kafka.Message) error {
 
 	s.log.Infof("received create account event for account %s", string(event.Key))
 
-	eventID, err := uuid.Parse(string(event.Key))
-	if err != nil {
-		s.log.Errorf("invalid event key for account %s: %v", string(event.Key), err)
-		return nil
-	}
-
 	msg := contracts.Message{
 		Topic:        contracts.AccountsTopicV1,
 		EventType:    AccountCreatedEvent,
@@ -67,8 +61,8 @@ func (s Service) CreateAccount(ctx context.Context, event kafka.Message) error {
 	//	status = InboxStatusPending
 	//}
 
-	if err = s.inbox.CreateInboxEvent(ctx, contracts.InboxEvent{
-		ID:           eventID,
+	err := s.inbox.CreateInboxEvent(ctx, contracts.InboxEvent{
+		ID:           uuid.New(),
 		Topic:        msg.Topic,
 		EventType:    msg.EventType,
 		EventVersion: msg.EventVersion,
@@ -77,12 +71,11 @@ func (s Service) CreateAccount(ctx context.Context, event kafka.Message) error {
 		Status:       InboxStatusPending,
 		NextRetryAt:  time.Now().UTC(),
 		CreatedAt:    time.Now().UTC(),
-	}); err != nil {
+	})
+	if err != nil {
 		s.log.Errorf("failed to upsert inbox event for account %s: %v", string(event.Key), err)
 		return fmt.Errorf("failed to processing create account event for account %s: %w", string(event.Key), err)
 	}
-
-	s.log.Infof("successfully created inbox event for account %s (event %s)", string(event.Key), eventID)
 
 	return nil
 }

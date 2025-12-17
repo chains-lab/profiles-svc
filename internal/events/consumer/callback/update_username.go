@@ -36,12 +36,6 @@ func (s Service) UpdateUsername(ctx context.Context, event kafka.Message) error 
 	//	return fmt.Errorf("unmarshal AccountCreatedPayload: %w", err)
 	//}
 
-	eventID, err := uuid.Parse(string(event.Key))
-	if err != nil {
-		s.log.Errorf("invalid event key for account %s: %v", string(event.Key), err)
-		return nil
-	}
-
 	msg := contracts.Message{
 		Topic:        contracts.AccountsTopicV1,
 		EventType:    AccountUsernameChangeEvent,
@@ -61,8 +55,8 @@ func (s Service) UpdateUsername(ctx context.Context, event kafka.Message) error 
 	//	status = InboxStatusPending
 	//}
 
-	if err = s.inbox.CreateInboxEvent(ctx, contracts.InboxEvent{
-		ID:           eventID,
+	err := s.inbox.CreateInboxEvent(ctx, contracts.InboxEvent{
+		ID:           uuid.New(),
 		Topic:        msg.Topic,
 		EventType:    msg.EventType,
 		EventVersion: msg.EventVersion,
@@ -71,10 +65,11 @@ func (s Service) UpdateUsername(ctx context.Context, event kafka.Message) error 
 		Status:       InboxStatusPending,
 		NextRetryAt:  time.Now().UTC(),
 		CreatedAt:    time.Now().UTC(),
-	}); err != nil {
+	})
+	if err != nil {
 		s.log.Infof("failed to processed account username change for account %s", string(event.Key))
 		return fmt.Errorf("failed to processing account username change event for account %s: %w", string(event.Key), err)
 	}
 
-	return fmt.Errorf("create inbox event for account %s: %w", string(event.Key), err)
+	return nil
 }

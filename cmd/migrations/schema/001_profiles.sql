@@ -20,7 +20,7 @@ CREATE TYPE outbox_event_status AS ENUM (
 );
 
 CREATE TABLE outbox_events (
-    id            UUID  NOT NULL,
+    id            UUID  NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
     topic         TEXT  NOT NULL,
     event_type    TEXT  NOT NULL,
     event_version INT   NOT NULL,
@@ -32,9 +32,7 @@ CREATE TABLE outbox_events (
     next_retry_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     created_at    TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
-    sent_at       TIMESTAMPTZ NULL,
-
-    PRIMARY KEY (id, topic)
+    sent_at       TIMESTAMPTZ NULL
 );
 
 CREATE TYPE inbox_event_status AS ENUM (
@@ -44,7 +42,7 @@ CREATE TYPE inbox_event_status AS ENUM (
 );
 
 CREATE TABLE inbox_events (
-    id            UUID  NOT NULL,
+    id            UUID  NOT NULL PRIMARY KEY DEFAULT uuid_generate_v4(),
     topic         TEXT  NOT NULL,
     event_type    TEXT  NOT NULL,
     event_version INT   NOT NULL,
@@ -56,9 +54,7 @@ CREATE TABLE inbox_events (
     next_retry_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     created_at    TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
-    processed_at  TIMESTAMPTZ NULL,
-
-    PRIMARY KEY (id, topic)
+    processed_at  TIMESTAMPTZ NULL
 );
 
 

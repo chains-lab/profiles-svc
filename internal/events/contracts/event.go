@@ -1,6 +1,7 @@
 package contracts
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,7 +12,7 @@ type Message struct {
 	EventType    string
 	EventVersion uint
 	Key          string
-	Payload      interface{}
+	Payload      json.RawMessage
 }
 
 type OutboxEvent struct {
@@ -20,7 +21,7 @@ type OutboxEvent struct {
 	EventType    string
 	EventVersion uint
 	Key          string
-	Payload      interface{}
+	Payload      json.RawMessage
 	Status       string
 	Attempts     uint
 	NextRetryAt  time.Time
@@ -44,7 +45,7 @@ type InboxEvent struct {
 	EventType    string
 	EventVersion uint
 	Key          string
-	Payload      interface{}
+	Payload      json.RawMessage
 	Status       string
 	Attempts     uint
 	NextRetryAt  time.Time
@@ -60,4 +61,8 @@ func (e InboxEvent) ToMessage() Message {
 		Key:          e.Key,
 		Payload:      e.Payload,
 	}
+}
+
+func (e InboxEvent) IsNil() bool {
+	return e.ID == uuid.Nil
 }

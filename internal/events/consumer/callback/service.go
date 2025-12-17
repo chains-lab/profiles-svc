@@ -5,13 +5,19 @@ import (
 
 	"github.com/chains-lab/logium"
 	"github.com/chains-lab/profiles-svc/internal/events/contracts"
+	"github.com/google/uuid"
 )
 
 type Inbox interface {
 	CreateInboxEvent(
 		ctx context.Context,
-		event contracts.Message,
+		event contracts.InboxEvent,
 	) error
+
+	GetInboxEvent(
+		ctx context.Context,
+		id uuid.UUID,
+	) (contracts.InboxEvent, error)
 }
 
 type Service struct {

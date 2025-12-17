@@ -2,7 +2,6 @@ package callback
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -27,26 +26,63 @@ type AccountCreatedPayload struct {
 
 const AccountCreatedEvent = "account.created"
 
+const (
+	InboxStatusPending   = "pending"
+	InboxStatusProcessed = "processed"
+)
+
 func (s Service) CreateAccount(ctx context.Context, event kafka.Message) error {
-	var p AccountCreatedPayload
+	//var p AccountCreatedPayload
+	//
+	//if len(event.Value) == 0 {
+	//	return fmt.Errorf("empty kafka message value")
+	//}
+	//if err := json.Unmarshal(event.Value, &p); err != nil {
+	//	return fmt.Errorf("unmarshal AccountCreatedPayload: %w", err)
+	//}
 
-	if len(event.Value) == 0 {
-		return fmt.Errorf("empty kafka message value")
-	}
-	if err := json.Unmarshal(event.Value, &p); err != nil {
-		return fmt.Errorf("unmarshal AccountCreatedPayload: %w", err)
+	s.log.Infof("received create account event for account %s", string(event.Key))
+
+	eventID, err := uuid.Parse(string(event.Key))
+	if err != nil {
+		s.log.Errorf("invalid event key for account %s: %v", string(event.Key), err)
+		return nil
 	}
 
-	err := s.inbox.CreateInboxEvent(ctx, contracts.Message{
-		Topic:        event.Topic,
+	msg := contracts.Message{
+		Topic:        contracts.AccountsTopicV1,
 		EventType:    AccountCreatedEvent,
 		EventVersion: 1,
-		Key:          p.Account.ID.String(),
-		Payload:      p,
-	})
-	if err != nil {
-		return err
+		Key:          string(event.Key),
+		Payload:      event.Value,
 	}
+
+	//profile, err := s.domain.CreateProfile(ctx, p.Account.ID, p.Account.Username)
+	//if err != nil {
+	//	s.log.Errorf("failed to create profile for account %s: %v", p.Account.ID, err)
+	//}
+	//
+	//status := InboxStatusProcessed
+	//if profile.IsNil() {
+	//	status = InboxStatusPending
+	//}
+
+	if err = s.inbox.CreateInboxEvent(ctx, contracts.InboxEvent{
+		ID:           eventID,
+		Topic:        msg.Topic,
+		EventType:    msg.EventType,
+		EventVersion: msg.EventVersion,
+		Key:          msg.Key,
+		Payload:      msg.Payload,
+		Status:       InboxStatusPending,
+		NextRetryAt:  time.Now().UTC(),
+		CreatedAt:    time.Now().UTC(),
+	}); err != nil {
+		s.log.Errorf("failed to upsert inbox event for account %s: %v", string(event.Key), err)
+		return fmt.Errorf("failed to processing create account event for account %s: %w", string(event.Key), err)
+	}
+
+	s.log.Infof("successfully created inbox event for account %s (event %s)", string(event.Key), eventID)
 
 	return nil
 }

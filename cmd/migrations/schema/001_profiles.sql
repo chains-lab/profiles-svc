@@ -20,7 +20,7 @@ CREATE TYPE outbox_event_status AS ENUM (
 );
 
 CREATE TABLE outbox_events (
-    id            UUID  PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+    id            UUID  NOT NULL,
     topic         TEXT  NOT NULL,
     event_type    TEXT  NOT NULL,
     event_version INT   NOT NULL,
@@ -32,7 +32,9 @@ CREATE TABLE outbox_events (
     next_retry_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     created_at    TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
-    sent_at       TIMESTAMPTZ NULL
+    sent_at       TIMESTAMPTZ NULL,
+
+    PRIMARY KEY (id, topic)
 );
 
 CREATE TYPE inbox_event_status AS ENUM (
@@ -42,7 +44,7 @@ CREATE TYPE inbox_event_status AS ENUM (
 );
 
 CREATE TABLE inbox_events (
-    id            UUID  PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+    id            UUID  NOT NULL,
     topic         TEXT  NOT NULL,
     event_type    TEXT  NOT NULL,
     event_version INT   NOT NULL,
@@ -54,15 +56,16 @@ CREATE TABLE inbox_events (
     next_retry_at TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
 
     created_at    TIMESTAMPTZ NOT NULL DEFAULT (now() AT TIME ZONE 'UTC'),
-    processed_at  TIMESTAMPTZ NULL
+    processed_at  TIMESTAMPTZ NULL,
+
+    PRIMARY KEY (id, topic)
 );
 
 
 -- +migrate Down
-DROP TABLE IF EXISTS profiles CASCADE
-
+DROP TABLE IF EXISTS profiles CASCADE;
 DROP TABLE IF EXISTS outbox_events CASCADE;
-DROP TABLE IF EXISTS inbox_events CASCADE;;
+DROP TABLE IF EXISTS inbox_events CASCADE;
 
 DROP TYPE IF EXISTS outbox_event_status;
 DROP TYPE IF EXISTS inbox_event_status;

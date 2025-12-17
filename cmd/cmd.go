@@ -38,7 +38,7 @@ func StartServices(ctx context.Context, cfg internal.Config, log logium.Logger, 
 	ctrl := controller.New(log, profileSvc)
 	mdlv := middlewares.New(log)
 
-	kafkaConsumer := consumer.New(log, cfg.Kafka.Brokers, database, callback.NewService(log, database))
+	kafkaConsumer := consumer.New(log, cfg.Kafka.Brokers, database, callback.NewService(log, database), profileSvc)
 
 	run(func() { kafkaConsumer.Run(ctx) })
 	run(func() { kafkaConsumer.InboxWorker(ctx) })

@@ -25,7 +25,7 @@ jwt:
 
 kafka:
   brokers:
-    - "re-news-kafka:XXXX"
+    "re-news-kafka:XXXX"
 
 swagger:
   enabled: true

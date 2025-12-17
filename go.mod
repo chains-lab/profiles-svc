@@ -5,6 +5,7 @@ go 1.24.6
 toolchain go1.24.7
 
 require (
+	github.com/Masterminds/squirrel v1.5.4
 	github.com/alecthomas/kingpin v2.2.6+incompatible
 	github.com/chains-lab/ape v0.4.14
 	github.com/chains-lab/logium v0.1.2
@@ -30,6 +31,8 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/jsonapi v1.0.0 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
+	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
+	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pierrec/lz4/v4 v4.1.15 // indirect
 	github.com/sagikazarmark/locafero v0.11.0 // indirect

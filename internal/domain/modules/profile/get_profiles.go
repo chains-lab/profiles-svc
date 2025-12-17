@@ -10,7 +10,7 @@ import (
 )
 
 func (s Service) GetProfileByID(ctx context.Context, userID uuid.UUID) (entity.Profile, error) {
-	profile, err := s.db.GetProfileByUserID(ctx, userID)
+	profile, err := s.db.GetProfileByAccountID(ctx, userID)
 	if err != nil {
 		return entity.Profile{}, errx.ErrorInternal.Raise(
 			fmt.Errorf("getting profile for user '%s': %w", userID, err),

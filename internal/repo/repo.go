@@ -1,63 +1,27 @@
 package repo
 
 import (
-	"context"
 	"database/sql"
-	"fmt"
 
 	"github.com/chains-lab/profiles-svc/internal/repo/pgdb"
 )
 
 type Repository struct {
-	sql  *pgdb.Queries
-	pool *sql.DB
+	sql SqlDB
+}
+
+type SqlDB struct {
+	inbox    pgdb.InboxEventsQ
+	outbox   pgdb.OutboxEventsQ
+	profiles pgdb.ProfilesQ
 }
 
 func New(db *sql.DB) *Repository {
 	return &Repository{
-		sql:  pgdb.New(db),
-		pool: db,
+		sql: SqlDB{
+			inbox:    pgdb.NewInboxEventsQ(db),
+			outbox:   pgdb.NewOutboxEventsQ(db),
+			profiles: pgdb.NewProfilesQ(db),
+		},
 	}
-}
-
-type txKeyType struct{}
-
-var TxKey = txKeyType{}
-
-func TxFromCtx(ctx context.Context) (*sql.Tx, bool) {
-	tx, ok := ctx.Value(TxKey).(*sql.Tx)
-	return tx, ok
-}
-
-func (r *Repository) Transaction(ctx context.Context, fn func(ctx context.Context) error) error {
-	if _, ok := TxFromCtx(ctx); ok {
-		return fn(ctx)
-	}
-
-	tx, err := r.pool.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("failed to start transaction: %w", err)
-	}
-
-	ctxWithTx := context.WithValue(ctx, TxKey, tx)
-
-	defer func() {
-		if p := recover(); p != nil {
-			_ = tx.Rollback()
-			panic(p)
-		}
-		if err != nil {
-			_ = tx.Rollback()
-		}
-	}()
-
-	if err = fn(ctxWithTx); err != nil {
-		return err
-	}
-
-	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
-	}
-
-	return nil
 }

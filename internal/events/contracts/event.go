@@ -9,7 +9,7 @@ import (
 type Message struct {
 	Topic        string
 	EventType    string
-	EventVersion int32
+	EventVersion uint
 	Key          string
 	Payload      interface{}
 }
@@ -18,11 +18,11 @@ type OutboxEvent struct {
 	ID           uuid.UUID
 	Topic        string
 	EventType    string
-	EventVersion int32
+	EventVersion uint
 	Key          string
 	Payload      interface{}
 	Status       string
-	Attempts     int32
+	Attempts     uint
 	NextRetryAt  time.Time
 	CreatedAt    time.Time
 	SentAt       *time.Time
@@ -42,11 +42,11 @@ type InboxEvent struct {
 	ID           uuid.UUID
 	Topic        string
 	EventType    string
-	EventVersion int32
+	EventVersion uint
 	Key          string
 	Payload      interface{}
 	Status       string
-	Attempts     int32
+	Attempts     uint
 	NextRetryAt  time.Time
 	CreatedAt    time.Time
 	ProcessedAt  *time.Time

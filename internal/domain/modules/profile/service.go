@@ -20,7 +20,7 @@ func New(db database) Service {
 type database interface {
 	CreateProfile(ctx context.Context, userID uuid.UUID, username string) (entity.Profile, error)
 
-	GetProfileByUserID(ctx context.Context, userID uuid.UUID) (entity.Profile, error)
+	GetProfileByAccountID(ctx context.Context, userID uuid.UUID) (entity.Profile, error)
 	GetProfileByUsername(ctx context.Context, username string) (entity.Profile, error)
 
 	UpdateProfile(ctx context.Context, userID uuid.UUID, params UpdateParams) (entity.Profile, error)
@@ -30,16 +30,10 @@ type database interface {
 
 	DeleteProfile(ctx context.Context, userID uuid.UUID) error
 
-	FilterProfilesByUsername(
+	FilterProfiles(
 		ctx context.Context,
-		prefix string,
-		offset int32,
-		limit int32,
-	) (entity.ProfileCollection, error)
-	FilterProfilesByPseudonym(
-		ctx context.Context,
-		prefix string,
-		offset int32,
-		limit int32,
+		params FilterParams,
+		offset uint,
+		limit uint,
 	) (entity.ProfileCollection, error)
 }

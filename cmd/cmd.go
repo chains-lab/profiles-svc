@@ -8,6 +8,8 @@ import (
 	"github.com/chains-lab/logium"
 	"github.com/chains-lab/profiles-svc/internal"
 	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
+	"github.com/chains-lab/profiles-svc/internal/events/consumer"
+	"github.com/chains-lab/profiles-svc/internal/events/consumer/callback"
 	"github.com/chains-lab/profiles-svc/internal/repo"
 	"github.com/chains-lab/profiles-svc/internal/rest/middlewares"
 
@@ -35,6 +37,11 @@ func StartServices(ctx context.Context, cfg internal.Config, log logium.Logger, 
 
 	ctrl := controller.New(log, profileSvc)
 	mdlv := middlewares.New(log)
+
+	kafkaConsumer := consumer.New(log, cfg.Kafka.Brokers, database, callback.NewService(log, database))
+
+	run(func() { kafkaConsumer.Run(ctx) })
+	run(func() { kafkaConsumer.InboxWorker(ctx) })
 
 	run(func() { rest.Run(ctx, cfg, log, mdlv, ctrl) })
 }

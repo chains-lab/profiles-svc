@@ -12,7 +12,7 @@ import (
 )
 
 func (r *Repository) CreateProfile(ctx context.Context, userID uuid.UUID, username string) (entity.Profile, error) {
-	row, err := r.sql.CreateProfile(ctx, pgdb.CreateProfileParams{
+	res, err := r.sql.profiles.New().Insert(ctx, pgdb.Profile{
 		AccountID: userID,
 		Username:  username,
 	})
@@ -20,11 +20,11 @@ func (r *Repository) CreateProfile(ctx context.Context, userID uuid.UUID, userna
 		return entity.Profile{}, err
 	}
 
-	return row.ToEntity(), nil
+	return res.ToEntity(), nil
 }
 
-func (r *Repository) GetProfileByUserID(ctx context.Context, accountId uuid.UUID) (entity.Profile, error) {
-	row, err := r.sql.GetProfileByAccountID(ctx, accountId)
+func (r *Repository) GetProfileByAccountID(ctx context.Context, accountId uuid.UUID) (entity.Profile, error) {
+	row, err := r.sql.profiles.New().FilterAccountID(accountId).Get(ctx)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		return entity.Profile{}, nil
@@ -36,7 +36,7 @@ func (r *Repository) GetProfileByUserID(ctx context.Context, accountId uuid.UUID
 }
 
 func (r *Repository) GetProfileByUsername(ctx context.Context, username string) (entity.Profile, error) {
-	row, err := r.sql.GetProfileByUsername(ctx, username)
+	row, err := r.sql.profiles.New().FilterUsername(username).Get(ctx)
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		return entity.Profile{}, nil
@@ -52,71 +52,68 @@ func (r *Repository) UpdateProfile(
 	accountID uuid.UUID,
 	input profile.UpdateParams,
 ) (entity.Profile, error) {
-	row, err := r.sql.UpdateProfile(ctx, pgdb.UpdateProfileParams{
-		AccountID: accountID,
-		Pseudonym: sql.NullString{
-			String: *input.Pseudonym,
-			Valid:  input.Pseudonym == nil,
-		},
-		Description: sql.NullString{
-			String: *input.Description,
-			Valid:  input.Description == nil,
-		},
-		Avatar: sql.NullString{
-			String: *input.Avatar,
-			Valid:  input.Avatar == nil,
-		},
-	})
+	q := r.sql.profiles.New().FilterAccountID(accountID)
+
+	if input.Pseudonym != nil {
+		q = q.UpdatePseudonym(input.Pseudonym)
+	}
+	if input.Description != nil {
+		q = q.UpdateDescription(input.Description)
+	}
+	if input.Avatar != nil {
+		q = q.UpdateAvatar(input.Avatar)
+	}
+
+	res, err := q.UpdateOne(ctx)
 	if err != nil {
 		return entity.Profile{}, err
 	}
 
-	return row.ToEntity(), nil
+	return res.ToEntity(), nil
 }
 
 func (r *Repository) UpdateProfileUsername(
 	ctx context.Context,
-	userID uuid.UUID,
+	accountID uuid.UUID,
 	username string,
 ) (entity.Profile, error) {
-	row, err := r.sql.UpdateProfileUsername(ctx, pgdb.UpdateProfileUsernameParams{
-		AccountID: userID,
-		Username:  username,
-	})
+	res, err := r.sql.profiles.New().
+		FilterAccountID(accountID).
+		UpdateUsername(username).
+		UpdateOne(ctx)
 	if err != nil {
 		return entity.Profile{}, err
 	}
 
-	return row.ToEntity(), nil
+	return res.ToEntity(), nil
 }
 
 func (r *Repository) UpdateProfileOfficial(
 	ctx context.Context,
-	userID uuid.UUID,
+	accountID uuid.UUID,
 	official bool,
 ) (entity.Profile, error) {
-	row, err := r.sql.UpdateProfileOfficial(ctx, pgdb.UpdateProfileOfficialParams{
-		AccountID: userID,
-		Official:  official,
-	})
+	res, err := r.sql.profiles.New().
+		FilterAccountID(accountID).
+		UpdateOfficial(official).
+		UpdateOne(ctx)
 	if err != nil {
 		return entity.Profile{}, err
 	}
 
-	return row.ToEntity(), nil
+	return res.ToEntity(), nil
 }
 
 func (r *Repository) FilterProfilesByUsername(
 	ctx context.Context,
 	prefix string,
-	offset int32,
-	limit int32,
+	offset uint,
+	limit uint,
 ) (entity.ProfileCollection, error) {
-	rows, err := r.sql.ListProfilesByUsername(ctx, pgdb.ListProfilesByUsernameParams{
-		Prefix: prefix,
-		Offset: offset,
-		Limit:  limit,
-	})
+	rows, err := r.sql.profiles.New().
+		FilterLikeUsername(prefix).
+		Page(limit, offset).
+		Select(ctx)
 	if err != nil {
 		return entity.ProfileCollection{}, err
 	}
@@ -128,22 +125,27 @@ func (r *Repository) FilterProfilesByUsername(
 
 	return entity.ProfileCollection{
 		Data: collection,
-		Page: int32(offset/limit) + 1,
-		Size: int32(len(collection)),
+		Page: uint(offset/limit) + 1,
+		Size: uint(len(collection)),
 	}, nil
 }
 
-func (r *Repository) FilterProfilesByPseudonym(
+func (r *Repository) FilterProfiles(
 	ctx context.Context,
-	prefix string,
-	offset int32,
-	limit int32,
+	params profile.FilterParams,
+	offset uint,
+	limit uint,
 ) (entity.ProfileCollection, error) {
-	rows, err := r.sql.ListProfilesByPseudonym(ctx, pgdb.ListProfilesByPseudonymParams{
-		Prefix: prefix,
-		Offset: offset,
-		Limit:  limit,
-	})
+	q := r.sql.profiles.New()
+
+	if params.PseudonymPrefix != nil {
+		q = q.FilterLikePseudonym(*params.PseudonymPrefix)
+	}
+	if params.UsernamePrefix != nil {
+		q = q.FilterLikeUsername(*params.UsernamePrefix)
+	}
+
+	rows, err := q.Page(limit, offset).Select(ctx)
 	if err != nil {
 		return entity.ProfileCollection{}, err
 	}
@@ -155,11 +157,11 @@ func (r *Repository) FilterProfilesByPseudonym(
 
 	return entity.ProfileCollection{
 		Data: collection,
-		Page: int32(offset/limit) + 1,
-		Size: int32(len(collection)),
+		Page: uint(offset/limit) + 1,
+		Size: uint(len(collection)),
 	}, nil
 }
 
-func (r *Repository) DeleteProfile(ctx context.Context, userID uuid.UUID) error {
-	return r.sql.DeleteProfile(ctx, userID)
+func (r *Repository) DeleteProfile(ctx context.Context, accountID uuid.UUID) error {
+	return r.sql.profiles.New().FilterAccountID(accountID).Delete(ctx)
 }

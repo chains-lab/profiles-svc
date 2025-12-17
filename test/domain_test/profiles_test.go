@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	domain2 "github.com/chains-lab/profiles-svc/internal/domain"
 	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
 	"github.com/chains-lab/profiles-svc/test"
 	"github.com/google/uuid"
@@ -39,20 +38,20 @@ func TestProfiles(t *testing.T) {
 
 	first, err = s.domain.profile.GetProfileByID(ctx, firstID)
 	if err != nil {
-		t.Fatalf("GetProfileByUserID first: %v", err)
+		t.Fatalf("GetProfileByAccountID first: %v", err)
 	}
 
 	if first.UserID != firstID {
-		t.Fatalf("GetProfileByUserID first: expected ID %v, got %v", firstID, first.UserID)
+		t.Fatalf("GetProfileByAccountID first: expected ID %v, got %v", firstID, first.UserID)
 	}
 
 	second, err = s.domain.profile.GetProfileByID(ctx, secondID)
 	if err != nil {
-		t.Fatalf("GetProfileByUserID second: %v", err)
+		t.Fatalf("GetProfileByAccountID second: %v", err)
 	}
 
 	if second.UserID != secondID {
-		t.Fatalf("GetProfileByUserID second: expected ID %v, got %v", secondID, second.UserID)
+		t.Fatalf("GetProfileByAccountID second: expected ID %v, got %v", secondID, second.UserID)
 	}
 
 	avatar := "avatar"

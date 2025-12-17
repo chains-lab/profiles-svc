@@ -2,6 +2,7 @@ package consumer
 
 import (
 	"context"
+	"log"
 	"sync"
 	"time"
 
@@ -13,15 +14,21 @@ import (
 )
 
 type Service struct {
-	addr  string
-	inbox inbox
-	log   logium.Logger
+	addr      string
+	inbox     inbox
+	callbacks Callbacks
+	log       logium.Logger
+}
+
+type Callbacks interface {
+	CreateAccount(ctx context.Context, event kafka.Message) error
+	UpdateUsername(ctx context.Context, event kafka.Message) error
 }
 
 type inbox interface {
 	GetPendingInboxEvents(
 		ctx context.Context,
-		limit int32,
+		limit uint,
 	) ([]contracts.InboxEvent, error)
 
 	MarkInboxEventsAsProcessed(
@@ -36,18 +43,43 @@ type inbox interface {
 	) error
 }
 
-func New(log logium.Logger, addr string, inbox inbox) *Service {
+func New(log logium.Logger, addr string, inbox inbox, callbacks Callbacks) *Service {
 	return &Service{
-		addr:  addr,
-		inbox: inbox,
-		log:   log,
+		addr:      addr,
+		inbox:     inbox,
+		log:       log,
+		callbacks: callbacks,
 	}
 }
 
 const eventInboxRetryDelay = 1 * time.Minute
 
-func (s *Service) Run(ctx context.Context) error {
+func (s Service) Run(ctx context.Context) {
+	var wg sync.WaitGroup
+
+	accountSub := subscriber.New(s.addr, contracts.AccountsTopicV1, contracts.GroupProfilesSvc)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := accountSub.Subscribe(ctx, "account.create", s.callbacks.CreateAccount); err != nil {
+			log.Printf("create account listener stopped: %v", err)
+		}
+	}()
+
+	usernameSub := subscriber.New(s.addr, contracts.AccountsTopicV1, contracts.GroupProfilesSvc)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := usernameSub.Subscribe(ctx, "account.username.change", s.callbacks.UpdateUsername); err != nil {
+			log.Printf("update username listener stopped: %v", err)
+		}
+	}()
+
 	s.log.Info("starting events consumer", "addr", s.addr)
+}
+
+func (s Service) InboxWorker(ctx context.Context) {
+	var wg sync.WaitGroup
 
 	for {
 		events, err := s.inbox.GetPendingInboxEvents(ctx, 10)
@@ -74,29 +106,8 @@ func (s *Service) Run(ctx context.Context) error {
 				continue
 			}
 		}
+
+		<-ctx.Done()
+		wg.Wait()
 	}
-}
-
-// U need to remake callbacks, they must don't use domain, only save to inbox (they can use domain but not in our case)
-// and make 2 separate function to run - inbox reading and processing and kafka subscribing for topics
-
-type Callbacks interface {
-	UpdateEmployee(ctx context.Context, event kafka.Message) error
-	UpdateCityAdmin(ctx context.Context, event kafka.Message) error
-}
-
-func Run(ctx context.Context, log logium.Logger, addr string, cb Callbacks) {
-	var wg sync.WaitGroup
-
-	accountSub := subscriber.New(addr, contracts.AccountsTopicV1, contracts.GroupProfilesSvc)
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		if err := accountSub.Subscribe(ctx, "employee.update", cb.UpdateEmployee); err != nil {
-			log.Printf("employee listener stopped: %v", err)
-		}
-	}()
-
-	<-ctx.Done()
-	wg.Wait()
 }

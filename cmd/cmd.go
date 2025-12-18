@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"sync"
 
+	"github.com/chains-lab/kafkakit/box"
 	"github.com/chains-lab/logium"
 	"github.com/chains-lab/profiles-svc/internal"
 	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
@@ -32,16 +33,19 @@ func StartServices(ctx context.Context, cfg internal.Config, log logium.Logger, 
 	}
 
 	database := repo.New(pg)
+	kafkaBox := box.New(pg)
 
 	profileSvc := profile.New(database)
 
 	ctrl := controller.New(log, profileSvc)
 	mdlv := middlewares.New(log)
 
-	kafkaConsumer := consumer.New(log, cfg.Kafka.Brokers, database, callback.NewService(log, database), profileSvc)
+	kafkaConsumer := consumer.New(log, cfg.Kafka.Brokers, callback.NewService(log, kafkaBox))
+	kafkaInboxWorker := consumer.NewInboxWorker(log, kafkaBox, profileSvc)
 
 	run(func() { kafkaConsumer.Run(ctx) })
-	run(func() { kafkaConsumer.InboxWorker(ctx) })
+
+	run(func() { kafkaInboxWorker.Run(ctx) })
 
 	run(func() { rest.Run(ctx, cfg, log, mdlv, ctrl) })
 }

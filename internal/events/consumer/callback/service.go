@@ -3,15 +3,17 @@ package callback
 import (
 	"context"
 
+	"github.com/chains-lab/kafkakit/box"
 	"github.com/chains-lab/logium"
-	"github.com/chains-lab/profiles-svc/internal/events/contracts"
+	"github.com/segmentio/kafka-go"
 )
 
 type Inbox interface {
 	CreateInboxEvent(
 		ctx context.Context,
-		event contracts.InboxEvent,
-	) error
+		status string,
+		message kafka.Message,
+	) (box.InboxEvent, error)
 }
 
 type Service struct {

@@ -35,7 +35,7 @@ type DatabaseConfig struct {
 }
 
 type KafkaConfig struct {
-	Brokers string `mapstructure:"brokers"`
+	Brokers []string `mapstructure:"brokers"`
 }
 
 type JWTConfig struct {

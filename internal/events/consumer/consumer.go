@@ -50,7 +50,7 @@ func (s Service) Run(ctx context.Context) {
 			}
 		})
 		if err != nil {
-			s.log.Printf("accounts consumer stopped: %v", err)
+			s.log.Warnf("accounts consumer stopped: %v", err)
 		}
 	}()
 }

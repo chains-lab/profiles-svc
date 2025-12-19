@@ -78,7 +78,7 @@ func (w InboxWorker) Run(ctx context.Context) {
 
 		events, err := w.inbox.GetPendingInboxEvents(ctx, 10)
 		if err != nil {
-			w.log.Error("failed to get pending inbox events", "error", err)
+			w.log.Errorf("failed to get pending inbox events, cause: %v", err)
 			continue
 		}
 		if len(events) == 0 {
@@ -93,7 +93,7 @@ func (w InboxWorker) Run(ctx context.Context) {
 
 			key, err := uuid.Parse(ev.Key)
 			if err != nil {
-				w.log.Error("invalid inbox event key", "id", ev.ID, "error", err)
+				w.log.Errorf("bad inbox event key, id: %s, key: %s, error: %v", ev.ID, ev.Key, err)
 				processed = append(processed, ev.ID)
 				continue
 			}
@@ -102,13 +102,13 @@ func (w InboxWorker) Run(ctx context.Context) {
 			case contracts.AccountCreatedEvent:
 				var p contracts.AccountCreatedPayload
 				if err = json.Unmarshal(ev.Payload, &p); err != nil {
-					w.log.Error("bad payload for account.create", "id", ev.ID, "error", err)
+					w.log.Errorf("bad payload for %s, id: %s, error: %v", ev.Type, ev.ID, err)
 					processed = append(processed, ev.ID)
 					continue
 				}
 
 				if _, err = w.domain.CreateProfile(ctx, key, p.Account.Username); err != nil {
-					w.log.Error("failed to create profile", "id", ev.ID, "error", err)
+					w.log.Errorf("failed to create profile, id: %s, error: %v", ev.ID, err)
 					delayed = append(delayed, ev.ID)
 					continue
 				}
@@ -117,20 +117,20 @@ func (w InboxWorker) Run(ctx context.Context) {
 			case contracts.AccountUsernameChangeEvent:
 				var p contracts.AccountUsernameChangePayload
 				if err = json.Unmarshal(ev.Payload, &p); err != nil {
-					w.log.Error("bad payload for account.username.change", "id", ev.ID, "error", err)
+					w.log.Errorf("bad payload for %s, id: %s, error: %v", ev.Type, ev.ID, err)
 					processed = append(processed, ev.ID)
 					continue
 				}
 
 				if _, err = w.domain.UpdateProfileUsername(ctx, key, p.Account.Username); err != nil {
-					w.log.Error("failed to update username", "id", ev.ID, "error", err)
+					w.log.Errorf("failed to update profile username, id: %s, error: %v", ev.ID, err)
 					delayed = append(delayed, ev.ID)
 					continue
 				}
 				processed = append(processed, ev.ID)
 
 			default:
-				w.log.Warn("unknown inbox event type", "id", ev.ID, "type", ev.Type)
+				w.log.Warnf("unknown inbox event type: %s, id: %s", ev.Type, ev.ID)
 				processed = append(processed, ev.ID)
 			}
 		}
@@ -138,14 +138,14 @@ func (w InboxWorker) Run(ctx context.Context) {
 		if len(processed) > 0 {
 			_, err = w.inbox.MarkInboxEventsAsProcessed(ctx, processed)
 			if err != nil {
-				w.log.Error("failed to mark inbox events as processed", "error", err)
+				w.log.Errorf("failed to mark inbox events as processed, ids: %v, error: %v", processed, err)
 			}
 		}
 
 		if len(delayed) > 0 {
 			_, err = w.inbox.MarkInboxEventsAsPending(ctx, delayed, eventInboxRetryDelay)
 			if err != nil {
-				w.log.Error("failed to delay inbox events", "error", err)
+				w.log.Errorf("failed to delay inbox events, ids: %v, error: %v", delayed, err)
 			}
 		}
 	}

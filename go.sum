@@ -12,6 +12,8 @@ github.com/chains-lab/ape v0.4.14 h1:isWDFutXAf13FOE5eCd0kp1UXynB90CebT97iaJp8Ps
 github.com/chains-lab/ape v0.4.14/go.mod h1:1xFb/pocztb1NW6ghAMJxuez/nausXgnHs+68pCzolI=
 github.com/chains-lab/kafkakit v0.1.5 h1:I25sUOeIbkpzQq2NRpigOZ+uezCXSrwUWYdU87oLTOs=
 github.com/chains-lab/kafkakit v0.1.5/go.mod h1:poWf8ETN2x2vZk8OrWvPkAuQRKukNfsNZ0ge+gkQlTo=
+github.com/chains-lab/kafkakit v0.1.6 h1:EmL3kXNPkzd7bJkS7qIkWxtZHLjUqJiPKLnJNEKSEkw=
+github.com/chains-lab/kafkakit v0.1.6/go.mod h1:poWf8ETN2x2vZk8OrWvPkAuQRKukNfsNZ0ge+gkQlTo=
 github.com/chains-lab/logium v0.1.2 h1:qRG3MHRJdjNw14G6QrbPVMJR4TCVR2XY+9+Z/p0dxw0=
 github.com/chains-lab/logium v0.1.2/go.mod h1:TH/XJsvzOgSykI7adeU7AzYezai60EFFtzWC84ycLCU=
 github.com/chains-lab/restkit v0.4.1 h1://vTi1JbP1uWHq2WjT5s6c/MzIY6aZBK98Sm3wAhgl4=

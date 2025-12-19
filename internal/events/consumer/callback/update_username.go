@@ -11,7 +11,7 @@ import (
 func (s Service) UpdateUsername(ctx context.Context, event kafka.Message) error {
 	_, err := s.inbox.CreateInboxEvent(ctx, box.InboxStatusPending, event)
 	if err != nil {
-		s.log.Infof("failed to processed account username change for account %s", string(event.Key))
+		s.log.Errorf("failed to processed account username change for account %s", string(event.Key))
 		return fmt.Errorf("failed to processing account username change event for account %s: %w", string(event.Key), err)
 	}
 

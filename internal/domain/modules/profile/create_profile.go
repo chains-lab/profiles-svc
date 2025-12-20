@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/chains-lab/profiles-svc/internal/domain/entity"
-	"github.com/chains-lab/profiles-svc/internal/domain/errx"
 	"github.com/google/uuid"
+	"github.com/umisto/profiles-svc/internal/domain/entity"
+	"github.com/umisto/profiles-svc/internal/domain/errx"
 )
 
 func (s Service) CreateProfile(ctx context.Context, userID uuid.UUID, username string) (entity.Profile, error) {

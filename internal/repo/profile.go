@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/chains-lab/profiles-svc/internal/domain/entity"
-	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
-	"github.com/chains-lab/profiles-svc/internal/repo/pgdb"
 	"github.com/google/uuid"
+	"github.com/umisto/profiles-svc/internal/domain/entity"
+	"github.com/umisto/profiles-svc/internal/domain/modules/profile"
+	"github.com/umisto/profiles-svc/internal/repo/pgdb"
 )
 
 func (r *Repository) CreateProfile(ctx context.Context, userID uuid.UUID, username string) (entity.Profile, error) {

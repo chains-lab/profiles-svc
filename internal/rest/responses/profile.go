@@ -1,8 +1,8 @@
 package responses
 
 import (
-	"github.com/chains-lab/profiles-svc/internal/domain/entity"
-	"github.com/chains-lab/profiles-svc/resources"
+	"github.com/umisto/profiles-svc/internal/domain/entity"
+	"github.com/umisto/profiles-svc/resources"
 )
 
 func Profile(m entity.Profile) resources.Profile {

@@ -6,9 +6,9 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/chains-lab/profiles-svc/internal/domain/entity"
-	"github.com/chains-lab/profiles-svc/internal/domain/errx"
 	"github.com/google/uuid"
+	"github.com/umisto/profiles-svc/internal/domain/entity"
+	"github.com/umisto/profiles-svc/internal/domain/errx"
 )
 
 type UpdateParams struct {

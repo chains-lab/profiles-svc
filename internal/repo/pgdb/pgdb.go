@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/chains-lab/profiles-svc/internal/domain/entity"
+	"github.com/umisto/profiles-svc/internal/domain/entity"
 )
 
 type txKeyType struct{}

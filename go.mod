@@ -1,14 +1,10 @@
-module github.com/chains-lab/profiles-svc
+module github.com/umisto/profiles-svc
 
 go 1.25.4
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/alecthomas/kingpin v2.2.6+incompatible
-	github.com/chains-lab/ape v0.4.14
-	github.com/chains-lab/kafkakit v0.1.6
-	github.com/chains-lab/logium v0.1.2
-	github.com/chains-lab/restkit v0.4.1
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/google/uuid v1.6.0
@@ -18,6 +14,10 @@ require (
 	github.com/segmentio/kafka-go v0.4.49
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.21.0
+	github.com/umisto/ape v0.4.15
+	github.com/umisto/kafkakit v0.1.7
+	github.com/umisto/logium v0.1.4
+	github.com/umisto/restkit v0.4.2
 )
 
 require (

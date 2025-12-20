@@ -5,17 +5,17 @@ import (
 	"database/sql"
 	"sync"
 
-	"github.com/chains-lab/kafkakit/box"
-	"github.com/chains-lab/logium"
-	"github.com/chains-lab/profiles-svc/internal"
-	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
-	"github.com/chains-lab/profiles-svc/internal/events/consumer"
-	"github.com/chains-lab/profiles-svc/internal/events/consumer/callback"
-	"github.com/chains-lab/profiles-svc/internal/repo"
-	"github.com/chains-lab/profiles-svc/internal/rest/middlewares"
+	"github.com/umisto/kafkakit/box"
+	"github.com/umisto/logium"
+	"github.com/umisto/profiles-svc/internal"
+	"github.com/umisto/profiles-svc/internal/domain/modules/profile"
+	"github.com/umisto/profiles-svc/internal/events/consumer"
+	"github.com/umisto/profiles-svc/internal/events/consumer/callback"
+	"github.com/umisto/profiles-svc/internal/repo"
+	"github.com/umisto/profiles-svc/internal/rest/middlewares"
 
-	"github.com/chains-lab/profiles-svc/internal/rest"
-	"github.com/chains-lab/profiles-svc/internal/rest/controller"
+	"github.com/umisto/profiles-svc/internal/rest"
+	"github.com/umisto/profiles-svc/internal/rest/controller"
 )
 
 func StartServices(ctx context.Context, cfg internal.Config, log logium.Logger, wg *sync.WaitGroup) {

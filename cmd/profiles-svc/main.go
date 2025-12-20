@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/chains-lab/profiles-svc/cmd/cli"
+	"github.com/umisto/profiles-svc/cmd/cli"
 )
 
 func main() {

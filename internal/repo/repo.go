@@ -3,7 +3,7 @@ package repo
 import (
 	"database/sql"
 
-	"github.com/chains-lab/profiles-svc/internal/repo/pgdb"
+	"github.com/umisto/profiles-svc/internal/repo/pgdb"
 )
 
 type Repository struct {

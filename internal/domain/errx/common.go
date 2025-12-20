@@ -1,5 +1,5 @@
 package errx
 
-import "github.com/chains-lab/ape"
+import "github.com/umisto/ape"
 
 var ErrorInternal = ape.DeclareError("INTERNAL_ERROR")

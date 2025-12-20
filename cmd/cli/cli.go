@@ -8,10 +8,10 @@ import (
 	"syscall"
 
 	"github.com/alecthomas/kingpin"
-	"github.com/chains-lab/logium"
-	"github.com/chains-lab/profiles-svc/cmd"
-	"github.com/chains-lab/profiles-svc/cmd/migrations"
-	"github.com/chains-lab/profiles-svc/internal"
+	"github.com/umisto/logium"
+	"github.com/umisto/profiles-svc/cmd"
+	"github.com/umisto/profiles-svc/cmd/migrations"
+	"github.com/umisto/profiles-svc/internal"
 
 	"github.com/sirupsen/logrus"
 )

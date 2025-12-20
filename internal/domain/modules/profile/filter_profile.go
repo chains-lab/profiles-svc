@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/chains-lab/profiles-svc/internal/domain/entity"
-	"github.com/chains-lab/profiles-svc/internal/domain/errx"
+	"github.com/umisto/profiles-svc/internal/domain/entity"
+	"github.com/umisto/profiles-svc/internal/domain/errx"
 )
 
 type FilterParams struct {

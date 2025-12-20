@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/chains-lab/profiles-svc/resources"
 	"github.com/go-chi/chi/v5"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/umisto/profiles-svc/resources"
 )
 
 func newDecodeError(what string, err error) error {

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/chains-lab/profiles-svc/resources"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/umisto/profiles-svc/resources"
 )
 
 func UpdateProfile(r *http.Request) (req resources.UpdateProfile, err error) {

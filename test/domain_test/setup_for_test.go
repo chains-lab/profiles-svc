@@ -5,9 +5,9 @@ import (
 	"log"
 	"testing"
 
-	"github.com/chains-lab/profiles-svc/internal"
-	domain2 "github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
-	"github.com/chains-lab/profiles-svc/internal/repo"
+	"github.com/umisto/profiles-svc/internal"
+	domain2 "github.com/umisto/profiles-svc/internal/domain/modules/profile"
+	"github.com/umisto/profiles-svc/internal/repo"
 )
 
 // TEST DATABASE CONNECTION

@@ -3,8 +3,8 @@ package profile
 import (
 	"context"
 
-	"github.com/chains-lab/profiles-svc/internal/domain/entity"
 	"github.com/google/uuid"
+	"github.com/umisto/profiles-svc/internal/domain/entity"
 )
 
 type Service struct {

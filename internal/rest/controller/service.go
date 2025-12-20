@@ -3,10 +3,10 @@ package controller
 import (
 	"context"
 
-	"github.com/chains-lab/logium"
-	"github.com/chains-lab/profiles-svc/internal/domain/entity"
-	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
 	"github.com/google/uuid"
+	"github.com/umisto/logium"
+	"github.com/umisto/profiles-svc/internal/domain/entity"
+	"github.com/umisto/profiles-svc/internal/domain/modules/profile"
 )
 
 type Domain interface {

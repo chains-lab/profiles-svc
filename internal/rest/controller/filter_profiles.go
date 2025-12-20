@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/chains-lab/ape"
-	"github.com/chains-lab/ape/problems"
-	"github.com/chains-lab/profiles-svc/internal/domain/modules/profile"
-	"github.com/chains-lab/profiles-svc/internal/rest/responses"
-	"github.com/chains-lab/restkit/pagi"
+	"github.com/umisto/ape"
+	"github.com/umisto/ape/problems"
+	"github.com/umisto/profiles-svc/internal/domain/modules/profile"
+	"github.com/umisto/profiles-svc/internal/rest/responses"
+	"github.com/umisto/restkit/pagi"
 )
 
 func (s Service) FilterProfiles(w http.ResponseWriter, r *http.Request) {

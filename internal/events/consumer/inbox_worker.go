@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/chains-lab/kafkakit/box"
-	"github.com/chains-lab/logium"
-	"github.com/chains-lab/profiles-svc/internal/domain/entity"
-	"github.com/chains-lab/profiles-svc/internal/events/contracts"
 	"github.com/google/uuid"
+	"github.com/umisto/kafkakit/box"
+	"github.com/umisto/logium"
+	"github.com/umisto/profiles-svc/internal/domain/entity"
+	"github.com/umisto/profiles-svc/internal/events/contracts"
 )
 
 type InboxWorker struct {
